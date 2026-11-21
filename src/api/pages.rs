@@ -511,8 +511,8 @@ nav.sort button[data-sort] {
   border-radius: 999px;
   color: var(--muted);
   text-decoration: none;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid var(--line);
+  background: white;
   font: inherit;
   cursor: pointer;
   line-height: 1.2;
@@ -650,29 +650,37 @@ nav.sort button[data-sort]:focus-visible {
 
 .about-actions a.secondary:hover { background: var(--accent-mid); }
 
-/* Side rail: outside the article column so reading flow stays clean. */
+/*
+  Main column keeps a fixed max width. The ad uses leftover space on the right
+  only — it never overlays main and never shrinks it.
+*/
 .page-shell {
   display: grid;
-  grid-template-columns: 1fr min(860px, calc(100% - 32px)) 1fr;
+  grid-template-columns: 1fr min(860px, 100%) minmax(120px, 300px);
+  column-gap: 20px;
   align-items: start;
-  column-gap: 12px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
 }
 
 .page-shell > main {
   grid-column: 2;
   width: 100%;
+  max-width: 860px;
   margin: 28px 0 64px;
 }
 
 .site-ad-rail {
   grid-column: 3;
-  justify-self: start;
   position: sticky;
   top: 96px;
-  width: 160px;
-  margin: 96px 12px 48px 0;
+  width: 100%;
+  max-width: 300px;
+  margin: 96px 0 48px;
   padding: 0;
   align-self: start;
+  /* Stay in its own column — never cover main. */
+  z-index: 0;
 }
 
 .site-ad-label {
@@ -687,9 +695,8 @@ nav.sort button[data-sort]:focus-visible {
 }
 
 .site-ad-slot {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  display: block;
+  width: 100%;
   min-height: 0;
   overflow: hidden;
   border-radius: 10px;
@@ -697,17 +704,19 @@ nav.sort button[data-sort]:focus-visible {
   border: 0;
 }
 
+.site-ad-slot .adsbygoogle,
 .site-ad-slot > * {
-  max-width: 160px;
+  width: 100% !important;
+  max-width: 100%;
 }
 
-/* No side room → hide the rail entirely (no in-content pollution). */
-@media (max-width: 1199px) {
+/* Not enough room for main + side → hide the ad, keep main centered. */
+@media (max-width: 1099px) {
   .page-shell {
     display: block;
+    width: min(860px, calc(100% - 32px));
   }
   .page-shell > main {
-    width: min(860px, calc(100% - 32px));
     margin: 28px auto 64px;
   }
   .site-ad-rail {
@@ -765,14 +774,14 @@ const DONATE_ETH: Option<&str> = None;
 const DONATE_XMR: Option<&str> = None;
 /// AdSense publisher client (`ca-pub-…`). Loaded only when the side rail shows (once/hour).
 const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
-/// Display-unit `<ins>` for the side rail. Loader is injected by SITE_JS when the rail is allowed.
-/// Env `SOURCECRITIC_AD_HTML` overrides. At most once per browser hour; never in `<head>` (limits Auto ads).
+/// Side-rail display unit only. Fills the right column; main column width is unchanged.
+/// Env `SOURCECRITIC_AD_HTML` overrides. At most once per browser hour.
 const AD_HTML: Option<&str> = Some(
     r#"<ins class="adsbygoogle"
-     style="display:block;width:160px;min-height:600px"
+     style="display:block;width:100%;min-height:600px"
      data-ad-client="ca-pub-5490722539415533"
      data-ad-slot="8380670310"
-     data-ad-format="auto"
+     data-ad-format="vertical"
      data-full-width-responsive="false"></ins>"#,
 );
 /// How long before the side ad may show again for the same visitor (ms).
