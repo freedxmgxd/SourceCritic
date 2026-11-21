@@ -2,6 +2,10 @@
 *.db
 !sourcecritic.db
 /dist
+static/covers/*-112.webp
+static/covers/*-112.avif
+static/covers/*-400.webp
+static/covers/*-400.avif
 /node_modules
 .wrangler
 .dev.vars

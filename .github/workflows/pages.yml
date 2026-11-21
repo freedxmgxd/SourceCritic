@@ -33,6 +33,11 @@ jobs:
             exit 1
           fi
 
+      - name: Convert covers
+        run: |
+          python3 -m pip install --user 'pillow>=11' pillow-avif-plugin
+          python3 scripts/convert_covers.py
+
       - name: Export static site
         run: cargo run --release --bin export_static -- dist
         env:
