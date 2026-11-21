@@ -2,7 +2,7 @@
 """
 Periodic SourceCritic ops pipeline (catalog is already the source of truth):
 
-  scrape (outlet sites → MC → OC) → outlet fill pass → dedupe → reseed live DB
+  scrape (outlet sites only) → outlet fill pass → dedupe → reseed live DB
 
 Does not discover or grow catalog_games / catalog_outlets — add games there
 separately when needed.
@@ -77,30 +77,18 @@ def phase_scrape(
     with_outlets: bool,
     stale_days: float,
 ) -> int:
-    cmd = [
-        sys.executable,
-        str(SCRIPTS / "scrape_catalog.py"),
-        "--stale-days",
-        str(stale_days),
-    ]
-    if only_missing:
-        cmd.append("--only-missing")
-    if with_outlets:
-        cmd.append("--with-outlets")
-    else:
-        cmd.append("--skip-outlets")
-    return run(cmd, log_path=log_path)
+    # Direct outlet feeds and IGDB/RAWG only. OpenCritic and Metacritic are not called.
+    del only_missing, with_outlets, stale_days
+    return run(
+        [sys.executable, str(SCRIPTS / "collect.py"), "--reviews"],
+        log_path=log_path,
+    )
 
 
 def phase_outlets(log_path: Path, *, stale_days: float) -> int:
+    del stale_days
     return run(
-        [
-            sys.executable,
-            str(SCRIPTS / "scrape_catalog.py"),
-            "--outlets-only",
-            "--stale-days",
-            str(stale_days),
-        ],
+        [sys.executable, str(SCRIPTS / "collect.py"), "--metadata"],
         log_path=log_path,
     )
 
@@ -222,12 +210,12 @@ def main() -> None:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="scrape (outlet→MC→OC) + outlet fill + dedupe + reseed",
+        help="scrape outlet sites + outlet fill + dedupe + reseed",
     )
     parser.add_argument(
         "--scrape",
         action="store_true",
-        help="scrape_catalog (outlet sites first, then MC/OC)",
+        help="scrape_catalog (direct outlet sites only)",
     )
     parser.add_argument(
         "--skip-outlets-during-scrape",
@@ -300,7 +288,7 @@ def main() -> None:
             # Outlets on by default (priority: outlet → MC → OC). Opt out explicitly.
             with_outlets = not args.skip_outlets_during_scrape
             log(
-                f"--- scrape (outlet→MC→OC, outlets={'on' if with_outlets else 'off'}) ---",
+                f"--- scrape (outlet sites only, outlets={'on' if with_outlets else 'off'}) ---",
                 args.log,
             )
             code = phase_scrape(
