@@ -129,6 +129,7 @@ nav a[aria-current="page"] {
 .row .meta { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
 .row .title-block { flex: 1 1 auto; min-width: 0; }
 .row .meta > span { min-width: 0; }
+.row > span:first-child { min-width: 0; flex: 1 1 auto; }
 .row strong {
   display: block;
   font-size: 1.05rem;
@@ -761,12 +762,11 @@ nav.sort button[data-sort]:focus-visible {
 .site-ad-label {
   display: block;
   margin: 0 0 6px;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  color: #3a3340;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.55;
 }
 
 .site-ad-slot {
@@ -816,16 +816,19 @@ nav.sort button[data-sort]:focus-visible {
 }
 
 .buy-block {
-  margin: 22px 0 8px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface-muted);
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 .buy-block h2 {
   margin: 0 0 6px;
-  font-family: "IBM Plex Serif", Georgia, serif;
-  font-size: 1.15rem;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .buy-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .buy-actions a {
@@ -946,6 +949,7 @@ nav.sort button[data-sort]:focus-visible {
 @media (max-width: 600px) {
   .row { gap: 10px; }
   .row-secondary { display: none !important; }
+  .row strong { white-space: normal; overflow-wrap: anywhere; }
   .score { font-size: 1.4rem; margin-left: 6px; padding-left: 0; }
   .cover { width: 44px; height: 62px; }
 }
@@ -991,7 +995,9 @@ const DONATE_BTC: Option<&str> = None;
 const DONATE_ETH: Option<&str> = None;
 const DONATE_XMR: Option<&str> = None;
 /// AdSense publisher client (`ca-pub-…`). Loaded only after consent. Auto ads stay off.
+#[allow(dead_code)]
 const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
+#[allow(dead_code)]
 const GA_MEASUREMENT_ID: Option<&str> = None;
 const PAGE_SIZE: usize = 50;
 const DEFAULT_MIN_REVIEWS: i64 = 10;
@@ -1154,12 +1160,12 @@ const SITE_JS: &str = r#"
     slice.forEach(function (game, index) {
       var score = Math.round(Number(game.score) || 0);
       var mean = Math.round(Number(game.mean) || 0);
-      var provisional = Number(game.reviews) < 5 ? " <span class=\"provisional\">nota provisória</span>" : "";
+      var provisional = Number(game.reviews) < 5 ? " <span class=\"provisional\">provisional score</span>" : "";
       var bits = "";
       if (game.year) bits += game.year;
       if (game.platform_labels) bits += (bits ? " · " : "") + game.platform_labels;
       html += '<a class="row" href="/game/' + game.slug + '/"><span class="meta">' +
-        (game.cover ? '<img class="cover" src="' + game.cover + '" alt="Capa de ' + game.title.replace(/"/g, "&quot;") + '" width="112" height="157" loading="lazy">' : "") +
+        (game.cover ? '<img class="cover" src="' + game.cover + '" alt="Cover of ' + game.title.replace(/"/g, "&quot;") + '" width="112" height="157" loading="lazy">' : "") +
         '<span class="title-block"><strong>' + game.title + '</strong><small><span class="row-count">' +
         game.reviews + ' reviews</span>' + (bits ? '<span class="row-secondary"> · ' + bits + '</span>' : '') +
         '</small></span></span><span class="score">' + score + provisional + '</span></a>';
@@ -1352,14 +1358,28 @@ const SITE_JS: &str = r#"
     });
     obs.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
   }
+  function gtagNpa() {
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    window.gtag = window.gtag || gtag;
+    gtag("consent", "update", {
+      ad_storage: "granted",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied"
+    });
+  }
   function loadAds() {
-    if (localStorage.getItem("sc_consent") !== "granted") return;
+    var mode = localStorage.getItem("sc_consent");
+    if (mode !== "granted" && mode !== "npa") return;
+    var nonPersonalized = mode === "npa";
     var units = document.querySelectorAll(".ad-unit");
     if (!units.length) return;
     var client = units[0].getAttribute("data-ad-client") || "";
     function fill() {
       try {
         window.adsbygoogle = window.adsbygoogle || [];
+        if (nonPersonalized) window.adsbygoogle.requestNonPersonalizedAds = 1;
         window.adsbygoogle.push({
           google_ad_client: client,
           enable_page_level_ads: false
@@ -1407,6 +1427,12 @@ const SITE_JS: &str = r#"
       loadAds();
       return;
     }
+    if (saved === "npa") {
+      if (banner) banner.hidden = true;
+      gtagNpa();
+      loadAds();
+      return;
+    }
     if (saved === "denied") {
       if (banner) banner.hidden = true;
       document.querySelectorAll(".ad-unit").forEach(function (unit) { unit.hidden = true; });
@@ -1447,10 +1473,10 @@ const SITE_JS: &str = r#"
       loadAds();
     });
     if (reject) reject.addEventListener("click", function () {
-      localStorage.setItem("sc_consent", "denied");
+      localStorage.setItem("sc_consent", "npa");
       banner.hidden = true;
-      consentUpdate(false);
-      document.querySelectorAll(".ad-unit").forEach(function (unit) { unit.hidden = true; });
+      gtagNpa();
+      loadAds();
     });
   }
 })();
@@ -1688,12 +1714,12 @@ fn render_games_page(
         .map(|value| value.to_string())
         .unwrap_or_else(|| page_href(page));
     let title = if page <= 1 {
-        "SourceCritic: notas e reviews de jogos da crítica"
+        "SourceCritic: critic scores and reviews"
     } else {
-        "SourceCritic: notas e reviews de jogos da crítica"
+        "SourceCritic: critic scores and reviews"
     };
     let description = format!(
-        "Notas da crítica para {filtered_total} jogos, ajustadas pelo hábito de cada veículo. Página {page} de {page_count}."
+        "Critic scores for {filtered_total} games, adjusted for each outlet's habit. Page {page} of {page_count}."
     );
     (
         StatusCode::OK,
@@ -2205,8 +2231,8 @@ fn site_footer() -> String {
 fn cookie_banner() -> String {
     String::from(
         "<div class=\"cookie-banner\" id=\"cookie-banner\">\
-           <p>Cookies de anúncio (AdSense) e medição (Analytics) ficam desligados até você aceitar. \
-           Ad and analytics cookies stay off until you accept. \
+           <p>Ad and analytics cookies stay off until you accept. \
+           Outside Europe, the UK, and Switzerland, rejecting still allows non-personalized ads. \
            <a href=\"/privacy/\">Privacy</a></p>\
            <div class=\"cookie-actions\">\
              <button type=\"button\" class=\"reject\" id=\"cookie-reject\">Reject</button>\
@@ -2216,15 +2242,49 @@ fn cookie_banner() -> String {
     )
 }
 
+fn site_config() -> serde_json::Value {
+    serde_json::from_str(include_str!("../../data/config.json")).unwrap_or_else(|_| serde_json::json!({}))
+}
+
+fn configured_id(key: &str) -> Option<String> {
+    let value = site_config()
+        .get(key)
+        .and_then(|item| item.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_string();
+    if value.is_empty() {
+        return None;
+    }
+    if value.contains("YOUR_") {
+        warn_placeholder(key);
+        return None;
+    }
+    Some(value)
+}
+
+fn warn_placeholder(key: &str) {
+    use std::sync::Mutex;
+    static SEEN: Mutex<Vec<String>> = Mutex::new(Vec::new());
+    let mut seen = SEEN.lock().unwrap_or_else(|err| err.into_inner());
+    if seen.iter().any(|item| item == key) {
+        return;
+    }
+    eprintln!("warning: {key} is still a placeholder, so that integration is hidden");
+    seen.push(key.to_string());
+}
+
 fn newsletter_form() -> String {
-    let config = include_str!("../../data/newsletter.json");
-    let endpoint = serde_json::from_str::<serde_json::Value>(config)
-        .ok()
-        .and_then(|value| value.get("endpoint").and_then(|item| item.as_str()).map(str::to_string))
-        .filter(|value| !value.is_empty() && !value.contains("YOUR_"))
-        .unwrap_or_else(|| "https://buttondown.com/api/emails/embed-subscribe/YOUR_BUTTONDOWN_USERNAME".to_string());
+    let Some(username) = configured_id("buttondown_username") else {
+        return String::new();
+    };
+    let endpoint = format!(
+        "https://buttondown.com/api/emails/embed-subscribe/{username}"
+    );
     format!(
-        "<form class=\"newsletter\" action=\"{endpoint}\" method=\"post\" target=\"_blank\">\
+        "<h3>This week's releases and scores</h3>\
+         <p class=\"muted\">The form opens the newsletter provider. SourceCritic does not store the address.</p>\
+         <form class=\"newsletter\" action=\"{endpoint}\" method=\"post\" target=\"_blank\">\
            <label>Email <input type=\"email\" name=\"email\" required autocomplete=\"email\" placeholder=\"you@example.com\"></label>\
            <button type=\"submit\">Subscribe</button>\
          </form>",
@@ -2344,7 +2404,7 @@ fn game_list(
             ("", " hidden")
         };
         let provisional = if game.review_count < 5 {
-            " <span class=\"provisional\">nota provisória</span>"
+            " <span class=\"provisional\">provisional score</span>"
         } else {
             ""
         };
@@ -2359,7 +2419,7 @@ fn game_list(
                 data-title=\"{title_attr}\" data-year=\"{year}\" data-platforms=\"{plats}\" \
                 data-score-label=\"{score_label}\" data-mean-label=\"{mean_label}\">\
                <span class=\"meta\">{cover}<span class=\"title-block\"><strong>{title}</strong>\
-                 <small><span class=\"row-secondary\" data-score-meta>{meta_html}</span> · <span class=\"row-count\">{count}</span>{secondary}</small></span></span>\
+                 <small><span class=\"row-secondary\" data-score-meta>{meta_html}</span><span class=\"row-dot row-secondary\"> · </span><span class=\"row-count\">{count}</span>{secondary}</small></span></span>\
                <span data-score-display{score_hidden}>{score_html}{provisional}</span>\
                <span data-mean-display{mean_hidden}>{mean_html}</span>\
              </a>",
@@ -2581,7 +2641,11 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
         &[("name", "Game"), ("score", "Score"), ("z", "Z")],
     ));
     reviews.push_str("<div id=\"outlet-reviews\">");
-    for review in &outlet.reviews {
+    for review in outlet.reviews.iter().filter(|review| {
+        review
+            .raw_score
+            .is_some_and(|score| score.is_finite() && score > 0.0)
+    }) {
         let raw = match (review.raw_score, review.scale_max) {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
             _ => format!("{}", fmt_score(review.raw_score_norm)),
@@ -2591,7 +2655,9 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
             .excerpt
             .as_deref()
             .filter(|text| !text.is_empty())
-            .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(text)))
+            .map(clip_excerpt)
+            .filter(|text| !text.is_empty())
+            .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(&text)))
             .unwrap_or_default();
         let source = match review
             .review_url
@@ -2668,7 +2734,7 @@ fn cover_img(path: Option<&str>, large: bool, title: &str) -> String {
     let height = if large { 560 } else { 157 };
     let webp = format!("/covers/{stem}-{width}.webp");
     let avif = format!("/covers/{stem}-{width}.avif");
-    let alt = format!("Capa de {title}");
+    let alt = format!("Cover of {title}");
     let loading = if large { "eager" } else { "lazy" };
     format!(
         "<picture>\
@@ -2684,10 +2750,11 @@ fn cover_img(path: Option<&str>, large: bool, title: &str) -> String {
 }
 
 fn game_page(game: &GameView, sort: &str) -> String {
-    let count = if game.review_count == 1 {
+    let scored = game.reviews.iter().filter(|review| counts_for_score(review)).count();
+    let count = if scored == 1 {
         "1 review".to_string()
     } else {
-        format!("{} reviews", game.review_count)
+        format!("{scored} reviews")
     };
     let cover = cover_img(game.cover_path.as_deref(), true, &game.title);
     let synopsis = game
@@ -2727,7 +2794,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
             port_keys.push(key);
         }
     }
-    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+    for review in game.reviews.iter().filter(|review| counts_for_score(review)) {
         for platform in &review.platforms {
             let key = platform_key(platform);
             if !key.is_empty() && !port_keys.iter().any(|k| k == &key) {
@@ -2754,7 +2821,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
         &[("name", "Outlet"), ("score", "Score"), ("z", "Z")],
     ));
     reviews.push_str("<div id=\"game-reviews\">");
-    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+    for review in game.reviews.iter().filter(|review| counts_for_score(review)) {
         let raw = match (review.raw_score, review.scale_max) {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
             _ => format!("{}", fmt_score(review.raw_score_norm)),
@@ -2764,7 +2831,9 @@ fn game_page(game: &GameView, sort: &str) -> String {
             .excerpt
             .as_deref()
             .filter(|text| !text.is_empty())
-            .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(text)))
+            .map(clip_excerpt)
+            .filter(|text| !text.is_empty())
+            .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(&text)))
             .unwrap_or_default();
         let source = match review.review_url.as_deref().filter(|url| {
             (url.starts_with("https://") || url.starts_with("http://"))
@@ -2827,21 +2896,21 @@ fn game_page(game: &GameView, sort: &str) -> String {
                <span class=\"score-hero-meta\" id=\"score-hero-meta\" data-base=\"{hero_meta}\">{hero_meta}</span>\
              </span>\
            </div>\
+           {buy}\
            {synopsis}\
            {meta}\
            <p class=\"lead\">The published score is adjusted by each outlet&apos;s history. See <a href=\"/score/\">how the score works</a>.</p>\
          </div></div>\
          {reviews}\
-         {buy}\
          {ad}",
         title = esc(&game.title),
         hero_meta = format!(
             "Simple mean {mean} · {count}{provisional}",
             mean = fmt_score(game.simple_mean.unwrap_or(0.0)),
             count = count,
-            provisional = if game.review_count < 5 { " · nota provisória" } else { "" },
+            provisional = if scored < 5 { " · provisional score" } else { "" },
         ),
-        buy = buy_block(&game.title),
+        buy = buy_block(&game.title, &game.platforms),
         ad = ad_unit("ad-game rect", "280px"),
         score = fmt_score(game.agg_score.unwrap_or(0.0)),
         synopsis = synopsis,
@@ -2998,8 +3067,6 @@ fn about_page() -> String {
          <section class=\"about-block\" id=\"contact\" aria-labelledby=\"contact-heading\">\
            <h2 id=\"contact-heading\">Contact</h2>\
            {contact_block}\
-           <h3>Lançamentos e notas da semana</h3>\
-           <p class=\"muted\">Weekly releases and scores. The form opens the newsletter provider; nothing is stored on SourceCritic.</p>\
            {newsletter}\
          </section>\
          <section class=\"about-block\" id=\"donate\" aria-labelledby=\"donate-heading\">\
@@ -3031,7 +3098,7 @@ fn port_stats(game: &GameView, port_keys: &[String], port: Option<&str>) -> (i64
     let mut raw_sum = 0.0;
     let mut mapped_sum = 0.0;
     let mut n = 0usize;
-    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+    for review in game.reviews.iter().filter(|review| counts_for_score(review)) {
         let mut keys: Vec<String> = review
             .platforms
             .iter()
@@ -3223,10 +3290,9 @@ impl Default for Seo {
 }
 
 fn ad_unit(class: &str, min_height: &str) -> String {
-    let client = ADSENSE_CLIENT.unwrap_or("");
-    if client.is_empty() {
+    let Some(client) = configured_id("adsense_client") else {
         return String::new();
-    }
+    };
     format!(
         "<aside class=\"{class} ad-unit\" data-ad-client=\"{client}\" aria-label=\"Advertisement\">\
            <span class=\"site-ad-label\">Ad</span>\
@@ -3237,7 +3303,7 @@ fn ad_unit(class: &str, min_height: &str) -> String {
            </div>\
          </aside>",
         class = class,
-        client = esc(client),
+        client = esc(&client),
         min_height = min_height,
     )
 }
@@ -3289,7 +3355,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
             seo.json_ld
         )
     };
-    let ga = GA_MEASUREMENT_ID.unwrap_or("");
+    let ga = configured_id("ga4_id").unwrap_or_default();
     Html(format!(
         "<!DOCTYPE html>\
          <html lang=\"en\">\
@@ -3353,7 +3419,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
         image = esc(&image),
         json_ld = json_ld,
         extra_head = seo.extra_head,
-        ga = esc(ga),
+        ga = esc(&ga),
         games = games,
         outlets = outlets,
         score = score,
@@ -3427,7 +3493,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             file,
             document(
                 Section::Games,
-                "SourceCritic: notas e reviews de jogos da crítica",
+                "SourceCritic: critic scores and reviews",
                 &game_list(
                     slice,
                     "score",
@@ -3467,7 +3533,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             format!("game/{slug}/index.html"),
             document(
                 Section::Other,
-                &format!("{}: nota da crítica e reviews", detailed.title),
+                &format!("{}: critic score and reviews", detailed.title),
                 &game_page(&detailed, "name"),
                 Some(&path),
                 &game_seo(&detailed, &slug),
@@ -3658,6 +3724,67 @@ fn is_public_outlet(slug: &str) -> bool {
     !matches!(slug, "metacritic-users" | "opencritic-recommend")
 }
 
+/// A review counts only when it has a real numeric score and is not a blocked source.
+fn counts_for_score(review: &crate::db::ReviewView) -> bool {
+    is_public_outlet(&review.outlet_slug)
+        && review
+            .raw_score
+            .is_some_and(|score| score.is_finite() && score > 0.0)
+}
+
+fn scored_norms(game: &GameView) -> Vec<f64> {
+    game.reviews
+        .iter()
+        .filter(|review| counts_for_score(review))
+        .map(|review| review.raw_score_norm)
+        .collect()
+}
+
+fn clip_excerpt(text: &str) -> String {
+    let raw = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    if raw.is_empty() {
+        return String::new();
+    }
+    let mut kept: Vec<&str> = Vec::new();
+    for sentence in raw.split_inclusive(['.', '!', '?']) {
+        let sentence = sentence.trim();
+        if sentence.is_empty() {
+            continue;
+        }
+        if kept.len() >= 2 {
+            break;
+        }
+        let candidate = if kept.is_empty() {
+            sentence.to_string()
+        } else {
+            format!("{} {}", kept.join(" "), sentence)
+        };
+        if candidate.chars().count() > 300 && !kept.is_empty() {
+            break;
+        }
+        kept.push(sentence);
+        if candidate.chars().count() >= 300 {
+            break;
+        }
+    }
+    let mut out = kept.join(" ");
+    if out.chars().count() > 300 {
+        let window: String = out.chars().take(300).collect();
+        if let Some(end) = window.rfind(['.', '!', '?']) {
+            out = window[..=end].trim().to_string();
+        } else if let Some(end) = window.rfind(' ') {
+            out = window[..end].trim().to_string();
+        } else {
+            out = window;
+        }
+    }
+    if out != raw && !out.ends_with('…') {
+        out = out.trim_end_matches(['.', '!', '?', ' ']).to_string();
+        out.push('…');
+    }
+    out
+}
+
 fn redirect_page(target: &str) -> String {
     format!(
         "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">\
@@ -3687,20 +3814,12 @@ fn game_seo(game: &GameView, slug: &str) -> Seo {
     } else {
         format!(" Platforms: {platforms}.")
     };
+    let scored = game.reviews.iter().filter(|review| counts_for_score(review)).count();
     let description = format!(
-        "{}{year} has a SourceCritic score of {score} from {} critic reviews.{platform_bit}",
-        game.title, game.review_count
+        "{}{year} has a SourceCritic score of {score} from {scored} critic reviews.{platform_bit}",
+        game.title
     );
-    let image = game.cover_path.as_deref().map(|path| {
-        let stem = path
-            .rsplit('/')
-            .next()
-            .unwrap_or(path)
-            .rsplit_once('.')
-            .map(|(name, _)| name)
-            .unwrap_or(path);
-        format!("{SITE_ORIGIN}/covers/{stem}-400.webp")
-    });
+    let image = Some(format!("{SITE_ORIGIN}/og/{slug}.jpg"));
     Seo {
         description,
         image,
@@ -3711,7 +3830,12 @@ fn game_seo(game: &GameView, slug: &str) -> Seo {
 
 fn game_json_ld(game: &GameView, slug: &str) -> String {
     let mut reviews = Vec::new();
-    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+    let scored: Vec<_> = game
+        .reviews
+        .iter()
+        .filter(|review| counts_for_score(review))
+        .collect();
+    for review in &scored {
         let url = review
             .review_url
             .as_deref()
@@ -3744,13 +3868,13 @@ fn game_json_ld(game: &GameView, slug: &str) -> String {
     if let Some(year) = game.release_year {
         value["datePublished"] = serde_json::Value::String(year.to_string());
     }
-    if game.review_count >= 5 {
+    if scored.len() >= 5 {
         value["aggregateRating"] = serde_json::json!({
             "@type": "AggregateRating",
             "ratingValue": fmt_score(game.agg_score.unwrap_or(0.0)),
             "bestRating": "100",
             "worstRating": "0",
-            "ratingCount": game.review_count
+            "ratingCount": scored.len()
         });
     }
     serde_json::to_string(&value).unwrap_or_else(|_| "{}".into())
@@ -3818,8 +3942,8 @@ fn public_slug(slug: &str, title: &str) -> String {
 }
 
 fn fmt_num(value: f64) -> String {
-    let rounded = (value * 10_000.0).round() / 10_000.0;
-    format!("{rounded:.4}")
+    let rounded = (value * 10.0).round() / 10.0;
+    format!("{rounded:.1}")
         .trim_end_matches('0')
         .trim_end_matches('.')
         .to_string()
@@ -3899,17 +4023,17 @@ fn legal_page(privacy: bool) -> String {
     if privacy {
         String::from(
             "<h1 class=\"page\">Privacy policy</h1>\
-             <p class=\"lead\">SourceCritic is a static site. This notice covers the LGPD (Brazil) and the GDPR (EEA and UK).</p>\
+             <p class=\"lead\">SourceCritic is a static site. This notice covers the LGPD (Brazil) and the GDPR (EEA, UK, and Switzerland).</p>\
              <section class=\"about-block\"><h2>English</h2>\
              <p>We collect the least we can. The pages themselves do not ask for an account. If you subscribe to the newsletter, the email address goes to the provider named in the form (Buttondown, MailerLite, or Beehiiv) and is used only to send the weekly releases and scores. If you email us, we keep that message to reply.</p>\
-             <p>Advertising (Google AdSense) and measurement (Google Analytics) cookies stay off until you accept them. Visitors in the EEA and the UK see Google's certified Privacy &amp; messaging CMP. Everyone else sees our banner. Consent Mode v2 defaults to denied for ad_storage, ad_user_data, ad_personalization, and analytics_storage. Rejecting leaves those tags unloaded.</p>\
+             <p>Advertising (Google AdSense) and measurement (Google Analytics) stay off until you choose. Visitors in the EEA, the UK, and Switzerland see Google's certified Privacy &amp; messaging CMP. Everyone else sees our banner. Consent Mode v2 defaults to denied for ad_storage, ad_user_data, ad_personalization, and analytics_storage. Accepting allows personalized ads and analytics. Rejecting outside those regions still shows non-personalized ads: ad_storage is granted, ad_user_data and ad_personalization stay denied, and AdSense is asked for non-personalized ads. Analytics stays off.</p>\
              <p>Purpose: show critic scores, fund hosting with ads, and understand which pages are used. Legal bases: consent for cookies, and legitimate interest for the publishing of publicly available review scores.</p>\
              <p>You can ask for access, correction, deletion, or portability of personal data we hold, and you can withdraw cookie consent by clearing site data. Contact <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
              <p>Reviews belong to the outlets that wrote them. SourceCritic shows the score, a short excerpt of one or two sentences, and a link to the original. We do not republish the full text.</p>\
              </section>\
              <section class=\"about-block\"><h2>Português</h2>\
              <p>O SourceCritic é um site estático. Não pedimos conta. Se você assina a newsletter, o e-mail vai para o serviço indicado no formulário e serve só para os lançamentos e as notas da semana. Se você escreve para o contato, guardamos a mensagem para responder.</p>\
-             <p>Cookies de publicidade (Google AdSense) e de medição (Google Analytics) ficam bloqueados até o aceite. Visitantes da Europa e do Reino Unido veem a CMP certificada do Google (Privacy &amp; messaging, do AdSense). Os demais veem o nosso aviso. O Consent Mode v2 começa negado para ad_storage, ad_user_data, ad_personalization e analytics_storage.</p>\
+             <p>Publicidade (Google AdSense) e medição (Google Analytics) ficam desligadas até a escolha. Visitantes do EEE, do Reino Unido e da Suíça veem a CMP certificada do Google (Privacy &amp; messaging). Os demais veem o nosso aviso. O Consent Mode v2 começa negado. Aceitar libera anúncios personalizados e analytics. Recusar, fora dessas regiões, ainda mostra anúncios não personalizados: ad_storage concedido, ad_user_data e ad_personalization negados. A medição continua desligada.</p>\
              <p>Finalidade: exibir notas da crítica, manter o site com anúncios e saber quais páginas são lidas. Bases: consentimento para cookies e legítimo interesse para publicar notas já públicas.</p>\
              <p>Pela LGPD você pode pedir acesso, correção, exclusão, portabilidade e informação sobre o uso. Para retirar o consentimento, apague os dados do site neste navegador. Contato: <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
              <p>As reviews pertencem aos veículos. O site mostra a nota, um trecho curto de uma ou duas frases e o link. Não republicamos o texto integral.</p>\
@@ -3919,61 +4043,66 @@ fn legal_page(privacy: bool) -> String {
         String::from(
             "<h1 class=\"page\">Terms of use</h1>\
              <p class=\"lead\">Using SourceCritic means you accept these terms.</p>\
-             <section class=\"about-block\"><h2>English</h2>\
              <p>Scores are an editorial transformation of published critic reviews. They are not an official score from any outlet, Metacritic, or OpenCritic. The method is described on <a href=\"/score/\">how the score works</a> and <a href=\"/about/\">about</a>.</p>\
-             <p>Review text, scores, and names belong to the outlets. We display the score, a short excerpt, and a link. Do not treat an excerpt as the full review. Affiliate buttons (\"Onde comprar\") may earn a commission at no extra cost to you; prices are not shown until a store feed is connected.</p>\
-             <p>The site is provided as is. We do not promise that every score, platform, or year is complete. For privacy requests, use the address on <a href=\"/privacy/\">privacy</a>.</p>\
-             </section>\
-             <section class=\"about-block\"><h2>Português</h2>\
-             <p>As notas são uma leitura editorial de reviews já publicadas. Não são a nota oficial de um veículo, do Metacritic ou do OpenCritic. O método está em <a href=\"/score/\">como a nota é calculada</a> e em <a href=\"/about/\">sobre</a>.</p>\
-             <p>O texto, a nota e o nome pertencem ao veículo. Mostramos a nota, um trecho curto e o link. Os botões \"Onde comprar\" podem gerar comissão sem custo extra; o preço em reais fica preparado para uma integração futura.</p>\
-             <p>O site é oferecido no estado em que está. Pedidos sobre dados pessoais vão para o contato da página de <a href=\"/privacy/\">privacidade</a>.</p>\
-             </section>"
+             <p>Review text, scores, and names belong to the outlets. We display the score, a short excerpt, and a link. Do not treat an excerpt as the full review. Where to buy buttons may earn a commission at no extra cost to you; prices are not shown until a store feed is connected.</p>\
+             <p>The site is provided as is. We do not promise that every score, platform, or year is complete. For privacy requests, use the address on <a href=\"/privacy/\">privacy</a>.</p>"
         )
     }
 }
 
-fn buy_block(title: &str) -> String {
-    let config = include_str!("../../data/affiliates.json");
-    let Ok(value) = serde_json::from_str::<serde_json::Value>(config) else {
-        return String::new();
-    };
+fn buy_block(title: &str, platforms: &[String]) -> String {
+    let value = site_config();
     let Some(stores) = value.get("stores").and_then(|item| item.as_array()) else {
         return String::new();
     };
+    let has_pc = platforms.iter().any(|platform| platform_key(platform) == "pc");
+    let has_console = platforms
+        .iter()
+        .any(|platform| {
+            let key = platform_key(platform);
+            !key.is_empty() && key != "pc"
+        });
+    if !has_pc && !has_console {
+        return String::new();
+    }
     let query = urlencoding_min(title);
     let mut buttons = String::new();
     for store in stores {
-        let name = store.get("name").and_then(|item| item.as_str()).unwrap_or("Store");
-        let id = store.get("affiliate_id").and_then(|item| item.as_str()).unwrap_or("");
-        let template = store.get("url_template").and_then(|item| item.as_str()).unwrap_or("");
-        if template.is_empty() {
+        let kinds: Vec<&str> = store
+            .get("kinds")
+            .and_then(|item| item.as_array())
+            .map(|items| items.iter().filter_map(|item| item.as_str()).collect())
+            .unwrap_or_default();
+        let fits = (has_pc && kinds.contains(&"pc")) || (has_console && kinds.contains(&"console"));
+        if !fits {
             continue;
         }
-        let url = template
-            .replace("{query}", &query)
-            .replace("{affiliate_id}", id);
-        let price = store.get("price_brl").and_then(|item| item.as_f64());
-        let price_html = match price {
-            Some(price) => format!("<small>R$ {price:.2}</small>"),
-            None => "<small data-price-brl></small>".to_string(),
+        let id_key = store.get("id_key").and_then(|item| item.as_str()).unwrap_or("");
+        let Some(id) = configured_id(id_key) else {
+            continue;
         };
+        let name = store.get("name").and_then(|item| item.as_str()).unwrap_or("Store");
+        let template = store.get("url").and_then(|item| item.as_str()).unwrap_or("");
+        if template.is_empty() || template.contains("YOUR_") {
+            if template.contains("YOUR_") {
+                warn_placeholder(id_key);
+            }
+            continue;
+        }
+        let url = template.replace("{query}", &query).replace("{id}", &id);
         buttons.push_str(&format!(
-            "<a href=\"{url}\" rel=\"sponsored nofollow noopener\" target=\"_blank\">{name}{price_html}</a>",
+            "<a href=\"{url}\" rel=\"sponsored nofollow noopener\" target=\"_blank\">{name}<small data-price-brl></small></a>",
             url = esc(&url),
             name = esc(name),
-            price_html = price_html,
         ));
     }
-    let note = value
-        .get("disclosure_pt")
-        .and_then(|item| item.as_str())
-        .unwrap_or("Links de afiliado: podemos receber comissão sem custo para você.");
+    if buttons.is_empty() {
+        return String::new();
+    }
     format!(
-        "<section class=\"buy-block\"><h2>Onde comprar</h2>\
+        "<section class=\"buy-block\"><h2>Where to buy</h2>\
          <div class=\"buy-actions\">{buttons}</div>\
-         <p class=\"buy-note\">{note}</p></section>",
-        note = esc(note),
+         <p class=\"buy-note\">Affiliate links: we may earn a commission at no cost to you.</p></section>"
     )
 }
 
@@ -4001,24 +4130,59 @@ fn population_std(values: &[f64]) -> f64 {
     var.sqrt()
 }
 
+fn platform_launch_year(key: &str) -> i32 {
+    match key {
+        "ps5" | "xbox-series" => 2020,
+        "ps4" | "xbox-one" => 2013,
+        "switch" => 2017,
+        "switch-2" => 2025,
+        "ps3" | "xbox-360" | "wii" => 2006,
+        "wii-u" | "vita" => 2012,
+        "3ds" => 2011,
+        "ds" | "psp" => 2004,
+        "gamecube" | "xbox" => 2001,
+        "n64" => 1996,
+        "ps2" => 2000,
+        "ps1" => 1994,
+        "ios" => 2008,
+        _ => 0,
+    }
+}
+
+/// A game belongs on /best/{platform}/{year}/ only when it launched there that year.
+fn released_on(game: &GameView, platform: &str, year: i32) -> bool {
+    if !game.platform_years.is_empty() {
+        return game
+            .platform_years
+            .iter()
+            .any(|(key, released)| key == platform && *released == year);
+    }
+    game.release_year == Some(year)
+        && year >= platform_launch_year(platform)
+        && game
+            .platforms
+            .iter()
+            .any(|item| platform_key(item) == platform)
+}
+
 fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec<(String, String)> {
     let mut pages = Vec::new();
     let mut divisive: Vec<&GameView> = games
         .iter()
-        .filter(|game| game.review_count >= 5)
+        .filter(|game| game.review_count >= 10)
         .collect();
     divisive.sort_by(|a, b| {
-        let a_std = population_std(&a.reviews.iter().map(|review| review.raw_score_norm).collect::<Vec<_>>());
-        let b_std = population_std(&b.reviews.iter().map(|review| review.raw_score_norm).collect::<Vec<_>>());
+        let a_std = population_std(&scored_norms(a));
+        let b_std = population_std(&scored_norms(b));
         b_std.partial_cmp(&a_std).unwrap_or(std::cmp::Ordering::Equal)
     });
     divisive.truncate(40);
     let lead_std = divisive.first().map(|game| {
-        population_std(&game.reviews.iter().map(|review| review.raw_score_norm).collect::<Vec<_>>())
+        population_std(&scored_norms(game))
     });
     let intro = match (divisive.first(), lead_std) {
         (Some(game), Some(std)) => format!(
-            "{} games with at least 5 reviews, ordered by how far the outlets sit from each other. {} leads, with a standard deviation of {:.1} points.",
+            "{} games with at least 10 scored reviews, ordered by how far the outlets sit from each other. {} leads, with a standard deviation of {:.1} points.",
             divisive.len(),
             esc(&game.title),
             std
@@ -4036,7 +4200,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
 
     let mut gaps: Vec<&GameView> = games
         .iter()
-        .filter(|game| game.review_count >= 5)
+        .filter(|game| game.review_count >= 10)
         .filter(|game| game.agg_score.is_some() && game.simple_mean.is_some())
         .collect();
     gaps.sort_by(|a, b| {
@@ -4064,7 +4228,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         &gaps,
     ));
 
-    let mut generous: Vec<&crate::db::OutletView> = outlets.iter().filter(|outlet| outlet.n >= 10).collect();
+    let mut generous: Vec<&crate::db::OutletView> = outlets.iter().filter(|outlet| outlet.n >= 20).collect();
     generous.sort_by(|a, b| b.mu_prime.partial_cmp(&a.mu_prime).unwrap_or(std::cmp::Ordering::Equal));
     let mut harsh = generous.clone();
     harsh.sort_by(|a, b| a.mu_prime.partial_cmp(&b.mu_prime).unwrap_or(std::cmp::Ordering::Equal));
@@ -4078,7 +4242,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
             esc(&low.name),
             fmt_num(low.mu_prime)
         ),
-        _ => "Outlet habits appear once a publication has at least 10 reviews.".into(),
+        _ => "Outlet habits appear once a publication has at least 20 scored reviews.".into(),
     };
     let mut body = format!(
         "<h1 class=\"page\">Outlet habits</h1><p class=\"lead\">{rank_intro}</p><h2>Most generous</h2><div id=\"outlet-list\">"
@@ -4129,13 +4293,24 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
     let platform_keys = collect_platforms(games);
     let year_list = collect_years(games);
     for (key, label) in platform_keys.iter().filter(|(key, _)| best_platforms.contains(&key.as_str())) {
+        let mut platform_years_linked = Vec::new();
         for year in &year_list {
             let mut picked: Vec<&GameView> = games
                 .iter()
-                .filter(|game| game.review_count >= 5 && game.release_year == Some(*year))
-                .filter(|game| game.platforms.iter().any(|platform| platform_key(platform) == *key))
+                .filter(|game| game.review_count >= 5 && released_on(game, key, *year))
                 .collect();
+            let legacy = games.iter().any(|game| {
+                game.release_year == Some(*year)
+                    && game.platforms.iter().any(|platform| platform_key(platform) == *key)
+            });
             if picked.len() < 5 {
+                if legacy {
+                    let target = format!("/best/{key}/");
+                    pages.push((
+                        format!("best/{key}/{year}/index.html"),
+                        redirect_page(&target),
+                    ));
+                }
                 continue;
             }
             picked.sort_by(|a, b| {
@@ -4147,7 +4322,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
             let avg = picked.iter().filter_map(|game| game.agg_score).sum::<f64>() / picked.len() as f64;
             let leader = &picked[0];
             let intro = format!(
-                "Melhores jogos de {label} em {year}. Os {n} primeiros têm nota média {avg}. {title} lidera com {score}.",
+                "Best {label} games released in {year}. The top {n} average {avg}. {title} leads with {score}.",
                 n = picked.len(),
                 avg = fmt_score(avg),
                 title = esc(&leader.title),
@@ -4157,15 +4332,41 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
             pages.push(list_page(
                 &format!("best/{key}/{year}/index.html"),
                 &path,
-                &format!("Melhores jogos de {label} em {year} | SourceCritic"),
-                &format!("Melhores de {label} em {year}"),
+                &format!("Best {label} games of {year} | SourceCritic"),
+                &format!("Best {label} games of {year}"),
                 &intro,
                 &picked,
             ));
+            platform_years_linked.push((*year, path.clone()));
             best_index.push_str(&format!(
-                "<a class=\"row\" href=\"{path}\"><span><strong>Melhores jogos de {label} em {year}</strong></span></a>"
+                "<a class=\"row\" href=\"{path}\"><span><strong>Best {label} games of {year}</strong></span></a>"
             ));
             best_count += 1;
+        }
+        if !platform_years_linked.is_empty() {
+            let mut body = format!(
+                "<h1 class=\"page\">Best {label} games</h1><p class=\"lead\">Years with at least five scored games that launched on {label}.</p><div>"
+            );
+            for (year, path) in &platform_years_linked {
+                body.push_str(&format!(
+                    "<a class=\"row\" href=\"{path}\"><span><strong>{label} {year}</strong></span></a>"
+                ));
+            }
+            body.push_str("</div>");
+            pages.push((
+                format!("best/{key}/index.html"),
+                document(
+                    Section::Other,
+                    &format!("Best {label} games | SourceCritic"),
+                    &body,
+                    Some(&format!("/best/{key}/")),
+                    &Seo {
+                        description: format!("Best {label} games by release year."),
+                        ..Seo::default()
+                    },
+                )
+                .0,
+            ));
         }
     }
     best_index.push_str("</div>");
@@ -4229,6 +4430,56 @@ fn list_page(
         )
         .0,
     )
+}
+
+pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
+    for (path, html) in files {
+        if html.contains("YOUR_") {
+            return Err(format!("{path} publishes a placeholder id"));
+        }
+        if !(path.starts_with("game/") || path.starts_with("outlet/")) {
+            continue;
+        }
+        for bad in ["savethechildren.org", "metacritic.com", "opencritic.com", "proofpoint.com", "anyforsoft.com"] {
+            if html.contains(bad) {
+                return Err(format!("{path} links to {bad}"));
+            }
+        }
+        if !path.starts_with("game/") || html.contains("http-equiv=\"refresh\"") {
+            continue;
+        }
+        let listed = html.matches("<div class=\"review\"").count();
+        let shown = hero_review_count(html).ok_or_else(|| format!("{path} has no review total"))?;
+        if shown != listed {
+            return Err(format!("{path} shows {shown} reviews but lists {listed}"));
+        }
+        if listed >= 5 {
+            let needle = format!("\"ratingCount\":{listed}");
+            if !html.contains(&needle) {
+                return Err(format!("{path} ratingCount is not {listed}"));
+            }
+        } else if html.contains("aggregateRating") {
+            return Err(format!("{path} has aggregateRating with {listed} reviews"));
+        }
+        if let Some(start) = html.find("<p class=\"excerpt\">") {
+            let rest = &html[start..];
+            if let Some(end) = rest.find("</p>") {
+                let text = &rest["<p class=\"excerpt\">".len()..end];
+                if text.chars().count() > 320 {
+                    return Err(format!("{path} excerpt is longer than 300 characters"));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn hero_review_count(html: &str) -> Option<usize> {
+    let rest = html.split("Simple mean ").nth(1)?;
+    let head = rest.split('<').next()?;
+    let before = head.split(" review").next()?;
+    let number = before.rsplit(|ch: char| !ch.is_ascii_digit()).next()?;
+    number.parse().ok()
 }
 
 #[cfg(test)]

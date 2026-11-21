@@ -117,6 +117,8 @@ pub struct GameView {
     pub cover_path: Option<String>,
     pub release_year: Option<i32>,
     pub platforms: Vec<String>,
+    /// Release year on each platform, when it is known separately from the original year.
+    pub platform_years: Vec<(String, i32)>,
     pub synopsis: Option<String>,
     pub agg_score: Option<f64>,
     pub simple_mean: Option<f64>,
@@ -185,9 +187,11 @@ impl Database {
         ensure_column(&self.conn, "games", "release_year", "INTEGER")?;
         ensure_column(&self.conn, "games", "platforms", "TEXT")?;
         ensure_column(&self.conn, "games", "synopsis", "TEXT")?;
+        ensure_column(&self.conn, "games", "platform_years", "TEXT")?;
         ensure_column(&self.conn, "reviews", "excerpt", "TEXT")?;
         ensure_column(&self.conn, "reviews", "review_url", "TEXT")?;
         ensure_column(&self.conn, "reviews", "platforms", "TEXT")?;
+        ensure_column(&self.conn, "reviews", "reviewed_on", "TEXT")?;
         Ok(())
     }
 
@@ -304,7 +308,10 @@ fn recompute(conn: &Connection) -> Result<(), DbError> {
         "SELECT o.slug, g.slug, r.raw_score_norm
          FROM reviews r
          JOIN outlets o ON o.id = r.outlet_id
-         JOIN games g ON g.id = r.game_id",
+         JOIN games g ON g.id = r.game_id
+         WHERE r.raw_score IS NOT NULL
+           AND r.raw_score > 0
+           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend')",
     )?;
     let inputs = stmt
         .query_map([], |row| {
@@ -318,6 +325,17 @@ fn recompute(conn: &Connection) -> Result<(), DbError> {
     drop(stmt);
 
     let scored = score_corpus(&inputs)?;
+
+    // Scores above were computed only from numeric critic reviews. Clear the
+    // rest so a blocked or unscored row cannot keep an old total.
+    conn.execute(
+        "UPDATE outlets SET review_count = 0, mu = 0, sigma = 0, mu_prime = 0, sigma_prime = 0",
+        [],
+    )?;
+    conn.execute(
+        "UPDATE games SET agg_score = NULL, simple_mean = NULL, review_count = 0",
+        [],
+    )?;
 
     for outlet in &scored.outlets {
         conn.execute(
@@ -367,7 +385,7 @@ fn load_game(conn: &Connection, slug: &str) -> Result<Option<GameView>, DbError>
 fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, DbError> {
     let (mu_global, sigma_global) = global_moments(conn)?;
     let sql = "SELECT g.slug, g.title, g.cover_path, g.release_year, g.platforms,
-                      g.synopsis,
+                      g.synopsis, g.platform_years,
                       g.agg_score, g.simple_mean, g.review_count,
                       o.slug, o.name, r.raw_score, r.scale_max, r.raw_score_norm, r.z_score,
                       r.excerpt, r.review_url, r.platforms,
@@ -386,23 +404,24 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
             release_year: row.get(3)?,
             platforms: row.get(4)?,
             synopsis: row.get(5)?,
-            agg_score: row.get(6)?,
-            simple_mean: row.get(7)?,
-            review_count: row.get(8)?,
-            outlet_slug: row.get(9)?,
-            outlet_name: row.get(10)?,
-            raw_score: row.get(11)?,
-            scale_max: row.get(12)?,
-            raw_score_norm: row.get(13)?,
-            z_score: row.get(14)?,
-            excerpt: row.get(15)?,
-            review_url: row.get(16)?,
-            review_platforms: row.get(17)?,
-            outlet_n: row.get(18)?,
-            mu: row.get(19)?,
-            sigma: row.get(20)?,
-            mu_prime: row.get(21)?,
-            sigma_prime: row.get(22)?,
+            platform_years: row.get(6)?,
+            agg_score: row.get(7)?,
+            simple_mean: row.get(8)?,
+            review_count: row.get(9)?,
+            outlet_slug: row.get(10)?,
+            outlet_name: row.get(11)?,
+            raw_score: row.get(12)?,
+            scale_max: row.get(13)?,
+            raw_score_norm: row.get(14)?,
+            z_score: row.get(15)?,
+            excerpt: row.get(16)?,
+            review_url: row.get(17)?,
+            review_platforms: row.get(18)?,
+            outlet_n: row.get(19)?,
+            mu: row.get(20)?,
+            sigma: row.get(21)?,
+            mu_prime: row.get(22)?,
+            sigma_prime: row.get(23)?,
         })
     })?;
 
@@ -421,6 +440,7 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
                 cover_path: row.cover_path,
                 release_year: row.release_year,
                 platforms: parse_platforms(row.platforms.as_deref()),
+                platform_years: parse_platform_years(row.platform_years.as_deref()),
                 synopsis: row.synopsis,
                 agg_score: row.agg_score,
                 simple_mean: row.simple_mean,
@@ -551,6 +571,7 @@ struct FlatRow {
     release_year: Option<i32>,
     platforms: Option<String>,
     synopsis: Option<String>,
+    platform_years: Option<String>,
     agg_score: Option<f64>,
     simple_mean: Option<f64>,
     review_count: i64,
@@ -568,6 +589,23 @@ struct FlatRow {
     sigma: f64,
     mu_prime: f64,
     sigma_prime: f64,
+}
+
+fn parse_platform_years(raw: Option<&str>) -> Vec<(String, i32)> {
+    let Some(raw) = raw.filter(|value| !value.trim().is_empty()) else {
+        return Vec::new();
+    };
+    let Ok(map) = serde_json::from_str::<serde_json::Map<String, serde_json::Value>>(raw) else {
+        return Vec::new();
+    };
+    let mut years = Vec::new();
+    for (key, value) in map {
+        if let Some(year) = value.as_i64() {
+            years.push((key, year as i32));
+        }
+    }
+    years.sort();
+    years
 }
 
 fn parse_platforms(raw: Option<&str>) -> Vec<String> {

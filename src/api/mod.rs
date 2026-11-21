@@ -343,7 +343,7 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
         release_year,
         platforms,
         synopsis,
-        raw_score: review.raw_score,
+        raw_score: review.raw_score.or(Some(review.raw_score_norm)),
         scale_max: review.scale_max,
         raw_score_norm: review.raw_score_norm,
         excerpt,

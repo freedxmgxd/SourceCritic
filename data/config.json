@@ -1,0 +1,49 @@
+{
+  "amazon_tag": "YOUR_AMAZON_TAG",
+  "eneba_id": "YOUR_ENEBA_ID",
+  "nuuvem_id": "YOUR_NUUVEM_ID",
+  "fanatical_id": "YOUR_FANATICAL_ID",
+  "gmg_id": "YOUR_GMG_ID",
+  "humble_id": "YOUR_HUMBLE_ID",
+  "buttondown_username": "YOUR_BUTTONDOWN_USERNAME",
+  "ga4_id": "",
+  "adsense_client": "ca-pub-5490722539415533",
+  "stores": [
+    {
+      "name": "Nuuvem",
+      "id_key": "nuuvem_id",
+      "kinds": ["pc"],
+      "url": "https://www.nuuvem.com/br/catalog/search/{query}?utm_campaign={id}"
+    },
+    {
+      "name": "Amazon",
+      "id_key": "amazon_tag",
+      "kinds": ["pc", "console"],
+      "url": "https://www.amazon.com/s?k={query}&tag={id}"
+    },
+    {
+      "name": "Eneba",
+      "id_key": "eneba_id",
+      "kinds": ["pc", "console"],
+      "url": "https://www.eneba.com/store?text={query}&af_id={id}"
+    },
+    {
+      "name": "Fanatical",
+      "id_key": "fanatical_id",
+      "kinds": ["pc"],
+      "url": "https://www.fanatical.com/en/search?search={query}&aff={id}"
+    },
+    {
+      "name": "Green Man Gaming",
+      "id_key": "gmg_id",
+      "kinds": ["pc"],
+      "url": "https://www.greenmangaming.com/search?query={query}&utm_source={id}"
+    },
+    {
+      "name": "Humble",
+      "id_key": "humble_id",
+      "kinds": ["pc"],
+      "url": "https://www.humblebundle.com/store/search?search={query}&partner={id}"
+    }
+  ]
+}

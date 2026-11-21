@@ -43,6 +43,7 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
     eprintln!("rendering pages");
 
     let files = pages::render_all_pages(db).map_err(ExportError::Db)?;
+    pages::audit_pages(&files).map_err(ExportError::Db)?;
     eprintln!("writing {} pages", files.len());
     let mut html_pages = 0usize;
     for (rel, html) in &files {
@@ -68,6 +69,17 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
     }
     if let Ok(games) = db.list_games() {
         fs::write(out_dir.join("games-index.json"), pages::games_index_json(&games))?;
+    }
+    let og_dir = out_dir.join("og");
+    let status = std::process::Command::new("python3")
+        .args([
+            "scripts/og_cards.py",
+            &og_dir.to_string_lossy(),
+            "sourcecritic.db",
+        ])
+        .status()?;
+    if !status.success() {
+        return Err(ExportError::Db("og card generation failed".into()));
     }
 
     // GitHub Pages: custom domain + disable Jekyll (keeps folders like covers intact).
