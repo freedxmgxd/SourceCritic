@@ -724,10 +724,17 @@ const DONATE_XMR: Option<&str> = None;
 /// AdSense publisher client (`ca-pub-…`). Injected in `<head>` on every page.
 const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
 /// Optional AdSense display-unit markup for the side rail (not Auto ads).
-/// Prefer a vertical / 160×600 or fluid unit. Env `SOURCECRITIC_AD_HTML` overrides.
-/// When unset the rail is omitted. Shown at most once per browser hour (see SITE_JS).
+/// Loader script lives in `<head>` via `ADSENSE_CLIENT`; this is only the `<ins>`.
+/// Env `SOURCECRITIC_AD_HTML` overrides. Shown at most once per browser hour (see SITE_JS).
 /// Tip: in AdSense, turn Auto ads placements off if you only want this rail.
-const AD_HTML: Option<&str> = None;
+const AD_HTML: Option<&str> = Some(
+    r#"<ins class="adsbygoogle"
+     style="display:block;width:160px;min-height:600px"
+     data-ad-client="ca-pub-5490722539415533"
+     data-ad-slot="8380670310"
+     data-ad-format="auto"
+     data-full-width-responsive="false"></ins>"#,
+);
 /// How long before the side ad may show again for the same visitor (ms).
 const AD_COOLDOWN_MS: u64 = 60 * 60 * 1000;
 /// Canonical public origin for absolute links in the static export.

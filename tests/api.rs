@@ -46,9 +46,9 @@ async fn home_page_is_html() {
     assert!(!html.contains("href=\"/submit\""));
     assert!(html.contains("lang=\"en\""));
     assert!(!html.contains("role=\"tab\""));
-    // Side-rail unit stays off until SOURCECRITIC_AD_HTML / AD_HTML is set.
-    assert!(!html.contains("class=\"site-ad-rail\""));
+    assert!(html.contains("class=\"site-ad-rail\""));
     assert!(html.contains("ca-pub-5490722539415533"));
+    assert!(html.contains("data-ad-slot=\"8380670310\""));
 }
 
 #[tokio::test]
