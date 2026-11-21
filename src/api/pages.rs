@@ -234,14 +234,22 @@ nav a[aria-current="page"] {
 }
 .port-filter button {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--muted);
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 4px 10px 4px 12px;
   font: inherit;
   font-size: 0.88rem;
   cursor: pointer;
+}
+.port-filter .port-score {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
 }
 .port-filter button[aria-pressed="true"] {
   border-color: var(--text);
@@ -1304,7 +1312,9 @@ const SITE_JS: &str = r#"
     }
     function btnLabel(port) {
       var btn = bar.querySelector('[data-port="' + port + '"]');
-      return btn ? btn.textContent : port;
+      if (!btn) return port;
+      var name = btn.querySelector(".port-name");
+      return name ? name.textContent : btn.textContent;
     }
     bar.addEventListener("click", function (ev) {
       var btn = ev.target.closest("[data-port]");
@@ -2176,11 +2186,8 @@ fn pager_nav(page: usize, page_count: usize) -> String {
 }
 
 fn site_footer() -> String {
-    let newsletter = newsletter_form();
     format!(
         "<footer class=\"site-footer\">\
-           <p><strong>Lançamentos e notas da semana</strong></p>\
-           {newsletter}\
            <nav>\
              <a href=\"/privacy/\">Privacy</a>\
              <a href=\"/terms/\">Terms</a>\
@@ -2258,11 +2265,8 @@ fn game_list(
 ) -> String {
     let mut html = String::from(
         "<h1 class=\"page\">Games</h1>\
-         <p class=\"lead\">Outlet scores, adjusted so generous critics do not inflate a game and harsh critics do not drag it down.</p>\
-         <section class=\"about-block\"><h2>Lançamentos e notas da semana</h2>",
+         <p class=\"lead\">Outlet scores, adjusted so generous critics do not inflate a game and harsh critics do not drag it down.</p>",
     );
-    html.push_str(&newsletter_form());
-    html.push_str("</section>");
     html.push_str(&browse_controls(filters, platforms, years, sort));
     let start = if filtered_total == 0 {
         0
@@ -2734,13 +2738,11 @@ fn game_page(game: &GameView, sort: &str) -> String {
     port_keys.sort();
     if port_keys.len() > 1 {
         reviews.push_str("<div class=\"port-filter\" id=\"port-filter\" role=\"group\" aria-label=\"Filter by platform\">");
-        reviews.push_str("<button type=\"button\" data-port=\"all\" aria-pressed=\"true\">All</button>");
+        let (all_score, _, _) = port_stats(game, &port_keys, None);
+        reviews.push_str(&port_chip("all", "All", all_score, true));
         for key in &port_keys {
-            reviews.push_str(&format!(
-                "<button type=\"button\" data-port=\"{key}\" aria-pressed=\"false\">{label}</button>",
-                key = esc(key),
-                label = esc(&platform_label(key)),
-            ));
+            let (score, _, _) = port_stats(game, &port_keys, Some(key));
+            reviews.push_str(&port_chip(key, &platform_label(key), score, false));
         }
         reviews.push_str("</div>");
         reviews.push_str("<p class=\"port-filter-meta\" id=\"port-filter-meta\"></p>");
@@ -2996,6 +2998,9 @@ fn about_page() -> String {
          <section class=\"about-block\" id=\"contact\" aria-labelledby=\"contact-heading\">\
            <h2 id=\"contact-heading\">Contact</h2>\
            {contact_block}\
+           <h3>Lançamentos e notas da semana</h3>\
+           <p class=\"muted\">Weekly releases and scores. The form opens the newsletter provider; nothing is stored on SourceCritic.</p>\
+           {newsletter}\
          </section>\
          <section class=\"about-block\" id=\"donate\" aria-labelledby=\"donate-heading\">\
            <h2 id=\"donate-heading\">Donations</h2>\
@@ -3003,7 +3008,56 @@ fn about_page() -> String {
          </section>",
         contact_faq = contact_faq,
         contact_block = contact_block,
+        newsletter = newsletter_form(),
         donate_block = donate_block,
+    )
+}
+
+fn port_chip(key: &str, label: &str, score: i64, pressed: bool) -> String {
+    format!(
+        "<button type=\"button\" data-port=\"{key}\" aria-pressed=\"{pressed}\" aria-label=\"{label}, score {score}\">\
+           <span class=\"port-name\">{label}</span>\
+           <span class=\"port-score\">{score}</span>\
+         </button>",
+        key = esc(key),
+        label = esc(label),
+        score = score,
+        pressed = if pressed { "true" } else { "false" },
+    )
+}
+
+/// Mean mapped score for reviews of one port. Reviews with no port tag count on every port.
+fn port_stats(game: &GameView, port_keys: &[String], port: Option<&str>) -> (i64, i64, usize) {
+    let mut raw_sum = 0.0;
+    let mut mapped_sum = 0.0;
+    let mut n = 0usize;
+    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+        let mut keys: Vec<String> = review
+            .platforms
+            .iter()
+            .map(|platform| platform_key(platform))
+            .filter(|key| !key.is_empty())
+            .collect();
+        if keys.is_empty() {
+            keys = port_keys.to_vec();
+        }
+        if let Some(port) = port {
+            if !keys.iter().any(|key| key == port) {
+                continue;
+            }
+        }
+        raw_sum += review.raw_score_norm;
+        mapped_sum += crate::engine::map_z(review.z_score, game.mu_global);
+        n += 1;
+    }
+    if n == 0 {
+        return (0, 0, 0);
+    }
+    let count = n as f64;
+    (
+        (mapped_sum / count).round() as i64,
+        (raw_sum / count).round() as i64,
+        n,
     )
 }
 
