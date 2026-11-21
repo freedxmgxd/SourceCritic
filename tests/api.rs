@@ -49,6 +49,8 @@ async fn home_page_is_html() {
     assert!(html.contains("class=\"site-ad-rail\""));
     assert!(html.contains("ca-pub-5490722539415533"));
     assert!(html.contains("data-ad-slot=\"8380670310\""));
+    // AdSense loader is deferred to the rail gate (once/hour), not every page head.
+    assert!(!html.contains("pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"));
 }
 
 #[tokio::test]

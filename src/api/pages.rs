@@ -427,44 +427,22 @@ nav a[aria-current="page"] {
   text-align: center;
 }
 
-.sort {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 16px;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.sort .label { margin-right: 2px; }
-
-.sort a {
-  padding: 4px 10px;
-  border-radius: 999px;
-  color: var(--muted);
-  text-decoration: none;
-  border: 1px solid transparent;
-}
-
-.sort a:hover { color: var(--ink); background: var(--surface-hover); }
-
-.sort a[aria-current="true"] {
-  color: var(--accent);
-  background: var(--accent-soft);
-  border-color: color-mix(in srgb, var(--accent) 22%, white);
-  font-weight: 600;
+.browse-controls {
+  margin: 4px 0 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-muted);
 }
 
 .filters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  margin: 4px 0 14px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface-muted);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .filters label {
@@ -477,8 +455,7 @@ nav a[aria-current="page"] {
   text-transform: uppercase;
 }
 
-.filters select,
-.filters button {
+.filters select {
   font: inherit;
   text-transform: none;
   letter-spacing: 0;
@@ -487,18 +464,97 @@ nav a[aria-current="page"] {
   border-radius: 10px;
   background: white;
   padding: 8px 10px;
-}
-
-.filters button {
-  align-self: end;
   cursor: pointer;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-  border-color: color-mix(in srgb, var(--accent) 22%, white);
 }
 
-.filters button:hover { background: var(--accent-mid); }
+.filters select:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
+  outline-offset: 2px;
+}
+
+.browse-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.sort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.browse-controls .sort { margin: 0; }
+
+.sort .label {
+  margin-right: 4px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sort a,
+nav.sort button[data-sort] {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid transparent;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.sort a:hover,
+nav.sort button[data-sort]:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+
+.sort a[aria-current="true"],
+nav.sort button[data-sort][aria-current="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 22%, white);
+  font-weight: 600;
+}
+
+.sort a:focus-visible,
+nav.sort button[data-sort]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
+  outline-offset: 2px;
+}
+
+.filter-reset {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.filter-reset:hover { color: var(--ink); }
+
+.filter-reset[hidden] { display: none; }
 
 .filter-meta {
   margin: -6px 0 14px;
@@ -664,21 +720,7 @@ nav a[aria-current="page"] {
   header { flex-direction: column; align-items: flex-start; }
   .stats { grid-template-columns: 1fr 1fr; }
   .filters { grid-template-columns: 1fr 1fr; }
-}
-
-nav.sort button[data-sort] {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: none;
-}
-nav.sort button[data-sort][aria-current="true"] {
-  color: var(--accent);
-  font-weight: 600;
+  .browse-toolbar { align-items: flex-start; }
 }
 
 .crypto-list { display: grid; gap: 12px; margin: 16px 0 0; }
@@ -721,12 +763,10 @@ const DONATE_URL: Option<&str> = None;
 const DONATE_BTC: Option<&str> = None;
 const DONATE_ETH: Option<&str> = None;
 const DONATE_XMR: Option<&str> = None;
-/// AdSense publisher client (`ca-pub-…`). Injected in `<head>` on every page.
+/// AdSense publisher client (`ca-pub-…`). Loaded only when the side rail shows (once/hour).
 const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
-/// Optional AdSense display-unit markup for the side rail (not Auto ads).
-/// Loader script lives in `<head>` via `ADSENSE_CLIENT`; this is only the `<ins>`.
-/// Env `SOURCECRITIC_AD_HTML` overrides. Shown at most once per browser hour (see SITE_JS).
-/// Tip: in AdSense, turn Auto ads placements off if you only want this rail.
+/// Display-unit `<ins>` for the side rail. Loader is injected by SITE_JS when the rail is allowed.
+/// Env `SOURCECRITIC_AD_HTML` overrides. At most once per browser hour; never in `<head>` (limits Auto ads).
 const AD_HTML: Option<&str> = Some(
     r#"<ins class="adsbygoogle"
      style="display:block;width:160px;min-height:600px"
@@ -801,10 +841,17 @@ const SITE_JS: &str = r#"
       });
     }
   }
+  function filtersActive(form) {
+    var platform = (form.platform && form.platform.value) || "all";
+    var year = (form.year && form.year.value) || "all";
+    var minReviews = Number((form.min_reviews && form.min_reviews.value) || 0);
+    return platform !== "all" || year !== "all" || minReviews > 0;
+  }
   function applyGameFilters() {
     var list = document.getElementById("game-list");
     var form = document.getElementById("game-filters");
     var meta = document.getElementById("filter-meta");
+    var reset = document.getElementById("filter-reset");
     if (!list || !form) return;
     var platform = (form.platform && form.platform.value) || "all";
     var year = (form.year && form.year.value) || "all";
@@ -825,6 +872,15 @@ const SITE_JS: &str = r#"
     if (meta) meta.textContent = "Showing " + shown + " of " + total + " games.";
     var empty = document.getElementById("game-empty");
     if (empty) empty.hidden = shown !== 0 || total === 0;
+    if (reset) reset.hidden = !filtersActive(form);
+  }
+  function resetGameFilters() {
+    var form = document.getElementById("game-filters");
+    if (!form) return;
+    if (form.platform) form.platform.value = "all";
+    if (form.year) form.year.value = "all";
+    if (form.min_reviews) form.min_reviews.value = "0";
+    applyGameFilters();
   }
   function bindSort(listId, defaultKey) {
     var list = document.getElementById(listId);
@@ -849,6 +905,8 @@ const SITE_JS: &str = r#"
       form.addEventListener("submit", function (ev) { ev.preventDefault(); applyGameFilters(); });
       form.addEventListener("change", applyGameFilters);
     }
+    var reset = document.getElementById("filter-reset");
+    if (reset) reset.addEventListener("click", resetGameFilters);
     bindSort("game-list", "score");
     bindSort("outlet-list", "reviews");
     bindSort("game-reviews", "name");
@@ -871,6 +929,7 @@ const SITE_JS: &str = r#"
     var src = document.getElementById("site-ad-src");
     if (!aside || !src) return;
     var cooldown = Number(aside.getAttribute("data-cooldown-ms") || 3600000);
+    var client = aside.getAttribute("data-ad-client") || "";
     var key = "sc_ad_shown_at";
     var now = Date.now();
     var last = Number(localStorage.getItem(key) || 0);
@@ -887,22 +946,37 @@ const SITE_JS: &str = r#"
     src.remove();
     aside.hidden = false;
     localStorage.setItem(key, String(now));
-    Array.prototype.slice.call(slot.querySelectorAll("script")).forEach(function (old) {
+    function fillUnit() {
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        // Prefer the manual rail only — do not request page-level / Auto ads.
+        window.adsbygoogle.push({
+          google_ad_client: client,
+          enable_page_level_ads: false
+        });
+        if (slot.querySelector(".adsbygoogle")) {
+          window.adsbygoogle.push({});
+        }
+      } catch (e) {}
+    }
+    if (!client) {
+      fillUnit();
+      return;
+    }
+    if (window.__scAdsScriptLoading) {
+      window.__scAdsScriptLoading.then(fillUnit);
+      return;
+    }
+    window.__scAdsScriptLoading = new Promise(function (resolve) {
       var s = document.createElement("script");
-      if (old.src) {
-        s.src = old.src;
-        s.async = old.async;
-        if (old.crossOrigin) s.crossOrigin = old.crossOrigin;
-      } else {
-        s.textContent = old.textContent;
-      }
-      old.replaceWith(s);
+      s.async = true;
+      s.crossOrigin = "anonymous";
+      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(client);
+      s.onload = function () { resolve(); };
+      s.onerror = function () { resolve(); };
+      document.head.appendChild(s);
     });
-    try {
-      if (slot.querySelector(".adsbygoogle")) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    } catch (e) {}
+    window.__scAdsScriptLoading.then(fillUnit);
   }
 })();
 "#;
@@ -1317,8 +1391,9 @@ fn sort_outlet_reviews(
 }
 
 fn sort_bar(_base: &str, current: &str, _default: &str, options: &[(&str, &str)]) -> String {
-    let mut html =
-        String::from("<nav class=\"sort\" aria-label=\"Sort\"><span class=\"label\">Sort</span>");
+    let mut html = String::from(
+        "<nav class=\"sort\" aria-label=\"Sort by\"><span class=\"label\">Sort by</span>",
+    );
     for (key, label) in options {
         let current_attr = if current == *key {
             " aria-current=\"true\""
@@ -1348,8 +1423,7 @@ fn game_list(
         "<h1 class=\"page\">Games</h1>\
          <p class=\"lead\">Outlet scores, adjusted so generous critics do not inflate a game and harsh critics do not drag it down.</p>",
     );
-    html.push_str(&filter_bar(filters, platforms, years));
-    html.push_str(&game_sort_bar(sort));
+    html.push_str(&browse_controls(filters, platforms, years, sort));
     html.push_str(&format!(
         "<p class=\"filter-meta\" id=\"filter-meta\">Showing {shown} of {total} games.</p>",
         shown = games.len(),
@@ -1477,8 +1551,7 @@ fn filter_bar(
             filters.min_reviews == value,
         ));
     }
-    html.push_str("</select></label>");
-    html.push_str("<button type=\"submit\">Apply</button></form>");
+    html.push_str("</select></label></form>");
     html
 }
 
@@ -1498,8 +1571,9 @@ fn game_sort_bar(sort: &str) -> String {
         ("reviews", "Reviews"),
         ("title", "Title"),
     ];
-    let mut html =
-        String::from("<nav class=\"sort\" aria-label=\"Sort\"><span class=\"label\">Sort</span>");
+    let mut html = String::from(
+        "<nav class=\"sort\" aria-label=\"Sort by\"><span class=\"label\">Sort by</span>",
+    );
     for (key, label) in options {
         let current_attr = if sort == key {
             " aria-current=\"true\""
@@ -1515,6 +1589,37 @@ fn game_sort_bar(sort: &str) -> String {
     }
     html.push_str("</nav>");
     html
+}
+
+fn filters_are_active(filters: &GameFilters) -> bool {
+    filters.platform != "all" || filters.year != "all" || filters.min_reviews > 0
+}
+
+fn browse_controls(
+    filters: &GameFilters,
+    platforms: &[(String, String)],
+    years: &[i32],
+    sort: &str,
+) -> String {
+    let reset_hidden = if filters_are_active(filters) {
+        ""
+    } else {
+        " hidden"
+    };
+    format!(
+        "<div class=\"browse-controls\">\
+           {filters}\
+           <div class=\"browse-toolbar\">\
+             {sort}\
+             <button type=\"button\" class=\"filter-reset\" id=\"filter-reset\"{reset_hidden}>\
+               Clear filters\
+             </button>\
+           </div>\
+         </div>",
+        filters = filter_bar(filters, platforms, years),
+        sort = game_sort_bar(sort),
+        reset_hidden = reset_hidden,
+    )
 }
 
 fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
@@ -2091,14 +2196,17 @@ fn ad_slot_html() -> String {
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty());
     let markup = from_env.or_else(|| AD_HTML.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()));
+    let client = ADSENSE_CLIENT.unwrap_or("");
     match markup {
         Some(inner) => format!(
-            "<aside class=\"site-ad-rail\" id=\"site-ad\" hidden data-cooldown-ms=\"{cooldown}\" aria-label=\"Advertisement\">\
+            "<aside class=\"site-ad-rail\" id=\"site-ad\" hidden \
+               data-cooldown-ms=\"{cooldown}\" data-ad-client=\"{client}\" aria-label=\"Advertisement\">\
                <span class=\"site-ad-label\">Ad</span>\
                <div class=\"site-ad-slot\"></div>\
                <script type=\"text/plain\" id=\"site-ad-src\">{inner}</script>\
              </aside>",
             cooldown = AD_COOLDOWN_MS,
+            client = esc(client),
             // text/plain body must not close the script early; strip closers.
             inner = inner.replace("</script", "<\\/script"),
         ),
@@ -2123,13 +2231,6 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
         ""
     };
     let ad = ad_slot_html();
-    let adsense_head = match ADSENSE_CLIENT {
-        Some(client) => format!(
-            "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={client}\" crossorigin=\"anonymous\"></script>",
-            client = esc(client),
-        ),
-        None => String::new(),
-    };
     let canonical = match path {
         Some(p) if p == "/" || p.is_empty() => format!("{SITE_ORIGIN}/"),
         Some(p) => format!("{SITE_ORIGIN}{p}"),
@@ -2152,7 +2253,6 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
            <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\
            <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\
            <link href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap\" rel=\"stylesheet\">\
-           {adsense_head}\
            {katex}\
            <style>{CSS}</style>\
            <script>{SITE_JS}</script>\
@@ -2177,7 +2277,6 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
          </html>",
         title = esc(title),
         canonical = esc(&canonical),
-        adsense_head = adsense_head,
         games = games,
         outlets = outlets,
         score = score,
