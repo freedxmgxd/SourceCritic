@@ -116,7 +116,9 @@ fn regularize(n: usize, mu: f64, sigma: f64, mu_global: f64, sigma_global: f64) 
     (mu_prime, sigma_prime)
 }
 
-fn map_z(z: f64, mu_global: f64) -> f64 {
+/// Maps one outlet $Z$ onto the published 0–100 scale (step 4).
+/// Averaging these across outlets yields $\mathrm{Score}_i$ (step 5).
+pub fn map_z(z: f64, mu_global: f64) -> f64 {
     (mu_global + z * SIGMA_TARGET).clamp(0.0, 100.0)
 }
 

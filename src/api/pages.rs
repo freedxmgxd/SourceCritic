@@ -225,7 +225,16 @@ nav a[aria-current="page"] {
   color: var(--muted);
   font-size: 0.9rem;
 }
-.review .z { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.review .z,
+.review .mapped {
+  color: var(--accent);
+  font-family: "IBM Plex Serif", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
 .review .excerpt {
   grid-column: 1 / -1;
   margin: 0;
@@ -238,6 +247,8 @@ nav a[aria-current="page"] {
   grid-column: 1 / -1;
   font-size: 0.88rem;
 }
+.review strong a { color: inherit; text-decoration: none; }
+.review strong a:hover { color: var(--accent); text-decoration: underline; }
 .review .source a { color: var(--accent); }
 
 @media (max-width: 640px) {
@@ -710,9 +721,12 @@ const DONATE_URL: Option<&str> = None;
 const DONATE_BTC: Option<&str> = None;
 const DONATE_ETH: Option<&str> = None;
 const DONATE_XMR: Option<&str> = None;
-/// Optional AdSense (or other) unit markup for the side rail.
+/// AdSense publisher client (`ca-pub-…`). Injected in `<head>` on every page.
+const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
+/// Optional AdSense display-unit markup for the side rail (not Auto ads).
 /// Prefer a vertical / 160×600 or fluid unit. Env `SOURCECRITIC_AD_HTML` overrides.
 /// When unset the rail is omitted. Shown at most once per browser hour (see SITE_JS).
+/// Tip: in AdSense, turn Auto ads placements off if you only want this rail.
 const AD_HTML: Option<&str> = None;
 /// How long before the side ad may show again for the same visitor (ms).
 const AD_COOLDOWN_MS: u64 = 60 * 60 * 1000;
@@ -763,6 +777,20 @@ const SITE_JS: &str = r#"
         meta.textContent = showMean
           ? ("score " + (row.getAttribute("data-score-label") || ""))
           : ("simple mean " + (row.getAttribute("data-mean-label") || ""));
+      });
+    }
+    if (list.id === "game-reviews" || list.id === "outlet-reviews") {
+      var showZ = key === "z";
+      list.querySelectorAll(".review").forEach(function (row) {
+        var scoreEl = row.querySelector("[data-score-display]");
+        var zEl = row.querySelector("[data-z-display]");
+        var zMeta = row.querySelector("[data-z-meta]");
+        var scoreMeta = row.querySelector("[data-score-meta]");
+        if (!scoreEl || !zEl || !zMeta || !scoreMeta) return;
+        scoreEl.hidden = showZ;
+        zEl.hidden = !showZ;
+        zMeta.hidden = showZ;
+        scoreMeta.hidden = !showZ;
       });
     }
   }
@@ -960,7 +988,7 @@ pub(super) async fn game(
         );
     };
     let sort = normalize_review_sort(query.sort.as_deref());
-    sort_game_reviews(&mut game.reviews, sort);
+    sort_game_reviews(&mut game.reviews, sort, game.mu_global);
     ok(Section::Other, &game.title, &game_page(&game, sort))
 }
 
@@ -1018,7 +1046,7 @@ pub(super) async fn outlet(
         );
     };
     let sort = normalize_review_sort(query.sort.as_deref());
-    sort_outlet_reviews(&mut outlet.reviews, sort);
+    sort_outlet_reviews(&mut outlet.reviews, sort, outlet.mu_global);
     ok(Section::Outlets, &outlet.name, &outlet_page(&outlet, sort))
 }
 
@@ -1229,11 +1257,13 @@ fn sort_outlets(outlets: &mut [OutletView], sort: &str) {
     }
 }
 
-fn sort_game_reviews(reviews: &mut [ReviewView], sort: &str) {
+fn sort_game_reviews(reviews: &mut [ReviewView], sort: &str, mu_global: f64) {
     match sort {
         "score" => reviews.sort_by(|a, b| {
-            b.raw_score_norm
-                .partial_cmp(&a.raw_score_norm)
+            let a_mapped = crate::engine::map_z(a.z_score, mu_global);
+            let b_mapped = crate::engine::map_z(b.z_score, mu_global);
+            b_mapped
+                .partial_cmp(&a_mapped)
                 .unwrap_or(std::cmp::Ordering::Equal)
                 .then_with(|| a.outlet_name.cmp(&b.outlet_name))
         }),
@@ -1251,11 +1281,17 @@ fn sort_game_reviews(reviews: &mut [ReviewView], sort: &str) {
     }
 }
 
-fn sort_outlet_reviews(reviews: &mut [crate::db::OutletReviewView], sort: &str) {
+fn sort_outlet_reviews(
+    reviews: &mut [crate::db::OutletReviewView],
+    sort: &str,
+    mu_global: f64,
+) {
     match sort {
         "score" => reviews.sort_by(|a, b| {
-            b.raw_score_norm
-                .partial_cmp(&a.raw_score_norm)
+            let a_mapped = crate::engine::map_z(a.z_score, mu_global);
+            let b_mapped = crate::engine::map_z(b.z_score, mu_global);
+            b_mapped
+                .partial_cmp(&a_mapped)
                 .unwrap_or(std::cmp::Ordering::Equal)
                 .then_with(|| a.game_title.cmp(&b.game_title))
         }),
@@ -1546,6 +1582,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
             _ => format!("{}", fmt_num(review.raw_score_norm)),
         };
+        let mapped = crate::engine::map_z(review.z_score, outlet.mu_global);
         let excerpt = review
             .excerpt
             .as_deref()
@@ -1565,8 +1602,14 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
         };
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{game_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\">\
-               <span><strong><a href=\"/game/{game_slug}\">{game}</a></strong><small>{raw} → {norm}</small></span>\
-               <span class=\"z\">Z {z}</span>\
+               <span><strong><a href=\"/game/{game_slug}\">{game}</a></strong>\
+                 <small>{raw} → {norm} · \
+                   <span data-z-meta>Z {z}</span>\
+                   <span data-score-meta hidden>Score {mapped}</span>\
+                 </small>\
+               </span>\
+               <span data-score-display class=\"mapped\" title=\"This review&apos;s contribution to the game score\">Score {mapped}</span>\
+               <span data-z-display class=\"z\" hidden>Z {z}</span>\
                {excerpt}{source}\
              </div>",
             game_slug = esc(&review.game_slug),
@@ -1575,7 +1618,8 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
             raw = esc(&raw),
             norm = fmt_num(review.raw_score_norm),
             z = fmt_num(review.z_score),
-            score_n = review.raw_score_norm,
+            mapped = fmt_num(mapped),
+            score_n = mapped,
             z_n = review.z_score,
             excerpt = excerpt,
             source = source,
@@ -1666,6 +1710,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
             _ => format!("{}", fmt_num(review.raw_score_norm)),
         };
+        let mapped = crate::engine::map_z(review.z_score, game.mu_global);
         let excerpt = review
             .excerpt
             .as_deref()
@@ -1683,16 +1728,24 @@ fn game_page(game: &GameView, sort: &str) -> String {
         };
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{outlet_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\">\
-               <span><strong>{outlet}</strong><small>{raw} → {norm}</small></span>\
-               <span class=\"z\">Z {z}</span>\
+               <span><strong><a href=\"/outlet/{outlet_slug}\">{outlet}</a></strong>\
+                 <small>{raw} → {norm} · \
+                   <span data-z-meta>Z {z}</span>\
+                   <span data-score-meta hidden>Score {mapped}</span>\
+                 </small>\
+               </span>\
+               <span data-score-display class=\"mapped\" title=\"This outlet&apos;s contribution to the game score\">Score {mapped}</span>\
+               <span data-z-display class=\"z\" hidden>Z {z}</span>\
                {excerpt}{source}\
              </div>",
+            outlet_slug = esc(&review.outlet_slug),
             outlet = esc(&review.outlet_name),
             outlet_attr = esc(&review.outlet_name),
             raw = esc(&raw),
             norm = fmt_num(review.raw_score_norm),
             z = fmt_num(review.z_score),
-            score_n = review.raw_score_norm,
+            mapped = fmt_num(mapped),
+            score_n = mapped,
             z_n = review.z_score,
             excerpt = excerpt,
             source = source,
@@ -2063,6 +2116,13 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
         ""
     };
     let ad = ad_slot_html();
+    let adsense_head = match ADSENSE_CLIENT {
+        Some(client) => format!(
+            "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={client}\" crossorigin=\"anonymous\"></script>",
+            client = esc(client),
+        ),
+        None => String::new(),
+    };
     let canonical = match path {
         Some(p) if p == "/" || p.is_empty() => format!("{SITE_ORIGIN}/"),
         Some(p) => format!("{SITE_ORIGIN}{p}"),
@@ -2085,6 +2145,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
            <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\
            <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\
            <link href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap\" rel=\"stylesheet\">\
+           {adsense_head}\
            {katex}\
            <style>{CSS}</style>\
            <script>{SITE_JS}</script>\
@@ -2109,6 +2170,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
          </html>",
         title = esc(title),
         canonical = esc(&canonical),
+        adsense_head = adsense_head,
         games = games,
         outlets = outlets,
         score = score,
@@ -2148,7 +2210,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             .get_game(&game.slug)
             .map_err(|e| e.to_string())?
             .ok_or_else(|| format!("missing game {}", game.slug))?;
-        sort_game_reviews(&mut detailed.reviews, "name");
+        sort_game_reviews(&mut detailed.reviews, "name", detailed.mu_global);
         let path = format!("/game/{}", detailed.slug);
         pages.push((
             format!("game/{}/index.html", detailed.slug),
@@ -2180,7 +2242,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             .get_outlet(&outlet.slug)
             .map_err(|e| e.to_string())?
             .ok_or_else(|| format!("missing outlet {}", outlet.slug))?;
-        sort_outlet_reviews(&mut detailed.reviews, "name");
+        sort_outlet_reviews(&mut detailed.reviews, "name", detailed.mu_global);
         let path = format!("/outlet/{}", detailed.slug);
         pages.push((
             format!("outlet/{}/index.html", detailed.slug),
