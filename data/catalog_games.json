@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-11-21T15:23:25Z",
+  "updated_at": "2026-11-21T17:50:35Z",
   "games": {
     "grand-theft-auto-vi": {
       "slug": "grand-theft-auto-vi",
@@ -8886,14 +8886,15 @@
       "external": {
         "steam_appids": [
           320
-        ]
+        ],
+        "metacritic": "half-life-2"
       },
       "discovered_via": [
         "steam-owned",
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:42:14Z"
+      "last_scraped_at": "2026-11-21T17:43:51Z"
     },
     "schr-dinger-s-call": {
       "slug": "schr-dinger-s-call",
@@ -13484,7 +13485,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:32:31Z"
     },
     "ark-survival-of-the-fittest": {
       "slug": "ark-survival-of-the-fittest",
@@ -13590,11 +13592,14 @@
       "slug": "blood-of-steel",
       "title": "Blood Of Steel",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "blood-arena-path-of-steel"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:35:54Z"
     },
     "bradley-the-badger": {
       "slug": "bradley-the-badger",
@@ -13640,11 +13645,14 @@
       "slug": "clockwork-revolution",
       "title": "Clockwork Revolution",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "clockwork-revolution"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:37:24Z"
     },
     "countryballs-conquest": {
       "slug": "countryballs-conquest",
@@ -13674,7 +13682,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:38:13Z"
     },
     "dandara-trials-of-fear-edition": {
       "slug": "dandara-trials-of-fear-edition",
@@ -13690,21 +13699,27 @@
       "slug": "dark-and-darker",
       "title": "Dark And Darker",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "dark-and-darker"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:38:52Z"
     },
     "deadlock": {
       "slug": "deadlock",
       "title": "Deadlock",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "deadlock"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:39:11Z"
     },
     "dice-people": {
       "slug": "dice-people",
@@ -13720,11 +13735,14 @@
       "slug": "do-no-harm",
       "title": "Do No Harm",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "do-no-harm"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:39:43Z"
     },
     "dreamscaper-prologue": {
       "slug": "dreamscaper-prologue",
@@ -13760,11 +13778,14 @@
       "slug": "due-process",
       "title": "Due Process",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "due-process"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:40:59Z"
     },
     "earth-2150-the-moon-project": {
       "slug": "earth-2150-the-moon-project",
@@ -13790,11 +13811,14 @@
       "slug": "far-far-west",
       "title": "Far Far West",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "far-far-west"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:41:52Z"
     },
     "for-honor-public-test": {
       "slug": "for-honor-public-test",
@@ -13824,7 +13848,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:42:43Z"
     },
     "grandchase": {
       "slug": "grandchase",
@@ -13870,11 +13895,14 @@
       "slug": "he-man-and-the-masters-of-the-universe-dragon-pearl-of-destruction",
       "title": "He Man And The Masters Of The Universe Dragon Pearl Of Destruction",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "he-man-and-the-masters-of-the-universe-dragon"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:44:30Z"
     },
     "helldivers-dive-harder-edition": {
       "slug": "helldivers-dive-harder-edition",
@@ -13920,11 +13948,14 @@
       "slug": "judas",
       "title": "Judas",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "judas"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:45:55Z"
     },
     "just-another-night-shift": {
       "slug": "just-another-night-shift",
@@ -13980,11 +14011,14 @@
       "slug": "knights-college",
       "title": "Knights College",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "knights-college-2"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:47:33Z"
     },
     "koikatsu-party": {
       "slug": "koikatsu-party",
@@ -14060,11 +14094,14 @@
       "slug": "masters-of-albion",
       "title": "Masters Of Albion",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "masters-of-albion"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:50:00Z"
     },
     "metal-gear-solid-2-sons-of-liberty-master-collection-version": {
       "slug": "metal-gear-solid-2-sons-of-liberty-master-collection-version",
@@ -14084,7 +14121,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:50:35Z"
     },
     "miegakure-hide-reveal": {
       "slug": "miegakure-hide-reveal",

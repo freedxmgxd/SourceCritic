@@ -415958,5 +415958,948 @@
       "xbox-360"
     ],
     "synopsis": "Dark Souls II: Scholar of the First Sin includes the 3 previously released DLC packs  - Crown of the Sunken King, Crown of the Old Iron King, and Crown of the ivory King - along with additional features. All versions of the game include the following features (Existing Dark Souls II owners will receive a patch to implement these elements): Additional NPCs added for an enhanced story experience. Parameter adjustments for improved game balance. Augmented item descriptions. Improved online matchmaking functionality."
+  },
+  "ark-2": {
+    "title": "ARK 2",
+    "cover": "/covers/ark-2.jpg",
+    "reviews": [
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 80.0,
+        "source": "outlet",
+        "url": "https://www.ign.com/articles/2016/09/20/batman-the-telltale-seres-episode-2-children-of-arkham-review",
+        "excerpt": "The continuation of Batman's new adventure offers interesting twists on classic characters and canon."
+      }
+    ]
+  },
+  "blood-of-steel": {
+    "title": "Blood Arena Path of Steel",
+    "cover": "/covers/blood-of-steel.jpg",
+    "reviews": [
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 80.0,
+        "source": "outlet",
+        "url": "https://www.ign.com/articles/2009/10/20/the-venture-bros-blood-of-the-father-heart-of-steel-review",
+        "excerpt": "The Venture Bros.\" rolls out its fourth season with arguably its strangest, most bizarre episode yet, which is saying a lot, really. No storytelling device or comedic gag has ever been too weird for this show to tackle, and that much is reaffirmed by this season's exceedingly offbeat premiere. I'm not entirely sure all the strangeness actually worked or even translated into great laughs, but it was an interesting and at times fun exercise nonetheless."
+      },
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 66.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/games/roguelike/blood-dungeon-review/",
+        "excerpt": "The creators of Nidhogg and Wheel World tackle the bullet heaven genre, but can't transcend its inherent weaknesses."
+      }
+    ],
+    "mc_slug": "blood-arena-path-of-steel",
+    "platforms": [
+      "pc"
+    ]
+  },
+  "clockwork-revolution": {
+    "title": "Clockwork Revolution",
+    "cover": "/covers/clockwork-revolution.jpg",
+    "reviews": [
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 65.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/hardware/controllers/nacon-revolution-x-unlimited-review/",
+        "excerpt": "Feature creep: The controller."
+      },
+      {
+        "publication": "GamesRadar+",
+        "slug": "gamesradar",
+        "score": 100.0,
+        "source": "outlet",
+        "url": "https://www.gamesradar.com/hardware/gaming-controllers/nacon-revolution-5-unlimited-review/",
+        "excerpt": "Nacon Revolution 5 Unlimited review: \"This is controller design at its best\""
+      }
+    ],
+    "mc_slug": "clockwork-revolution",
+    "platforms": [
+      "xbox-series",
+      "pc"
+    ]
+  },
+  "crimson-desert-enhanced": {
+    "title": "Crimson Desert Enhanced",
+    "cover": "/covers/crimson-desert-enhanced.jpg",
+    "reviews": [
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 80.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/games/action/crimson-desert-review/",
+        "excerpt": "A game that tries it all, even if it's not always a success."
+      }
+    ]
+  },
+  "dark-and-darker": {
+    "title": "Dark and Darker",
+    "cover": "/covers/dark-and-darker.jpg",
+    "reviews": [
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 80.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/games/fps/doom-the-dark-ages-review/",
+        "excerpt": "The Dark Ages is fun in different ways than its predecessors, but Doom has been better."
+      }
+    ],
+    "mc_slug": "dark-and-darker",
+    "platforms": [
+      "pc"
+    ]
+  },
+  "deadlock": {
+    "title": "Deadlock",
+    "cover": "/covers/deadlock.jpg",
+    "reviews": [
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 78.0,
+        "source": "outlet",
+        "url": "https://www.ign.com/articles/2017/12/13/battlestar-galactica-deadlock-review-2",
+        "excerpt": "Better late than never, BSG gets the game it deserved."
+      }
+    ],
+    "mc_slug": "deadlock",
+    "platforms": [
+      "pc"
+    ]
+  },
+  "do-no-harm": {
+    "title": "Do No Harm",
+    "cover": "/covers/do-no-harm.jpg",
+    "reviews": [
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 40.0,
+        "source": "outlet",
+        "url": "https://www.ign.com/articles/2013/01/31/do-no-harm-pilot-review",
+        "excerpt": "NBC's new Jekyll and Hyde-style medical series will make you wish you had an alternate personality... who'd never heard of this show."
+      }
+    ],
+    "mc_slug": "do-no-harm",
+    "release_year": 2025,
+    "platforms": [
+      "pc"
+    ]
+  },
+  "due-process": {
+    "title": "Due Process",
+    "cover": "/covers/due-process.jpg",
+    "reviews": [
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 86.99999999999999,
+        "source": "outlet",
+        "url": "https://www.ign.com/articles/2018/11/20/arrow-season-7-episode-6-due-process-review",
+        "excerpt": "Let us know what you thought of tonight's new episode, as Laurel fought to free Ollie from Slabside Prison."
+      }
+    ],
+    "mc_slug": "due-process",
+    "release_year": 2020,
+    "platforms": [
+      "pc"
+    ]
+  },
+  "far-far-west": {
+    "title": "Far Far West",
+    "cover": "/covers/far-far-west.jpg",
+    "reviews": [
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 94.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/games/fps/far-cry-2-review-2008/",
+        "excerpt": "Savannah hosanna."
+      }
+    ],
+    "mc_slug": "far-far-west",
+    "platforms": [
+      "pc"
+    ]
+  },
+  "gorky-17": {
+    "title": "Gorky 17",
+    "cover": "/covers/gorky-17.jpg",
+    "reviews": [
+      {
+        "publication": "GamesRadar+",
+        "slug": "gamesradar",
+        "score": 60.0,
+        "source": "outlet",
+        "url": "https://www.gamesradar.com/hardware/laptops/hp-omen-17-review/",
+        "excerpt": "The HP Omen 17 doesn’t come in with too much of a song and dance, but that boring chassis does get the job done."
+      }
+    ]
+  },
+  "half-life-2-deathmatch": {
+    "title": "Half-Life 2",
+    "cover": "/covers/half-life-2-deathmatch.jpg",
+    "reviews": [
+      {
+        "publication": "CPUGamer",
+        "slug": "cpugamer",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Nothing less than a revolution in the gaming industry that will keep gamers busy for years to come, just as the original did.",
+        "url": "http://www.2404.org/modules.php?name=Reviews&rop=showcontent&id=73"
+      },
+      {
+        "publication": "Playboy",
+        "slug": "playboy",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "A graphics overhaul delivers detailed facial animations and sophisticated physics that leave battle zones strewn with debris after intense shootouts with shuffling corpses, overfed curstaceans and other assorted foes. [October, p.37]"
+      },
+      {
+        "publication": "GameSpy",
+        "slug": "gamespy",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "From its opening moments to its spectacular closing sequences, Half-Life 2 assaults you with a variety of gameplay styles and memorable moments, all executed with amazing precision.",
+        "url": "http://pc.gamespy.com/pc/half-life-2/566585p1.html"
+      },
+      {
+        "publication": "GamerArchive",
+        "slug": "gamerarchive",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Valve have once again managed to transform a genre, and taken pure gaming pleasure to brand new, unthought of heights. The sheer number of moments you'll be astounded by the graphical touches, by the storyline, by the sheer polished nature of the title, and even the incredible level design is quite astounding.",
+        "url": "http://www.gamerarchive.com/site/reviews/pc/halflife2.php"
+      },
+      {
+        "publication": "Cincinnati Enquirer",
+        "slug": "cincinnati-enquirer",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "I found the little things most impressive. Telephone lines ripple from the wind kicked up by passing alien gun ships. Even motes of dust meander into view as they casually flit through rays of sunshine.",
+        "url": "http://www.cincinnati.com/freetime/games/reviews/120204_half-life2.html"
+      },
+      {
+        "publication": "eToychest",
+        "slug": "etoychest",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "The delivered promise of video games to stand alongside cinema and literature as works of art. It accomplishes this through extraordinary graphical and audio prowess, wrapped around a riveting story and conveyed by unsurpassed gameplay...It is, bar none, the finest game I've ever played.",
+        "url": "http://www.etoychest.org/content.php?review.773"
+      },
+      {
+        "publication": "Adrenaline Vault",
+        "slug": "adrenaline-vault",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Valve's inclusion of an interactive physics-based environment and the wonderful gravity gun lends itself to fun gravity puzzles, making use of good old-fashioned common sense and intuition - something I've found to be absent in the average first-person shooter.",
+        "url": "http://www.avault.com/reviews/review_temp.asp?game=hl2"
+      },
+      {
+        "publication": "Gamer.tv",
+        "slug": "gamer-tv",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "We laughed, we gaped, we cried, screamed, and on a few occasions, came dangerously close to wetting ourselves.",
+        "url": "http://www.gamevideovault.com?id=1096"
+      },
+      {
+        "publication": "GamerFeed",
+        "slug": "gamerfeed",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "There is extensive use of lighting, shadows, and sounds. There is nothing like the howl of an evolved head-crab zombie to completely freeze a player in his tracks. The giant spidery Striders never fail to be both threatening and awe-inspiring.",
+        "url": "http://pc.gamerfeed.com/gf/reviews/546/"
+      },
+      {
+        "publication": "Thunderbolt",
+        "slug": "thunderbolt",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "As excellent as the storyline is, you could completely ignore it and still have an amazing experience.",
+        "url": "http://www.thunderboltgames.com/reviews/viewreview.php?rid=576"
+      },
+      {
+        "publication": "Eurogamer",
+        "slug": "eurogamer",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 has astonished us from start to finish. Valve has done to the FPS genre what restaurants in Chinatown do to ducks; shredded it, smothered it in a delicious sauce of their own devising, and served it up in a way which you simply couldn't have imagined when looking at them in the pond.",
+        "url": "http://www.eurogamer.net/article.php?article_id=57222"
+      },
+      {
+        "publication": "Xequted",
+        "slug": "xequted",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "To put it simply, there is never a dull moment in Half-Life 2. In playing the game we could hardly account for a moment when we didn't have some kind of excitement or anxiety. The Source engine is a truly remarkable achievement.",
+        "url": "http://www.xequted.com/article.php?subaction=showfull&id=1101858684&ucat=4&type=reviews"
+      },
+      {
+        "publication": "G4 TV",
+        "slug": "g4-tv",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 hits the ground running and never stops, and playing it for long periods of time can actually be exhausting. Just when you think you've seen the coolest thing it has to throw at you, the next sequence tops it.",
+        "url": "http://www.g4techtv.com/xplay/features/50469/HalfLife_2_Review.html"
+      },
+      {
+        "publication": "GamePro",
+        "slug": "gamepro",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "The way things fly, catch fire, and fall not only carries consequences that add weight to your war of the worlds, but also creates situations that reward guile, guts, and instinct... Everything about Half-Life 2 is remarkable.",
+        "url": "http://www.gamepro.com/computer/pc/games/reviews/39548.shtml"
+      },
+      {
+        "publication": "Times Online",
+        "slug": "times-online",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "A simple but elegant narrative imbues the experience with considerable inertia. Urgent, funny, frightening and bleak, Half-Life 2 tells its tale of rebellion against a grim European dystopia with ease and vigour.",
+        "url": "http://entertainment.timesonline.co.uk/article/0,,14935-1358760,00.html"
+      },
+      {
+        "publication": "Computer Games Magazine",
+        "slug": "computer-games-magazine",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Every time you feel that you've had your fill of a particular type of gameplay, Half-Life 2 introduces some new wrinkle that reinvigorates the entire experience...It's certainly one of the most masterfully paced [games ever]. It's the type of game that you can't wait to talk about with other people. [Jan 2005, p.60]",
+        "url": "http://www.cgonline.com/content/view/142/50/"
+      },
+      {
+        "publication": "The Sydney Morning Herald",
+        "slug": "the-sydney-morning-herald",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "No other game provides such rich atmosphere or better blends exciting action with sublime storytelling. It is much more than a science-fiction shoot-'em up: the adventure has convincing characters with great emotional depth and thrilling cinematic set pieces providing astonishing spectacle.",
+        "url": "http://www.smh.com.au/news/Games/Pick-of-the-bunch/2004/12/01/1101577493985.html"
+      },
+      {
+        "publication": "Just Adventure",
+        "slug": "just-adventure",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "It's solid and requires, thanks to the variety and great AI of the enemy you meet throughout, more than a modicum of strategic thinking to get through with a good selection of interesting weapons on offer.",
+        "url": "http://www.justadventure.com/reviews/HL2/HL2.shtm"
+      },
+      {
+        "publication": "Four Fat Chicks",
+        "slug": "four-fat-chicks",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Represents the pinnacle of great action shooters because it strictly adheres to the one rule that makes an FPS great, the one rule that so many developers ignore, or break due to ineptitude and then conceal behind a shroud of tacked-on complexity: in a first person shooter, level design is <I>everything.</I>",
+        "url": "http://www.fourfatchicks.com/Reviews/Half_Life_2/HL2.shtml"
+      },
+      {
+        "publication": "Frictionless Insight",
+        "slug": "frictionless-insight",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "A game that is best experienced rather than described. It's like trying to describe \"Blade Runner\" or \"Minority Report\" to someone. You're better off just experiencing it.",
+        "url": "http://www.frictionlessinsight.com/archives/2004/12/halflife_2_revi.html"
+      },
+      {
+        "publication": "Gaming Age",
+        "slug": "gaming-age",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Where it goes beyond a typical first person shooter is in its story telling. The graphics engine is so realistic that you feel like you are participating in a movie. The character's facial animation is incredible. It's done so well, you can get a sense of how the characters are feeling.",
+        "url": "http://www.gaming-age.com/cgi-bin/reviews/review.pl?sys=pc&game=halflife2"
+      },
+      {
+        "publication": "Boomtown",
+        "slug": "boomtown",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "A game designed to excel in all areas with one goal ' making the player feel at the centre of the action and in control. The level of interaction with the world is breathtaking and heightens the sense of danger and the rewards for success."
+      },
+      {
+        "publication": "Total Video Games",
+        "slug": "total-video-games",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "It's a perfect cocktail of action, suspense, logic, style and substance; you simply couldn't ask for anything more.",
+        "url": "http://www.totalvideogames.net/pages/articles/index.php?game_id=2039&article_id=6791"
+      },
+      {
+        "publication": "Edge Magazine",
+        "slug": "edge-magazine",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 is a first-person shooter. But in action, storytelling, technical achievement, atmosphere and intensity it has far outdone its peers. Valve just hit the top note no other PC game developer could reach...The excuse that 'it's just a game' won't cut it anymore.  [Dec 2004, p.102]"
+      },
+      {
+        "publication": "Play Magazine",
+        "slug": "play-magazine",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Stripped of its hype-induced hysteria and lore, and isolated as a pure action showcase, Half-Life 2 is one of the most satisfying efforts in recent years. [Dec 2004, p.82]"
+      },
+      {
+        "publication": "Yahoo!",
+        "slug": "yahoo",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "This is a jaw-dropping, exhilarating game. It's the game you'll remember for years.",
+        "url": "http://gamesdomain.yahoo.com/pc/halflife_2/review/53636"
+      },
+      {
+        "publication": "Gamers Depot",
+        "slug": "gamers-depot",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "If you can take the best puzzle-guessing, enemy-fighting, graphically beautiful shooters out there and combine them ' you'd come close to hitting the mark that makes up HL2.",
+        "url": "http://www.gamers-depot.com/games/action/hl2/review/001.htm"
+      },
+      {
+        "publication": "Armchair Empire",
+        "slug": "armchair-empire",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 isn't flawless, just like any great work of art, but that doesn't make it any less of a masterpiece.",
+        "url": "http://www.armchairempire.com/Reviews/PC%20Games/half-life-2.htm"
+      },
+      {
+        "publication": "The New York Times",
+        "slug": "the-new-york-times",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "No other game does as many things as well as Half-Life 2; I had so much fun that I can forgive the game its abysmal ending. I was continually enthralled and amazed.",
+        "url": "http://www.nytimes.com/2004/11/25/technology/circuits/25game.html?ex=1102400752&ei=1&en=e3a5cf6f48defd10"
+      },
+      {
+        "publication": "GMR Magazine",
+        "slug": "gmr-magazine",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "It's a game that somehow manages to simultaneously fulfill all expectations yet finish with the player unsatisfied and craving for more. [Feb 2005, p.92]"
+      },
+      {
+        "publication": "Australian GamePro",
+        "slug": "australian-gamepro",
+        "score": 100.0,
+        "source": "metacritic",
+        "excerpt": "No other game has ever lived up to six years of hype and then left gamers so glued to their PCs that 24 hours later.",
+        "url": "http://www.gamepro.com.au/index.php/id;1181166017;fp;2;fpid;36"
+      },
+      {
+        "publication": "Game Chronicles",
+        "slug": "game-chronicles",
+        "score": 99.0,
+        "source": "metacritic",
+        "excerpt": "Lighting is outstanding and there is a definitive passage of time that is reflected with various night and day conditions.",
+        "url": "http://www.gamechronicles.com/reviews/pc/halflife2/halflife2.htm"
+      },
+      {
+        "publication": "Inside Gamer Online",
+        "slug": "inside-gamer-online",
+        "score": 98.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2's greatest triumph, however, is not in any of these individual elements, but in the Orwellian milieu created by constant reminders that you are not the hunter, but the hunted.",
+        "url": "http://insidegameronline.com/pc.php?view=reviews&id=122"
+      },
+      {
+        "publication": "VIA Gamers Arena",
+        "slug": "via-gamers-arena",
+        "score": 98.0,
+        "source": "metacritic",
+        "excerpt": "The seamless collaboration of sight and sound, storytelling and fast paced game play gell with the animations, physics, and environment interaction to make for the most suspenseful, gripping and action packed FPS game ever made.",
+        "url": "http://www.viavga.com/default.asp?PageID=30&Review=20"
+      },
+      {
+        "publication": "IC-Games",
+        "slug": "ic-games",
+        "score": 98.0,
+        "source": "metacritic",
+        "excerpt": "There just isn't anything that can touch Half-Life 2. It's the bees' knees, the cats' whiskers; hell it's the dogs bo- lets just say it's pretty damned good.",
+        "url": "http://www.ic-games.co.uk/index.php?location=1&&articleid=2306"
+      },
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 98.0,
+        "source": "metacritic",
+        "excerpt": "History in the making. It raises the bar for interactive entertainment, and then uses that bar to club all other games into submission...Valve has forged the framework for the next generation of games, demonstrating what our medium can and should be able to accomplish - an exhilarating entertainment that can emotionally move you one moment, kick ass the next, and keep you immersed the whole time. [Dec 2004, p.48]"
+      },
+      {
+        "publication": "Jolt Online Gaming UK",
+        "slug": "jolt-online-gaming-uk",
+        "score": 98.0,
+        "source": "metacritic",
+        "excerpt": "On the whole, Half-Life 2 manages to be an incredible new game while still retaining that unique Half-Life magic.",
+        "url": "http://www.jolt.co.uk/index.php?articleid=2950"
+      },
+      {
+        "publication": "Gaming Horizon",
+        "slug": "gaming-horizon",
+        "score": 98.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2, simply put, is a complete masterpiece; once again, the definition of what gaming is all about. Shame on you if you haven’t already played it. Loser.",
+        "url": "http://reviews.gaminghorizon.com/media2/1112204880.26.html"
+      },
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "Simply a masterpiece -- a work of art in the genre. Not only does it engage the mind with mysterious happenings, vagaries, and mostly intelligent dialogue, but also captures the senses with a superb visual style made possible by brilliant technology.",
+        "url": "http://pc.ign.com/articles/566/566202p1.html"
+      },
+      {
+        "publication": "Computer and Video Games",
+        "slug": "computer-and-video-games",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "This game is so close to flawless it's painful to the eye. It's so beautifully constructed, so immaculate, I can barely bring myself to divulge its details...Simply the most essential gaming experience of the year, the game the entire FPS genre has been building towards for the past decade, and one of the defining moments of the videogame medium as a whole. [PC Zone]",
+        "url": "http://www.computerandvideogames.com/reviews/reviews_story.php?id=111902"
+      },
+      {
+        "publication": "Game Over Online",
+        "slug": "game-over-online",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "It's a beautiful game with fantastic design and writing that's a little short but delivers boatloads of action in what time you do end up playing.",
+        "url": "http://www.game-over.net/reviews.php?id=963"
+      },
+      {
+        "publication": "Gamezilla!",
+        "slug": "gamezilla",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "One of the least entertaining things in Half-Life 2 is the weaponry. With the exception of the gravity gun, this game features the same boring weaponry that we've seen time and time again.",
+        "url": "http://www.gamezilla.com/review.aspx?review=8990"
+      },
+      {
+        "publication": "Worth Playing",
+        "slug": "worth-playing",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 doesn't have any radically new technology under its hood, but every bit of it is as polished as the floor of a palace...A lock for Game of the Year but also as the yardstick against which future first-person shooters will be compared for years to come.",
+        "url": "http://www.worthplaying.com/article.php?sid=21529&mode=thread&order=0"
+      },
+      {
+        "publication": "GameBiz",
+        "slug": "gamebiz",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "If you're looking for a game that sucks you right into the screen, this is it. This is your FPS benchmark, this is the game of the year; this game is the beautiful, imaginative, detailed masterpiece of 2004.",
+        "url": "http://www.gamebiz.com.au/reviews.php?action=display&id=493"
+      },
+      {
+        "publication": "PGNx Media",
+        "slug": "pgnx-media",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "The game, simply put, looks absolutely spectacular...The best thing about the graphics is how great the game will look and perform on today's entry-level rigs.",
+        "url": "http://pgnx.net/reviews.php?page=full&id=7240"
+      },
+      {
+        "publication": "AtomicGamer",
+        "slug": "atomicgamer",
+        "score": 97.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 will dominate the first person shooter market for years.",
+        "url": "http://www.atomicgamer.com/article.php?id=96"
+      },
+      {
+        "publication": "Games Radar",
+        "slug": "gamesradar",
+        "score": 96.0,
+        "source": "metacritic",
+        "excerpt": "A game of a higher order of magnitude than any of the previous pretenders to the throne. The polish and the stratospheric production values mean that Half-Life 2 is a magnificent, dramatic experience that has few peers. [PC Gamer UK, Dec 2004, p.66]",
+        "url": "http://gamesradar.msn.co.uk/reviews/default.asp?pagetypeid=2&articleid=32810&subsectionid=1609"
+      },
+      {
+        "publication": "PC Format",
+        "slug": "pc-format",
+        "score": 96.0,
+        "source": "metacritic",
+        "excerpt": "Revel, savour and bask in the brilliance; this is a game that no gamer can afford to ignore... The PC's finest gaming moment, with a half-life of forever. [Nov 2004, p.83]",
+        "url": "http://www.pcformat.co.uk/reviews/default.asp?pagetypeid=2&articleid=33131&subsectionid=680"
+      },
+      {
+        "publication": "Gamer's Hell",
+        "slug": "gamer-s-hell",
+        "score": 96.0,
+        "source": "metacritic",
+        "excerpt": "The mods that will be developed with the Source engine will be some of the best games that we will play. Only the future holds what Half Life 2 can bring us.",
+        "url": "http://www.gamershell.com/pc/half_life_2/review.html"
+      },
+      {
+        "publication": "XGP Gaming",
+        "slug": "xgp-gaming",
+        "score": 96.0,
+        "source": "metacritic",
+        "excerpt": "The graphics are marvelous, the sounds enthrall you, the character models are remarkably realistic looking, the environment is engrossing and the controls are optimized to control Gordon Freeman and all of his actions.",
+        "url": "http://www.xgpgaming.com/content.php?category=DeskPC&type=review&id=1042"
+      },
+      {
+        "publication": "Play.tm",
+        "slug": "play-tm",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "An ephemeral and controversial ending, along with the few issues described above, means that for me, Half-Life 2, while a compelling and highly enjoyable game, falls short of the size of impact that the first title had on the gaming world.",
+        "url": "http://www.ferrago.com/story/4805"
+      },
+      {
+        "publication": "Game Informer",
+        "slug": "game-informer",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "Technical wizardry is married to artistic brilliance throughout the presentation, from the oddly beautiful vistas of a post-apocalyptic Earth to the creepy alien Citadel...This will be remembered as a historic occasion in gaming. [Dec 2004, p.184]"
+      },
+      {
+        "publication": "3DAvenue",
+        "slug": "3davenue",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "You will be hard pressed to find a FPS that looks better than Half Life 2 when it is played at its max settings.",
+        "url": "http://www.3davenue.com/index.php?mod=article&id=912"
+      },
+      {
+        "publication": "Gamers Europe",
+        "slug": "gamers-europe",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "The closest thing to perfection you'll play this year. You'd be a fool to miss out.",
+        "url": "http://www.gamerseurope.com/articles/633"
+      },
+      {
+        "publication": "FiringSquad",
+        "slug": "firing-squad",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "It's more polished, refined and spit-shined than any game since \"StarCraft\"...The most remarkable thing about Half-Life 2 is that it manages to perfectly recapture that magical feeling from the original of being there.",
+        "url": "http://www.firingsquad.com/games/half_life_2_review/"
+      },
+      {
+        "publication": "IncGamers",
+        "slug": "incgamers",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "So while there are problems this game is still a cracker.  It's one of those games that reminds PC gamers why they prefer PC gaming over console.",
+        "url": "http://www.loadedinc.com/review.php?temp_view=review.php&game=Half%20Life%202&id=455"
+      },
+      {
+        "publication": "Game Power Australia",
+        "slug": "game-power-australia",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "It's true that Valve's sequel isn't as revolutionary as the original was back in 1998, but it's arguably the best first person shooter you've ever played, and that certainly makes it worth your while.",
+        "url": "http://www.gamepower.com.au/?aid=2243"
+      },
+      {
+        "publication": "Next Level Gaming",
+        "slug": "next-level-gaming",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "This game is well made and has a level of polish that tends to be only found in Blizzard games.",
+        "url": "http://www.nlgaming.com/nl/asp/id_1074/nl/reviewDisp.htm"
+      },
+      {
+        "publication": "GamingTrend",
+        "slug": "gamingtrend",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "I have had a dream of how good this game could be for a long time, and it was immediately kicked out the door for not being grand enough.",
+        "url": "http://www.gamingtrend.com/Reviews/review/review.php?ReviewID=297"
+      },
+      {
+        "publication": "Computer Games Online RO",
+        "slug": "computer-games-online-ro",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "The attention to detail is simply staggering and I'm not referring just to City 17. The sky is beautiful, regardless of the time of day, a lot of the surfaces are bump-mapped and I often found myself using the zoom to see just how good the objects looked in the distance.",
+        "url": "http://www.computergames.ro/site/p/articles/o/review/lng/en/artid/588/half_life_2.html"
+      },
+      {
+        "publication": "Electric Playground",
+        "slug": "electric-playground",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "With tasty graphics and gameplay that is sheer madness, Half-life 2 is sweeter than a chocolate-and-honey lollipop coated with sugar, and it provides twice the rush.",
+        "url": "http://www.elecplay.com/reviews_article.php?article=11199"
+      },
+      {
+        "publication": "GameZone",
+        "slug": "gamezone",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "The great graphics, incredible physics' engine, impressive sound/music and engaging story line all add up to a classic game.",
+        "url": "http://pc.gamezone.com/gzreviews/r21320.htm"
+      },
+      {
+        "publication": "GameSpot AU",
+        "slug": "gamespot-au",
+        "score": 95.0,
+        "source": "metacritic",
+        "excerpt": "Simply extraordinary. It’s clear from the start that Valve have pulled out all the stops, resulting in a well polished game that’s graphically spectacular.",
+        "url": "http://www.cnet.com.au/games/0,39029241,40002562,00.htm"
+      },
+      {
+        "publication": "My Gamer",
+        "slug": "my-gamer",
+        "score": 94.0,
+        "source": "metacritic",
+        "excerpt": "Some may find it tedious and even frustrating at times, but there are enough jaw-dropping moments throughout the campaign that still make Half Life 2 one of the greatest first person shooters ever.",
+        "url": "http://www.mygamer.com/index.php?page=gameportal&mode=reviews&id=69"
+      },
+      {
+        "publication": "WHAM! Gaming",
+        "slug": "wham-gaming",
+        "score": 94.0,
+        "source": "metacritic",
+        "excerpt": "A gaming masterpiece that combines groundbreaking technology, atmosphere and all-out action. It's the closest you'll get to starring in your own sci-fi flick.",
+        "url": "http://wham.canoe.ca/pc/reviews/2004/11/21/724326.html"
+      },
+      {
+        "publication": "Gamers' Temple",
+        "slug": "gamers-temple",
+        "score": 94.0,
+        "source": "metacritic",
+        "excerpt": "If you want to lose yourself completely in a game or need a reminder of why you enjoy gaming so much, Half-Life 2 is exactly what you need.",
+        "url": "http://www.gamerstemple.com/games4/000684/000684r01.asp"
+      },
+      {
+        "publication": "TotalGames.net",
+        "slug": "totalgames-net",
+        "score": 94.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 establishes a class-step in gaming we haven't seen since \"Elite\" on the BBC Micro.",
+        "url": "http://www.totalgames.net/pma/21461"
+      },
+      {
+        "publication": "ActionTrip",
+        "slug": "actiontrip",
+        "score": 93.0,
+        "source": "metacritic",
+        "excerpt": "Half-Life 2 is not perfect. The bizarre decision to include teammates in the way that Valve has, as well as the many and annoying loading times can actually diminish some of the fun factor. That said, this is still a game you don't want to miss.",
+        "url": "http://www.actiontrip.com/reviews/halflife2.html"
+      },
+      {
+        "publication": "Gaming Nexus",
+        "slug": "gaming-nexus",
+        "score": 92.0,
+        "source": "metacritic",
+        "excerpt": "A crowning achievement for Valve and one game that I thoroughly enjoyed. A few problems do exist such as the crashing and minor engine quirks. All in all, a wonderful PC game and one that fans of the original will love.",
+        "url": "http://www.gamingnexus.com/Review.asp?ID=630"
+      },
+      {
+        "publication": "PC Gameworld",
+        "slug": "pc-gameworld",
+        "score": 92.0,
+        "source": "metacritic",
+        "excerpt": "One issue that pops up early is the game's rather inept AI. Enemies just do not have the kind of intelligence or cleverness the first game had. Combine soldiers do little to evade your fire, preferring to just stand there shooting at you.",
+        "url": "http://www.pcgameworld.com/review.php/id/545/Half-Life_2/"
+      },
+      {
+        "publication": "Warcry",
+        "slug": "warcry",
+        "score": 92.0,
+        "source": "metacritic",
+        "excerpt": "The only part that was truly lacking was the multiplayer—hopefully, we see something better in the coming weeks from either Valve or from the fans. The modding community will definitely rally behind Half Life 2 for years to come.",
+        "url": "http://www.warcry.com/scripts/columns/view_sectionalt.phtml?site=15&id=67&colid=5809"
+      },
+      {
+        "publication": "GameSpot",
+        "slug": "gamespot",
+        "score": 92.0,
+        "source": "metacritic",
+        "excerpt": "While Half-Life 2 breaks little new ground, it's still a superb and engaging first-person shooter, as well as an amazing technological accomplishment.",
+        "url": "http://www.gamespot.com/pc/action/halflife2/review.html?q=1&tag=gs_hp_flashtop_bg"
+      },
+      {
+        "publication": "Game Revolution",
+        "slug": "game-revolution",
+        "score": 91.0,
+        "source": "metacritic",
+        "excerpt": "It presents the most exciting single-player first-person game you'll find on any system this year. It's a shame that the product is marred by issues that have little to do with the game itself, because ultimately, the games are what matter most.",
+        "url": "http://www.game-revolution.com/games/pc/action/half-life_2.htm"
+      },
+      {
+        "publication": "Cheat Code Central",
+        "slug": "cheat-code-central",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "Considering how well Valve got the action down pat, I was very unpleasantly surprised that they managed to fumble the storyline so badly. HL2 starts off with such promise and ends with something akin to what you'd find in \"[deleted]\" which is a travesty of a mockey of a sham, if there ever was one."
+      },
+      {
+        "publication": "1UP",
+        "slug": "1up",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "Frankly, it seems like much of the game's technological potential is being squandered on a 3D game whose actual road to progress is every bit as two-dimensional as an 8-bit platformer.",
+        "url": "http://www.1up.com/do/reviewPage?cId=3136772&did=1"
+      },
+      {
+        "publication": "Computer Gaming World",
+        "slug": "computer-gaming-world",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "The biggest and only serious bummer of Half-Life 2 is the installation -- and it's so bad that we're knocking the game's final score.",
+        "url": "http://cgw.1up.com/do/reviewPage?cId=3137399&did=4"
+      },
+      {
+        "publication": "GameShark",
+        "slug": "gameshark",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "While it may do what other games have already done, the important point is that it does it <I>better</I>.",
+        "url": "http://www.gameshark.com/index.asp?s=240_33a0401e-d9ae-49d3-8c2b-392ea569f87&a=reviews&id=1979"
+      },
+      {
+        "publication": "GameCritics",
+        "slug": "game-critics",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "More than anything else, I suppose, Half-Life 2 is the story of a group of developers in love with their physics engine.",
+        "url": "http://www.gamecritics.com/review/halflife2/main.php"
+      },
+      {
+        "publication": "Gamenikki",
+        "slug": "gamenikki",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "One of the best games ever made. Not getting this game should be a crime.",
+        "url": "http://www.gamenikki.com/Pages/Reviews/PC/Half-Life2//index.php4"
+      },
+      {
+        "publication": "VGPub",
+        "slug": "vgpub",
+        "score": 90.0,
+        "source": "metacritic",
+        "excerpt": "What matters is that Valve has managed to put together an excellent FPS with a gripping plot, eye candy graphics, and thrilling combat. Those three are rarely seen together in an era of copycat FPS games, which makes Half-Life 2 a breath of fresh air.",
+        "url": "http://www.vgpub.com/Half-Life-2-Review/review"
+      },
+      {
+        "publication": "netjak",
+        "slug": "netjak",
+        "score": 85.0,
+        "source": "metacritic",
+        "excerpt": "I think this is probably the worst teammate AI I've seen in an FPS since \"Daikatana.\" It's like every one of your followers are the Redshirt sidekicks from \"Star Munchkin.\"",
+        "url": "http://www.netjak.com/review.php/780"
+      }
+    ],
+    "metascore": 96,
+    "mc_slug": "half-life-2",
+    "release_year": 2004,
+    "platforms": [
+      "xbox",
+      "pc"
+    ]
+  },
+  "he-man-and-the-masters-of-the-universe-dragon-pearl-of-destruction": {
+    "title": "He-Man and the Masters of the Universe: Dragon Pearl of Destruction",
+    "cover": "/covers/he-man-and-the-masters-of-the-universe-dragon-pearl-of-destruction.jpg",
+    "reviews": [
+      {
+        "publication": "GamesRadar+",
+        "slug": "gamesradar",
+        "score": 60.0,
+        "source": "outlet",
+        "url": "https://www.gamesradar.com/entertainment/sci-fi-movies/masters-of-the-universe-review/",
+        "excerpt": "A spoiler-free review of Masters of the Universe"
+      }
+    ],
+    "mc_slug": "he-man-and-the-masters-of-the-universe-dragon",
+    "release_year": 2027,
+    "platforms": [
+      "pc",
+      "ps5",
+      "xbox-series",
+      "switch",
+      "ps4",
+      "xbox-one"
+    ]
+  },
+  "judas": {
+    "title": "Judas",
+    "cover": "/covers/judas.jpg",
+    "reviews": [
+      {
+        "publication": "IGN",
+        "slug": "ign",
+        "score": 86.0,
+        "source": "outlet",
+        "url": "https://www.ign.com/articles/2017/11/17/marvels-the-punisher-the-judas-goat-review",
+        "excerpt": "A new enemy emerges for The Punisher, while Lewis must make a hard choice."
+      }
+    ],
+    "mc_slug": "judas",
+    "platforms": [
+      "pc",
+      "ps5",
+      "xbox-series"
+    ]
+  },
+  "knights-college": {
+    "title": "Knights College 2",
+    "cover": "/covers/knights-college.jpg",
+    "reviews": [
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 77.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/games/roguelike/knights-in-tight-spaces-review/",
+        "excerpt": "A solid sequel that flourishes the more you play, though repetitiveness might stop you wanting to."
+      }
+    ],
+    "mc_slug": "knights-college-2",
+    "release_year": 2025,
+    "platforms": [
+      "pc"
+    ]
+  },
+  "masters-of-albion": {
+    "title": "Masters of Albion",
+    "cover": "/covers/masters-of-albion.jpg",
+    "reviews": [
+      {
+        "publication": "GamesRadar+",
+        "slug": "gamesradar",
+        "score": 60.0,
+        "source": "outlet",
+        "url": "https://www.gamesradar.com/entertainment/sci-fi-movies/masters-of-the-universe-review/",
+        "excerpt": "A spoiler-free review of Masters of the Universe"
+      }
+    ],
+    "mc_slug": "masters-of-albion",
+    "platforms": [
+      "pc"
+    ]
+  },
+  "metal-gear-solid-3-snake-eater-master-collection-version": {
+    "title": "Metal Gear Solid 3 Snake Eater Master Collection Version",
+    "cover": "/covers/metal-gear-solid-3-snake-eater-master-collection-version.jpg",
+    "reviews": [
+      {
+        "publication": "PC Gamer",
+        "slug": "pc-gamer",
+        "score": 87.0,
+        "source": "outlet",
+        "url": "https://www.pcgamer.com/games/action/metal-gear-solid-delta-snake-eater-review/",
+        "excerpt": "Excellent, Konami: Age hasn't slowed you down one bit."
+      },
+      {
+        "publication": "GamesRadar+",
+        "slug": "gamesradar",
+        "score": 80.0,
+        "source": "outlet",
+        "url": "https://www.gamesradar.com/games/metal-gear/metal-gear-solid-delta-snake-eater-review/",
+        "excerpt": "The latest Review,,,reviews, breaking news, comment, reviews and features from the experts at GamesRadar+"
+      }
+    ]
   }
 }
