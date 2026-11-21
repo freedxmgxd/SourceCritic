@@ -1,0 +1,12 @@
+/target
+*.db
+!sourcecritic.db
+/dist
+/node_modules
+.wrangler
+.dev.vars
+*.bak
+*.bak-*
+data/*.bak-merges
+**/__pycache__/
+*.pyc
