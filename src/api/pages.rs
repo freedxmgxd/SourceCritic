@@ -583,10 +583,29 @@ nav a[aria-current="page"] {
 
 .about-actions a.secondary:hover { background: var(--accent-mid); }
 
-/* Ad sits under the header — visible without scrolling to the end. */
-.site-ad {
-  margin: 16px 0 4px;
+/* Side rail: outside the article column so reading flow stays clean. */
+.page-shell {
+  display: grid;
+  grid-template-columns: 1fr min(860px, calc(100% - 32px)) 1fr;
+  align-items: start;
+  column-gap: 12px;
+}
+
+.page-shell > main {
+  grid-column: 2;
+  width: 100%;
+  margin: 28px 0 64px;
+}
+
+.site-ad-rail {
+  grid-column: 3;
+  justify-self: start;
+  position: sticky;
+  top: 96px;
+  width: 160px;
+  margin: 96px 12px 48px 0;
   padding: 0;
+  align-self: start;
 }
 
 .site-ad-label {
@@ -597,23 +616,36 @@ nav a[aria-current="page"] {
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.65;
+  opacity: 0.55;
 }
 
 .site-ad-slot {
   display: flex;
   justify-content: center;
-  align-items: center;
-  max-height: 90px;
+  align-items: flex-start;
+  min-height: 0;
   overflow: hidden;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bg) 55%, var(--panel));
-  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  border-radius: 10px;
+  background: transparent;
+  border: 0;
 }
 
 .site-ad-slot > * {
-  max-width: 100%;
-  max-height: 80px;
+  max-width: 160px;
+}
+
+/* No side room → hide the rail entirely (no in-content pollution). */
+@media (max-width: 1199px) {
+  .page-shell {
+    display: block;
+  }
+  .page-shell > main {
+    width: min(860px, calc(100% - 32px));
+    margin: 28px auto 64px;
+  }
+  .site-ad-rail {
+    display: none !important;
+  }
 }
 
 @media (max-width: 720px) {
@@ -678,10 +710,12 @@ const DONATE_URL: Option<&str> = None;
 const DONATE_BTC: Option<&str> = None;
 const DONATE_ETH: Option<&str> = None;
 const DONATE_XMR: Option<&str> = None;
-/// Optional ad HTML under the header (AdSense snippet, affiliate unit, etc.).
-/// Prefer env `SOURCECRITIC_AD_HTML` at runtime; this is a compile-time fallback.
-/// When neither is set the slot is omitted entirely — no empty box on the page.
+/// Optional AdSense (or other) unit markup for the side rail.
+/// Prefer a vertical / 160×600 or fluid unit. Env `SOURCECRITIC_AD_HTML` overrides.
+/// When unset the rail is omitted. Shown at most once per browser hour (see SITE_JS).
 const AD_HTML: Option<&str> = None;
+/// How long before the side ad may show again for the same visitor (ms).
+const AD_COOLDOWN_MS: u64 = 60 * 60 * 1000;
 /// Canonical public origin for absolute links in the static export.
 const SITE_ORIGIN: &str = "https://sourcecritic.freedxm.com";
 
@@ -795,7 +829,46 @@ const SITE_JS: &str = r#"
         });
       });
     });
+    gateSideAd();
   });
+  function gateSideAd() {
+    var aside = document.getElementById("site-ad");
+    var src = document.getElementById("site-ad-src");
+    if (!aside || !src) return;
+    var cooldown = Number(aside.getAttribute("data-cooldown-ms") || 3600000);
+    var key = "sc_ad_shown_at";
+    var now = Date.now();
+    var last = Number(localStorage.getItem(key) || 0);
+    if (last && now - last < cooldown) {
+      aside.remove();
+      return;
+    }
+    var slot = aside.querySelector(".site-ad-slot");
+    if (!slot) {
+      aside.remove();
+      return;
+    }
+    slot.innerHTML = src.textContent || "";
+    src.remove();
+    aside.hidden = false;
+    localStorage.setItem(key, String(now));
+    Array.prototype.slice.call(slot.querySelectorAll("script")).forEach(function (old) {
+      var s = document.createElement("script");
+      if (old.src) {
+        s.src = old.src;
+        s.async = old.async;
+        if (old.crossOrigin) s.crossOrigin = old.crossOrigin;
+      } else {
+        s.textContent = old.textContent;
+      }
+      old.replaceWith(s);
+    });
+    try {
+      if (slot.querySelector(".adsbygoogle")) {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    } catch (e) {}
+  }
 })();
 "#;
 
@@ -1960,10 +2033,14 @@ fn ad_slot_html() -> String {
     let markup = from_env.or_else(|| AD_HTML.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()));
     match markup {
         Some(inner) => format!(
-            "<aside class=\"site-ad\" aria-label=\"Advertisement\">\
+            "<aside class=\"site-ad-rail\" id=\"site-ad\" hidden data-cooldown-ms=\"{cooldown}\" aria-label=\"Advertisement\">\
                <span class=\"site-ad-label\">Ad</span>\
-               <div class=\"site-ad-slot\">{inner}</div>\
-             </aside>"
+               <div class=\"site-ad-slot\"></div>\
+               <script type=\"text/plain\" id=\"site-ad-src\">{inner}</script>\
+             </aside>",
+            cooldown = AD_COOLDOWN_MS,
+            // text/plain body must not close the script early; strip closers.
+            inner = inner.replace("</script", "<\\/script"),
         ),
         None => String::new(),
     }
@@ -2013,19 +2090,21 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
            <script>{SITE_JS}</script>\
          </head>\
          <body>\
-           <main>\
-             <header>\
-               <a class=\"brand\" href=\"/\">SourceCritic</a>\
-               <nav>\
-                 <a href=\"/\"{games}>Games</a>\
-                 <a href=\"/outlets\"{outlets}>Outlets</a>\
-                 <a href=\"/score\"{score}>The score</a>\
-                 <a href=\"/about\"{about}>About</a>\
-               </nav>\
-             </header>\
+           <div class=\"page-shell\">\
+             <main>\
+               <header>\
+                 <a class=\"brand\" href=\"/\">SourceCritic</a>\
+                 <nav>\
+                   <a href=\"/\"{games}>Games</a>\
+                   <a href=\"/outlets\"{outlets}>Outlets</a>\
+                   <a href=\"/score\"{score}>The score</a>\
+                   <a href=\"/about\"{about}>About</a>\
+                 </nav>\
+               </header>\
+               {body}\
+             </main>\
              {ad}\
-             {body}\
-           </main>\
+           </div>\
          </body>\
          </html>",
         title = esc(title),
