@@ -669,7 +669,9 @@ nav.sort button[data-sort][aria-current="true"] {
 "#;
 
 /// Public contact address shown on /about. `None` until an inbox exists.
-const CONTACT_EMAIL: Option<&str> = None;
+const CONTACT_EMAIL: Option<&str> = Some("joeltondbrandao@freedxm.com");
+/// Public GitHub profile linked from /about.
+const GITHUB_URL: Option<&str> = Some("https://github.com/freedxmgxd");
 /// Donation URL (Ko-fi, PayPal, Pix page, etc.). `None` until a page exists.
 const DONATE_URL: Option<&str> = None;
 /// Optional crypto donation addresses shown on /about. Fill in when wallets are ready.
@@ -1678,24 +1680,42 @@ fn about_page() -> String {
         }
     };
 
-    let contact_block = match CONTACT_EMAIL {
+    let mut contact_block = String::from(
+        "<p class=\"lead\">Bugs, missing games, methodology questions, or press—write and we will get back when we can.</p>",
+    );
+    let mut contact_actions = String::new();
+    match CONTACT_EMAIL {
         Some(email) => {
             let mailto = format!("mailto:{email}");
-            format!(
-                "<p class=\"lead\">Bugs, missing games, methodology questions, or press—write and we will get back when we can.</p>\
-                 <p>Email <a href=\"{mailto}\">{email}</a>.</p>\
-                 <div class=\"about-actions\">\
-                   <a href=\"{mailto}\">Send an email</a>\
-                 </div>",
+            contact_block.push_str(&format!(
+                "<p>Email <a href=\"{mailto}\">{email}</a>.</p>",
                 mailto = esc(&mailto),
                 email = esc(email),
-            )
+            ));
+            contact_actions.push_str(&format!(
+                "<a href=\"{mailto}\">Send an email</a>",
+                mailto = esc(&mailto),
+            ));
         }
-        None => String::from(
-            "<p class=\"lead\">Bugs, missing games, methodology questions, or press—a public inbox is coming soon.</p>\
-             <p class=\"muted\">No contact address yet. Check back here when one is ready.</p>",
+        None => contact_block.push_str(
+            "<p class=\"muted\">No contact address yet. Check back here when one is ready.</p>",
         ),
-    };
+    }
+    if let Some(url) = GITHUB_URL {
+        contact_block.push_str(&format!(
+            "<p>Source and issues on <a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub</a>.</p>",
+            url = esc(url),
+        ));
+        contact_actions.push_str(&format!(
+            "<a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">GitHub</a>",
+            url = esc(url),
+        ));
+    }
+    if !contact_actions.is_empty() {
+        contact_block.push_str("<div class=\"about-actions\">");
+        contact_block.push_str(&contact_actions);
+        contact_block.push_str("</div>");
+    }
 
     let mut donate_block = String::from(
         "<p class=\"lead\">Hosting, cover storage, and catalog work cost money. Donations are optional and go toward keeping the site up—not paywalled scores.</p>",

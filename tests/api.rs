@@ -460,6 +460,7 @@ async fn pages_are_separate_documents() {
     assert!(about.contains("id=\"contact\""));
     assert!(about.contains("id=\"donate\""));
     assert!(about.contains("coming soon"));
-    assert!(!about.contains("mailto:"));
+    assert!(about.contains("mailto:joeltondbrandao@freedxm.com"));
+    assert!(about.contains("https://github.com/freedxmgxd"));
     assert!(about.contains("aria-current=\"page\""));
 }
