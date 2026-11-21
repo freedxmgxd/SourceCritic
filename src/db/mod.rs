@@ -88,6 +88,8 @@ pub struct IncomingReview {
     pub raw_score_norm: f64,
     pub excerpt: Option<String>,
     pub review_url: Option<String>,
+    /// Platforms this specific review covers (MC port SKUs), not the game catalog list.
+    pub review_platforms: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -100,6 +102,7 @@ pub struct ReviewView {
     pub z_score: f64,
     pub excerpt: Option<String>,
     pub review_url: Option<String>,
+    pub platforms: Vec<String>,
     pub outlet_n: i64,
     pub mu: f64,
     pub sigma: f64,
@@ -156,6 +159,10 @@ pub struct Database {
 impl Database {
     pub fn open(path: &str) -> Result<Self, DbError> {
         let conn = Connection::open(path)?;
+        // Export and the live server share this file. Wait instead of 500ing
+        // on SQLITE_BUSY, and use WAL so reads proceed during score writes.
+        conn.busy_timeout(std::time::Duration::from_secs(30))?;
+        conn.pragma_update(None, "journal_mode", "WAL")?;
         let db = Self { conn };
         db.prepare()?;
         // Rebuild scores so hyperparameter / mapping changes apply.
@@ -165,6 +172,7 @@ impl Database {
 
     pub fn open_in_memory() -> Result<Self, DbError> {
         let conn = Connection::open_in_memory()?;
+        conn.busy_timeout(std::time::Duration::from_secs(30))?;
         let db = Self { conn };
         db.prepare()?;
         Ok(db)
@@ -179,6 +187,7 @@ impl Database {
         ensure_column(&self.conn, "games", "synopsis", "TEXT")?;
         ensure_column(&self.conn, "reviews", "excerpt", "TEXT")?;
         ensure_column(&self.conn, "reviews", "review_url", "TEXT")?;
+        ensure_column(&self.conn, "reviews", "platforms", "TEXT")?;
         Ok(())
     }
 
@@ -220,21 +229,28 @@ impl Database {
                     review.synopsis,
                 ],
             )?;
+            let review_platforms_json = if review.review_platforms.is_empty() {
+                None
+            } else {
+                Some(serde_json::to_string(&review.review_platforms).unwrap_or_default())
+            };
             tx.execute(
                 "INSERT INTO reviews (
-                     outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score, excerpt, review_url
+                     outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score,
+                     excerpt, review_url, platforms
                  )
                  VALUES (
                      (SELECT id FROM outlets WHERE slug = ?1),
                      (SELECT id FROM games WHERE slug = ?2),
-                     ?3, ?4, ?5, 0, ?6, ?7
+                     ?3, ?4, ?5, 0, ?6, ?7, ?8
                  )
                  ON CONFLICT(outlet_id, game_id) DO UPDATE SET
                      raw_score = excluded.raw_score,
                      scale_max = excluded.scale_max,
                      raw_score_norm = excluded.raw_score_norm,
                      excerpt = COALESCE(excluded.excerpt, reviews.excerpt),
-                     review_url = COALESCE(excluded.review_url, reviews.review_url)",
+                     review_url = COALESCE(excluded.review_url, reviews.review_url),
+                     platforms = COALESCE(excluded.platforms, reviews.platforms)",
                 params![
                     review.outlet_slug,
                     review.game_slug,
@@ -243,6 +259,7 @@ impl Database {
                     review.raw_score_norm,
                     review.excerpt,
                     review.review_url,
+                    review_platforms_json,
                 ],
             )?;
         }
@@ -353,7 +370,7 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
                       g.synopsis,
                       g.agg_score, g.simple_mean, g.review_count,
                       o.slug, o.name, r.raw_score, r.scale_max, r.raw_score_norm, r.z_score,
-                      r.excerpt, r.review_url,
+                      r.excerpt, r.review_url, r.platforms,
                       o.review_count, o.mu, o.sigma, o.mu_prime, o.sigma_prime
                FROM games g
                JOIN reviews r ON r.game_id = g.id
@@ -380,11 +397,12 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
             z_score: row.get(14)?,
             excerpt: row.get(15)?,
             review_url: row.get(16)?,
-            outlet_n: row.get(17)?,
-            mu: row.get(18)?,
-            sigma: row.get(19)?,
-            mu_prime: row.get(20)?,
-            sigma_prime: row.get(21)?,
+            review_platforms: row.get(17)?,
+            outlet_n: row.get(18)?,
+            mu: row.get(19)?,
+            sigma: row.get(20)?,
+            mu_prime: row.get(21)?,
+            sigma_prime: row.get(22)?,
         })
     })?;
 
@@ -422,6 +440,7 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
             z_score: row.z_score,
             excerpt: row.excerpt,
             review_url: row.review_url,
+            platforms: parse_platforms(row.review_platforms.as_deref()),
             outlet_n: row.outlet_n,
             mu: row.mu,
             sigma: row.sigma,
@@ -543,6 +562,7 @@ struct FlatRow {
     z_score: f64,
     excerpt: Option<String>,
     review_url: Option<String>,
+    review_platforms: Option<String>,
     outlet_n: i64,
     mu: f64,
     sigma: f64,

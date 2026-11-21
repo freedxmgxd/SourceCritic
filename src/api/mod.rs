@@ -48,11 +48,32 @@ pub fn app(db: Database) -> Router {
     };
     Router::new()
         .route("/", get(pages::home))
+        .route("/page/{page}", get(pages::home_page))
+        .route("/page/{page}/", get(pages::home_page))
         .route("/game/{slug}", get(pages::game))
+        .route("/game/{slug}/", get(pages::game))
         .route("/outlets", get(pages::outlets))
+        .route("/outlets/", get(pages::outlets))
+        .route("/outlets/ranking", get(pages::outlet_ranking))
+        .route("/outlets/ranking/", get(pages::outlet_ranking))
         .route("/outlet/{slug}", get(pages::outlet))
+        .route("/outlet/{slug}/", get(pages::outlet))
         .route("/score", get(pages::method))
+        .route("/score/", get(pages::method))
         .route("/about", get(pages::about))
+        .route("/about/", get(pages::about))
+        .route("/privacy", get(pages::privacy))
+        .route("/privacy/", get(pages::privacy))
+        .route("/terms", get(pages::terms))
+        .route("/terms/", get(pages::terms))
+        .route("/most-divisive", get(pages::most_divisive))
+        .route("/most-divisive/", get(pages::most_divisive))
+        .route("/disagreements", get(pages::disagreements))
+        .route("/disagreements/", get(pages::disagreements))
+        .route("/best/", get(pages::best_index))
+        .route("/best/{platform}/{year}", get(pages::best_of))
+        .route("/best/{platform}/{year}/", get(pages::best_of))
+        .route("/games-index.json", get(pages::games_index))
         .route("/reviews", post(create_reviews))
         .route("/games", get(list_games))
         .route("/games/{slug}", get(get_game))
@@ -90,6 +111,8 @@ struct ReviewIn {
     excerpt: Option<String>,
     #[serde(default)]
     review_url: Option<String>,
+    #[serde(default)]
+    review_platforms: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -124,6 +147,7 @@ struct ReviewResponse {
     z_score: f64,
     excerpt: Option<String>,
     review_url: Option<String>,
+    platforms: Vec<String>,
     outlet_n: i64,
     mu: f64,
     sigma: f64,
@@ -161,6 +185,7 @@ impl From<ReviewView> for ReviewResponse {
             z_score: review.z_score,
             excerpt: review.excerpt,
             review_url: review.review_url,
+            platforms: review.platforms,
             outlet_n: review.outlet_n,
             mu: review.mu,
             sigma: review.sigma,
@@ -298,6 +323,12 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty())
         .collect::<Vec<_>>();
+    let review_platforms = review
+        .review_platforms
+        .iter()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+        .collect::<Vec<_>>();
     let synopsis = review
         .synopsis
         .as_ref()
@@ -317,5 +348,6 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
         raw_score_norm: review.raw_score_norm,
         excerpt,
         review_url,
+        review_platforms,
     })
 }

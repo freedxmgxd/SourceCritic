@@ -36,11 +36,14 @@ impl From<io::Error> for ExportError {
 /// Write a full static site under `out_dir` (HTML + covers + GitHub Pages files).
 pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, ExportError> {
     if out_dir.exists() {
+        eprintln!("removing {}", out_dir.display());
         fs::remove_dir_all(out_dir)?;
     }
     fs::create_dir_all(out_dir)?;
+    eprintln!("rendering pages");
 
     let files = pages::render_all_pages(db).map_err(ExportError::Db)?;
+    eprintln!("writing {} pages", files.len());
     let mut html_pages = 0usize;
     for (rel, html) in &files {
         let path = out_dir.join(rel);
@@ -57,6 +60,15 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
     if covers_src.is_dir() {
         cover_files = copy_dir_recursive(&covers_src, &covers_dst)?;
     }
+    for name in ["favicon.svg", "apple-touch-icon.png", "og-default.png"] {
+        let src = PathBuf::from("static").join(name);
+        if src.is_file() {
+            fs::copy(&src, out_dir.join(name))?;
+        }
+    }
+    if let Ok(games) = db.list_games() {
+        fs::write(out_dir.join("games-index.json"), pages::games_index_json(&games))?;
+    }
 
     // GitHub Pages: custom domain + disable Jekyll (keeps folders like covers intact).
     fs::write(out_dir.join("CNAME"), format!("{SITE_HOST}\n"))?;
@@ -64,7 +76,9 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
 
     fs::write(
         out_dir.join("robots.txt"),
-        format!("User-agent: *\nAllow: /\nSitemap: {SITE_ORIGIN}/sitemap.xml\n"),
+        format!(
+            "User-agent: *\nAllow: /\nSitemap: {SITE_ORIGIN}/sitemap.xml\nSitemap: {SITE_ORIGIN}/sitemap-images.xml\n"
+        ),
     )?;
 
     // AdSense authorized sellers (same pub as freedxm.com).
@@ -73,8 +87,11 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
         "google.com, pub-5490722539415533, DIRECT, f08c47fec0942fa0\n",
     )?;
 
-    let sitemap = build_sitemap(&files);
-    fs::write(out_dir.join("sitemap.xml"), sitemap)?;
+    let lastmod = chrono_date();
+    let sitemap = build_sitemap(&files, &lastmod);
+    fs::write(out_dir.join("sitemap.xml"), &sitemap)?;
+    let images = build_image_sitemap(&files, &lastmod);
+    fs::write(out_dir.join("sitemap-images.xml"), images)?;
 
     Ok(ExportStats {
         html_pages,
@@ -90,22 +107,49 @@ pub struct ExportStats {
     pub out_dir: PathBuf,
 }
 
-fn build_sitemap(files: &[(String, String)]) -> String {
+fn chrono_date() -> String {
+    // Build day, UTC. Avoid a time crate for a static export stamp.
+    let secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let days = secs / 86_400;
+    let z = days as i64 + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = (z - era * 146_097) as u64;
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146_096) / 365;
+    let y = yoe as i64 + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = if m <= 2 { y + 1 } else { y };
+    format!("{y:04}-{m:02}-{d:02}")
+}
+
+fn page_loc(path: &str) -> Option<String> {
+    if path == "404.html" || path.contains("redirect") {
+        return None;
+    }
+    if path == "index.html" {
+        return Some(format!("{SITE_ORIGIN}/"));
+    }
+    path.strip_suffix("/index.html")
+        .map(|dir| format!("{SITE_ORIGIN}/{dir}/"))
+}
+
+fn build_sitemap(files: &[(String, String)], lastmod: &str) -> String {
     let mut urls: Vec<String> = files
         .iter()
-        .filter_map(|(path, _)| {
-            if path == "404.html" {
+        .filter_map(|(path, html)| {
+            if html.starts_with("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><link rel=\"canonical\"")
+                && html.contains("http-equiv=\"refresh\"")
+            {
                 return None;
             }
-            let loc = if path == "index.html" {
-                format!("{SITE_ORIGIN}/")
-            } else if let Some(dir) = path.strip_suffix("/index.html") {
-                format!("{SITE_ORIGIN}/{dir}/")
-            } else {
-                return None;
-            };
+            let loc = page_loc(path)?;
             Some(format!(
-                "  <url><loc>{loc}</loc><changefreq>weekly</changefreq></url>"
+                "  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod><changefreq>weekly</changefreq></url>"
             ))
         })
         .collect();
@@ -113,6 +157,36 @@ fn build_sitemap(files: &[(String, String)]) -> String {
     format!(
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
          <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n\
+         {}\n\
+         </urlset>\n",
+        urls.join("\n")
+    )
+}
+
+fn build_image_sitemap(files: &[(String, String)], lastmod: &str) -> String {
+    let mut urls = Vec::new();
+    for (path, html) in files {
+        let Some(loc) = page_loc(path) else { continue };
+        if !path.starts_with("game/") {
+            continue;
+        }
+        let Some(src) = html.split("property=\"og:image\" content=\"").nth(1) else {
+            continue;
+        };
+        let Some(image) = src.split('"').next() else { continue };
+        if image.is_empty() || image.ends_with("/og-default.png") {
+            continue;
+        }
+        urls.push(format!(
+            "  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod>\
+             <image:image><image:loc>{image}</image:loc></image:image></url>"
+        ));
+    }
+    urls.sort();
+    format!(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+         <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" \
+         xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">\n\
          {}\n\
          </urlset>\n",
         urls.join("\n")

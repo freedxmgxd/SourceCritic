@@ -41,12 +41,12 @@ async fn home_page_is_html() {
     let html = String::from_utf8(bytes.to_vec()).unwrap();
     assert!(html.contains("SourceCritic"));
     assert!(html.contains("No games yet"));
-    assert!(html.contains("href=\"/outlets\""));
-    assert!(html.contains("href=\"/about\""));
+    assert!(html.contains("href=\"/outlets/\""));
+    assert!(html.contains("href=\"/about/\""));
     assert!(!html.contains("href=\"/submit\""));
     assert!(html.contains("lang=\"en\""));
     assert!(!html.contains("role=\"tab\""));
-    assert!(html.contains("class=\"site-ad-rail\""));
+    assert!(html.contains("class=\"site-ad-rail ad-unit\""));
     assert!(html.contains("ca-pub-5490722539415533"));
     assert!(html.contains("data-ad-slot=\"8380670310\""));
     // Loader is injected by the rail gate (once/hour), not as an eager <head> tag.
@@ -354,7 +354,7 @@ async fn pages_are_separate_documents() {
             .to_vec(),
     )
     .unwrap();
-    assert!(outlets.contains("href=\"/outlet/ign\""));
+    assert!(outlets.contains("href=\"/outlet/ign/\""));
     assert!(outlets.contains("IGN"));
 
     let outlet = app
@@ -381,7 +381,7 @@ async fn pages_are_separate_documents() {
     assert!(outlet.contains("μ<sub>j</sub>"));
     assert!(outlet.contains("σ<sub>j</sub>"));
     assert!(outlet.contains("Hades II"));
-    assert!(outlet.contains("href=\"/game/hades-ii\""));
+    assert!(outlet.contains("href=\"/game/hades-ii/\""));
 
     let method = app
         .clone()
@@ -420,7 +420,12 @@ async fn pages_are_separate_documents() {
 
     let home = app
         .clone()
-        .oneshot(Request::builder().uri("/").body(Body::empty()).unwrap())
+        .oneshot(
+            Request::builder()
+                .uri("/?min=0")
+                .body(Body::empty())
+                .unwrap(),
+        )
         .await
         .unwrap();
     let home = String::from_utf8(
@@ -432,13 +437,13 @@ async fn pages_are_separate_documents() {
             .to_vec(),
     )
     .unwrap();
-    assert!(home.contains("href=\"/game/hades-ii\""));
+    assert!(home.contains("href=\"/game/hades-ii/\""));
     assert!(home.contains("name=\"platform\""));
     assert!(home.contains("name=\"year\""));
     assert!(home.contains("name=\"min_reviews\""));
     assert!(!home.contains("IGN"));
-    assert!(home.contains("href=\"/outlets\""));
-    assert!(home.contains("href=\"/about\""));
+    assert!(home.contains("href=\"/outlets/\""));
+    assert!(home.contains("href=\"/about/\""));
     assert!(!home.contains("href=\"/submit\""));
 
     let about = app

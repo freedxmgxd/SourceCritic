@@ -1,0 +1,48 @@
+{
+  "disclosure_pt": "Links de afiliado: podemos receber comissão sem custo para você.",
+  "disclosure_en": "Affiliate links: we may earn a commission at no cost to you.",
+  "stores": [
+    {
+      "id": "nuuvem",
+      "name": "Nuuvem",
+      "affiliate_id": "YOUR_NUUVEM_ID",
+      "url_template": "https://www.nuuvem.com/br/catalog/search/{query}?utm_source={affiliate_id}",
+      "price_brl": null
+    },
+    {
+      "id": "amazon",
+      "name": "Amazon",
+      "affiliate_id": "YOUR_AMAZON_TAG",
+      "url_template": "https://www.amazon.com.br/s?k={query}&tag={affiliate_id}",
+      "price_brl": null
+    },
+    {
+      "id": "eneba",
+      "name": "Eneba",
+      "affiliate_id": "YOUR_ENEBA_ID",
+      "url_template": "https://www.eneba.com/br/store?text={query}&af_id={affiliate_id}",
+      "price_brl": null
+    },
+    {
+      "id": "fanatical",
+      "name": "Fanatical",
+      "affiliate_id": "YOUR_FANATICAL_ID",
+      "url_template": "https://www.fanatical.com/en/search?search={query}&ref={affiliate_id}",
+      "price_brl": null
+    },
+    {
+      "id": "greenmangaming",
+      "name": "Green Man Gaming",
+      "affiliate_id": "YOUR_GMG_ID",
+      "url_template": "https://www.greenmangaming.com/search?query={query}&utm_source={affiliate_id}",
+      "price_brl": null
+    },
+    {
+      "id": "humble",
+      "name": "Humble",
+      "affiliate_id": "YOUR_HUMBLE_PARTNER",
+      "url_template": "https://www.humblebundle.com/store/search?search={query}&partner={affiliate_id}",
+      "price_brl": null
+    }
+  ]
+}

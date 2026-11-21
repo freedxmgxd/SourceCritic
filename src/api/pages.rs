@@ -127,9 +127,16 @@ nav a[aria-current="page"] {
 .row:first-of-type { border-top: 1px solid var(--line); }
 .row:hover { background: linear-gradient(90deg, transparent, var(--surface-hover) 40%, transparent); }
 .row .meta { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+.row .title-block { flex: 1 1 auto; min-width: 0; }
 .row .meta > span { min-width: 0; }
-.row strong { display: block; font-size: 1.05rem; }
-.row small { display: block; margin-top: 2px; color: var(--muted); font-size: 0.9rem; }
+.row strong {
+  display: block;
+  font-size: 1.05rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.row small { display: block; margin-top: 2px; color: var(--muted); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .cover {
   width: 56px;
@@ -217,6 +224,34 @@ nav a[aria-current="page"] {
   margin: 0 0 10px;
   font-family: "IBM Plex Serif", Georgia, serif;
   font-size: 1.15rem;
+}
+.port-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 12px;
+}
+.port-filter button {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.port-filter button[aria-pressed="true"] {
+  border-color: var(--text);
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.port-filter-meta {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 .review {
   display: grid;
@@ -729,12 +764,140 @@ nav.sort button[data-sort]:focus-visible {
 .site-ad-slot {
   display: block;
   width: 100%;
-  min-height: 0;
+  min-height: 600px;
   overflow: hidden;
   border-radius: 10px;
   background: transparent;
   border: 0;
 }
+
+.ad-home-end { display: none; }
+.ad-unit { margin: 16px 0; }
+.ad-unit.rect .site-ad-slot { min-height: 280px; }
+.ad-unit.is-empty,
+.ad-unit[hidden] { display: none !important; }
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 18px 0 0;
+}
+.pager a {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  background: white;
+}
+.pager a:hover { background: var(--surface-hover); }
+
+.provisional {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.buy-block {
+  margin: 22px 0 8px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+.buy-block h2 {
+  margin: 0 0 6px;
+  font-family: "IBM Plex Serif", Georgia, serif;
+  font-size: 1.15rem;
+}
+.buy-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.buy-actions a {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+.buy-actions a small { font-weight: 500; color: var(--muted); }
+.buy-note { margin: 8px 0 0; color: var(--muted); font-size: 0.88rem; }
+
+.newsletter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 0;
+}
+.newsletter input[type="email"] {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-width: min(260px, 100%);
+}
+.newsletter button {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.site-footer {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.site-footer nav { margin-bottom: 8px; }
+.site-footer a { color: var(--accent); }
+
+.cookie-banner {
+  position: static;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+}
+.cookie-banner[hidden] { display: none !important; }
+.cookie-banner p { margin: 0; max-width: 40rem; color: var(--text-body); font-size: 0.92rem; }
+.cookie-banner .cookie-actions { display: flex; gap: 8px; }
+.cookie-banner button {
+  appearance: none;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cookie-banner .accept { border: 0; background: var(--accent); color: white; }
+.cookie-banner .reject { border: 1px solid var(--line); background: white; color: var(--ink); }
 
 .site-ad-slot .adsbygoogle,
 .site-ad-slot > * {
@@ -751,17 +914,32 @@ nav.sort button[data-sort]:focus-visible {
   .page-shell > main {
     margin: 28px auto 64px;
   }
-  .site-ad-rail {
+  .site-ad-rail,
+  .ad-inlist {
     display: none !important;
   }
+  .ad-home-end { display: block !important; }
 }
 
 @media (max-width: 720px) {
   main { padding: 22px 18px 32px; }
   header { flex-direction: column; align-items: flex-start; }
   .stats { grid-template-columns: 1fr 1fr; }
-  .filters { grid-template-columns: 1fr 1fr; }
+  .filters { grid-template-columns: 1fr; }
   .browse-toolbar { align-items: flex-start; }
+  .ad-inlist { display: none !important; }
+  .ad-home-end { display: block !important; }
+}
+
+@media (min-width: 1100px) {
+  .ad-home-end { display: none !important; }
+}
+
+@media (max-width: 600px) {
+  .row { gap: 10px; }
+  .row-secondary { display: none !important; }
+  .score { font-size: 1.4rem; margin-left: 6px; padding-left: 0; }
+  .cover { width: 44px; height: 62px; }
 }
 
 .crypto-list { display: grid; gap: 12px; margin: 16px 0 0; }
@@ -804,10 +982,14 @@ const DONATE_URL: Option<&str> = None;
 const DONATE_BTC: Option<&str> = None;
 const DONATE_ETH: Option<&str> = None;
 const DONATE_XMR: Option<&str> = None;
-/// AdSense publisher client (`ca-pub-…`). Loaded only when the side rail shows (once/hour).
+/// AdSense publisher client (`ca-pub-…`). Loaded only after consent. Auto ads stay off.
 const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
+const GA_MEASUREMENT_ID: Option<&str> = None;
+const PAGE_SIZE: usize = 50;
+const DEFAULT_MIN_REVIEWS: i64 = 10;
 /// Side-rail display unit only. Fills the right column; main column width is unchanged.
 /// Env `SOURCECRITIC_AD_HTML` overrides. At most once per browser hour.
+#[allow(dead_code)]
 const AD_HTML: Option<&str> = Some(
     r#"<ins class="adsbygoogle"
      style="display:block;width:100%;min-height:600px"
@@ -816,8 +998,6 @@ const AD_HTML: Option<&str> = Some(
      data-ad-format="vertical"
      data-full-width-responsive="false"></ins>"#,
 );
-/// How long before the side ad may show again for the same visitor (ms).
-const AD_COOLDOWN_MS: u64 = 60 * 60 * 1000;
 /// Canonical public origin for absolute links in the static export.
 const SITE_ORIGIN: &str = "https://sourcecritic.freedxm.com";
 
@@ -892,50 +1072,139 @@ const SITE_JS: &str = r#"
     var cls = score > mean ? "cmp-low" : "cmp-high";
     return '<span class="' + cls + '">' + label + "</span>";
   }
-  function filtersActive(form) {
-    var platform = (form.platform && form.platform.value) || "all";
-    var year = (form.year && form.year.value) || "all";
-    var minReviews = Number((form.min_reviews && form.min_reviews.value) || 0);
-    var q = ((form.q && form.q.value) || "").trim();
-    return platform !== "all" || year !== "all" || minReviews > 0 || q.length > 0;
+  function fold(value) {
+    return (value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   }
-  function applyGameFilters() {
+  function formState(form) {
+    return {
+      platform: (form.platform && form.platform.value) || "all",
+      year: (form.year && form.year.value) || "all",
+      min: String((form.min_reviews && form.min_reviews.value) || "10"),
+      q: ((form.q && form.q.value) || "").trim(),
+      sort: (form.getAttribute("data-sort") || "score")
+    };
+  }
+  function stateIsDefault(state) {
+    return state.platform === "all" && state.year === "all" && state.min === "10" && !state.q && state.sort === "score";
+  }
+  function filtersActive(form) {
+    return !stateIsDefault(formState(form));
+  }
+  function writeQuery(state) {
+    var params = new URLSearchParams();
+    if (state.platform !== "all") params.set("platform", state.platform);
+    if (state.year !== "all") params.set("year", state.year);
+    if (state.min !== "10") params.set("min", state.min);
+    if (state.sort && state.sort !== "score") params.set("sort", state.sort);
+    if (state.q) params.set("q", state.q);
+    var qs = params.toString();
+    var path = stateIsDefault(state) ? (location.pathname || "/") : "/";
+    history.replaceState(null, "", path + (qs ? "?" + qs : ""));
+  }
+  function readQuery(form) {
+    var params = new URLSearchParams(location.search);
+    if (form.platform && params.get("platform")) form.platform.value = params.get("platform");
+    if (form.year && params.get("year")) form.year.value = params.get("year");
+    var min = params.get("min") || params.get("min_reviews");
+    if (form.min_reviews && min) form.min_reviews.value = min;
+    if (params.get("q") && form.q) form.q.value = params.get("q");
+    var sort = params.get("sort");
+    if (sort) form.setAttribute("data-sort", sort);
+  }
+  function renderClient(games) {
     var list = document.getElementById("game-list");
     var form = document.getElementById("game-filters");
     var meta = document.getElementById("filter-meta");
     var reset = document.getElementById("filter-reset");
-    if (!list || !form) return;
-    var platform = (form.platform && form.platform.value) || "all";
-    var year = (form.year && form.year.value) || "all";
-    var minReviews = Number((form.min_reviews && form.min_reviews.value) || 0);
-    var q = ((form.q && form.q.value) || "").trim().toLowerCase();
-    var total = Number(list.getAttribute("data-total") || 0);
-    var shown = 0;
-    Array.prototype.forEach.call(list.querySelectorAll(".row"), function (row) {
-      var ok = true;
-      if (platform !== "all") {
-        var plats = (row.getAttribute("data-platforms") || "").split(/\s+/).filter(Boolean);
-        ok = plats.indexOf(platform) !== -1;
-      }
-      if (ok && year !== "all") ok = row.getAttribute("data-year") === year;
-      if (ok && minReviews > 0) ok = num(row, "data-reviews") >= minReviews;
-      if (ok && q) ok = text(row, "data-title").indexOf(q) !== -1;
-      row.hidden = !ok;
-      if (ok) shown += 1;
-    });
-    if (meta) meta.textContent = "Showing " + shown + " of " + total + " games.";
     var empty = document.getElementById("game-empty");
-    if (empty) empty.hidden = shown !== 0 || total === 0;
+    var pager = document.getElementById("pager");
+    if (!list || !form) return;
+    var state = formState(form);
+    var q = fold(state.q);
+    var minReviews = Number(state.min || 0);
+    var matched = games.filter(function (game) {
+      if (state.platform !== "all" && (game.platforms || []).indexOf(state.platform) === -1) return false;
+      if (state.year !== "all" && String(game.year || "") !== state.year) return false;
+      if (minReviews > 0 && Number(game.reviews || 0) < minReviews) return false;
+      if (q && fold(game.title).indexOf(q) === -1) return false;
+      return true;
+    });
+    var sort = state.sort || "score";
+    matched.sort(function (a, b) {
+      if (sort === "title") return fold(a.title).localeCompare(fold(b.title));
+      if (sort === "reviews") return Number(b.reviews) - Number(a.reviews);
+      if (sort === "mean") return Number(b.mean) - Number(a.mean);
+      return Number(b.score) - Number(a.score);
+    });
+    var pageSize = 50;
+    var params = new URLSearchParams(location.search);
+    var page = Math.max(1, Number(params.get("page") || 1));
+    var pages = Math.max(1, Math.ceil(matched.length / pageSize));
+    if (page > pages) page = pages;
+    var slice = matched.slice((page - 1) * pageSize, page * pageSize);
+    var html = "";
+    slice.forEach(function (game, index) {
+      var score = Math.round(Number(game.score) || 0);
+      var mean = Math.round(Number(game.mean) || 0);
+      var provisional = Number(game.reviews) < 5 ? " <span class=\"provisional\">nota provisória</span>" : "";
+      var bits = "";
+      if (game.year) bits += game.year;
+      if (game.platform_labels) bits += (bits ? " · " : "") + game.platform_labels;
+      html += '<a class="row" href="/game/' + game.slug + '/"><span class="meta">' +
+        (game.cover ? '<img class="cover" src="' + game.cover + '" alt="Capa de ' + game.title.replace(/"/g, "&quot;") + '" width="112" height="157" loading="lazy">' : "") +
+        '<span class="title-block"><strong>' + game.title + '</strong><small><span class="row-count">' +
+        game.reviews + ' reviews</span>' + (bits ? '<span class="row-secondary"> · ' + bits + '</span>' : '') +
+        '</small></span></span><span class="score">' + score + provisional + '</span></a>';
+      if ((index + 1) % 25 === 0) html += window.__scAdInlist || "";
+    });
+    list.innerHTML = html;
+    list.setAttribute("data-client", "1");
+    list.setAttribute("data-total", String(matched.length));
+    if (meta) {
+      var start = matched.length ? (page - 1) * pageSize + 1 : 0;
+      var end = Math.min(page * pageSize, matched.length);
+      meta.textContent = "Showing " + start + "–" + end + " of " + matched.length + " games.";
+    }
+    if (empty) empty.hidden = matched.length !== 0;
     if (reset) reset.hidden = !filtersActive(form);
+    if (pager) pager.hidden = pages < 2;
+  }
+  function ensureIndex() {
+    if (window.__scGames) return Promise.resolve(window.__scGames);
+    if (window.__scGamesLoading) return window.__scGamesLoading;
+    window.__scGamesLoading = fetch("/games-index.json")
+      .then(function (response) { return response.json(); })
+      .then(function (games) {
+        window.__scGames = games;
+        return games;
+      })
+      .catch(function () { return []; });
+    return window.__scGamesLoading;
+  }
+  function syncBrowse() {
+    var form = document.getElementById("game-filters");
+    if (!form) return;
+    var state = formState(form);
+    writeQuery(state);
+    if (stateIsDefault(state) && location.pathname.indexOf("/page/") !== 0) {
+      if (document.getElementById("game-list") && document.getElementById("game-list").getAttribute("data-client") === "1") {
+        location.href = "/";
+      }
+      var reset = document.getElementById("filter-reset");
+      if (reset) reset.hidden = true;
+      return;
+    }
+    ensureIndex().then(renderClient);
   }
   function resetGameFilters() {
     var form = document.getElementById("game-filters");
     if (!form) return;
     if (form.platform) form.platform.value = "all";
     if (form.year) form.year.value = "all";
-    if (form.min_reviews) form.min_reviews.value = "0";
+    if (form.min_reviews) form.min_reviews.value = "10";
     if (form.q) form.q.value = "";
-    applyGameFilters();
+    form.setAttribute("data-sort", "score");
+    syncBrowse();
   }
   function bindSort(listId, defaultKey) {
     var list = document.getElementById(listId);
@@ -948,21 +1217,24 @@ const SITE_JS: &str = r#"
       var btn = ev.target.closest("[data-sort]");
       if (!btn || !nav.contains(btn)) return;
       ev.preventDefault();
+      if (listId === "game-list") {
+        var form = document.getElementById("game-filters");
+        if (form) form.setAttribute("data-sort", btn.getAttribute("data-sort") || "score");
+        setCurrent(nav, btn.getAttribute("data-sort"));
+        syncBrowse();
+        return;
+      }
       sortChildren(list, btn.getAttribute("data-sort"), btn.getAttribute("data-sort"));
-      if (listId === "game-list") applyGameFilters();
     });
-    sortChildren(list, defaultKey, defaultKey);
-    if (listId === "game-list") applyGameFilters();
+    if (listId !== "game-list") sortChildren(list, defaultKey, defaultKey);
   }
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("game-filters");
     if (form) {
-      form.addEventListener("submit", function (ev) { ev.preventDefault(); applyGameFilters(); });
-      form.addEventListener("change", applyGameFilters);
-      form.addEventListener("input", applyGameFilters);
-      Array.prototype.forEach.call(form.querySelectorAll("select"), function (sel) {
-        sel.addEventListener("change", applyGameFilters);
-      });
+      readQuery(form);
+      form.addEventListener("submit", function (ev) { ev.preventDefault(); syncBrowse(); });
+      form.addEventListener("change", syncBrowse);
+      form.addEventListener("input", syncBrowse);
     }
     var reset = document.getElementById("filter-reset");
     if (reset) reset.addEventListener("click", resetGameFilters);
@@ -970,7 +1242,8 @@ const SITE_JS: &str = r#"
     bindSort("outlet-list", "reviews");
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
-    if (form) applyGameFilters();
+    bindPortFilter();
+    if (form && !stateIsDefault(formState(form))) syncBrowse();
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var value = btn.getAttribute("data-copy") || "";
@@ -982,49 +1255,126 @@ const SITE_JS: &str = r#"
         });
       });
     });
-    gateSideAd();
+    initConsent();
   });
-  function gateSideAd() {
-    var aside = document.getElementById("site-ad");
-    var src = document.getElementById("site-ad-src");
-    if (!aside || !src) return;
-    var cooldown = Number(aside.getAttribute("data-cooldown-ms") || 3600000);
-    var client = aside.getAttribute("data-ad-client") || "";
-    var key = "sc_ad_shown_at";
-    var now = Date.now();
-    var last = Number(localStorage.getItem(key) || 0);
-    if (last && now - last < cooldown) {
-      aside.remove();
-      return;
+  function bindPortFilter() {
+    var list = document.getElementById("game-reviews");
+    var bar = document.getElementById("port-filter");
+    var meta = document.getElementById("port-filter-meta");
+    if (!list || !bar) return;
+    function apply(port) {
+      var shown = 0;
+      var rawSum = 0;
+      var rawN = 0;
+      var mappedSum = 0;
+      var mappedN = 0;
+      Array.prototype.forEach.call(list.querySelectorAll(".review"), function (row) {
+        var plats = (row.getAttribute("data-platforms") || "").split(/\s+/).filter(Boolean);
+        var ok = port === "all" || plats.indexOf(port) !== -1;
+        row.hidden = !ok;
+        if (!ok) return;
+        shown += 1;
+        var raw = num(row, "data-raw-norm");
+        var mapped = num(row, "data-mapped");
+        if (isFinite(raw)) { rawSum += raw; rawN += 1; }
+        if (isFinite(mapped)) { mappedSum += mapped; mappedN += 1; }
+      });
+      Array.prototype.forEach.call(bar.querySelectorAll("[data-port]"), function (btn) {
+        btn.setAttribute("aria-pressed", btn.getAttribute("data-port") === port ? "true" : "false");
+      });
+      var hero = document.getElementById("score-hero-value");
+      var heroMeta = document.getElementById("score-hero-meta");
+      var label = btnLabel(port) || port;
+      if (port === "all") {
+        if (hero) hero.textContent = hero.getAttribute("data-base") || hero.textContent;
+        if (heroMeta) heroMeta.innerHTML = heroMeta.getAttribute("data-base") || heroMeta.innerHTML;
+      } else {
+        var score = mappedN ? Math.round(mappedSum / mappedN) : 0;
+        var mean = rawN ? Math.round(rawSum / rawN) : 0;
+        if (hero) hero.textContent = String(score);
+        if (heroMeta) {
+          heroMeta.textContent = label + " · simple mean " + mean + " · " + shown + (shown === 1 ? " review" : " reviews");
+        }
+      }
+      if (meta) {
+        meta.textContent = port === "all"
+          ? ("All platforms · " + shown + " reviews")
+          : (label + " · " + shown + " reviews");
+      }
     }
-    var slot = aside.querySelector(".site-ad-slot");
-    if (!slot) {
-      aside.remove();
-      return;
+    function btnLabel(port) {
+      var btn = bar.querySelector('[data-port="' + port + '"]');
+      return btn ? btn.textContent : port;
     }
-    slot.innerHTML = src.textContent || "";
-    src.remove();
-    aside.hidden = false;
-    localStorage.setItem(key, String(now));
-    function fillUnit() {
+    bar.addEventListener("click", function (ev) {
+      var btn = ev.target.closest("[data-port]");
+      if (!btn || !bar.contains(btn)) return;
+      apply(btn.getAttribute("data-port") || "all");
+    });
+    apply("all");
+  }
+  function isEeaUk() {
+    var tz = "";
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
+    if (tz.indexOf("Europe/") === 0) return true;
+    return tz === "Atlantic/Reykjavik" || tz === "Atlantic/Faroe" || tz === "Atlantic/Canary" || tz === "Atlantic/Madeira" || tz === "Atlantic/Azores";
+  }
+  function consentUpdate(granted) {
+    var value = granted ? "granted" : "denied";
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    window.gtag = window.gtag || gtag;
+    gtag("consent", "update", {
+      ad_storage: value,
+      ad_user_data: value,
+      ad_personalization: value,
+      analytics_storage: value
+    });
+  }
+  function watchUnfilled(unit) {
+    var ins = unit.querySelector("ins.adsbygoogle");
+    if (!ins) return;
+    var obs = new MutationObserver(function () {
+      if (ins.getAttribute("data-ad-status") === "unfilled") {
+        unit.classList.add("is-empty");
+        unit.hidden = true;
+      }
+    });
+    obs.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
+  }
+  function loadAds() {
+    if (localStorage.getItem("sc_consent") !== "granted") return;
+    var units = document.querySelectorAll(".ad-unit");
+    if (!units.length) return;
+    var client = units[0].getAttribute("data-ad-client") || "";
+    function fill() {
       try {
         window.adsbygoogle = window.adsbygoogle || [];
-        // Prefer the manual rail only — do not request page-level / Auto ads.
         window.adsbygoogle.push({
           google_ad_client: client,
           enable_page_level_ads: false
         });
-        if (slot.querySelector(".adsbygoogle")) {
-          window.adsbygoogle.push({});
-        }
+        Array.prototype.forEach.call(units, function (unit) {
+          if (unit.querySelector(".adsbygoogle")) window.adsbygoogle.push({});
+          watchUnfilled(unit);
+        });
       } catch (e) {}
     }
-    if (!client) {
-      fillUnit();
-      return;
+    var ga = document.body && document.body.getAttribute("data-ga");
+    if (ga && !window.__scGaLoaded) {
+      window.__scGaLoaded = true;
+      var g = document.createElement("script");
+      g.async = true;
+      g.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(ga);
+      document.head.appendChild(g);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ window.dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", ga, { anonymize_ip: true });
     }
+    if (!client) return;
     if (window.__scAdsScriptLoading) {
-      window.__scAdsScriptLoading.then(fillUnit);
+      window.__scAdsScriptLoading.then(fill);
       return;
     }
     window.__scAdsScriptLoading = new Promise(function (resolve) {
@@ -1036,7 +1386,62 @@ const SITE_JS: &str = r#"
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
     });
-    window.__scAdsScriptLoading.then(fillUnit);
+    window.__scAdsScriptLoading.then(fill);
+  }
+  function initConsent() {
+    var banner = document.getElementById("cookie-banner");
+    var saved = localStorage.getItem("sc_consent");
+    if (saved === "granted") {
+      if (banner) banner.hidden = true;
+      consentUpdate(true);
+      loadAds();
+      return;
+    }
+    if (saved === "denied") {
+      if (banner) banner.hidden = true;
+      document.querySelectorAll(".ad-unit").forEach(function (unit) { unit.hidden = true; });
+      return;
+    }
+    if (isEeaUk()) {
+      if (banner) banner.hidden = true;
+      window.googlefc = window.googlefc || {};
+      window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+      window.googlefc.callbackQueue.push({
+        CONSENT_DATA_READY: function () {
+          try {
+            var values = window.googlefc.getGoogleConsentModeValues ? window.googlefc.getGoogleConsentModeValues() : null;
+            var granted = values && (values.ad_storage === "granted" || values.analytics_storage === "granted");
+            if (granted) {
+              localStorage.setItem("sc_consent", "granted");
+              consentUpdate(true);
+              loadAds();
+            }
+          } catch (e) {}
+        }
+      });
+      var fc = document.createElement("script");
+      fc.async = true;
+      fc.src = "https://fundingchoicesmessages.google.com/i/pub-5490722539415533?ers=1";
+      fc.onerror = function () { if (banner) banner.hidden = false; };
+      document.head.appendChild(fc);
+      return;
+    }
+    if (!banner) return;
+    banner.hidden = false;
+    var accept = document.getElementById("cookie-accept");
+    var reject = document.getElementById("cookie-reject");
+    if (accept) accept.addEventListener("click", function () {
+      localStorage.setItem("sc_consent", "granted");
+      banner.hidden = true;
+      consentUpdate(true);
+      loadAds();
+    });
+    if (reject) reject.addEventListener("click", function () {
+      localStorage.setItem("sc_consent", "denied");
+      banner.hidden = true;
+      consentUpdate(false);
+      document.querySelectorAll(".ad-unit").forEach(function (unit) { unit.hidden = true; });
+    });
   }
 })();
 "#;
@@ -1063,8 +1468,10 @@ pub(super) struct GameListQuery {
     platform: Option<String>,
     #[serde(default)]
     year: Option<String>,
-    #[serde(default)]
+    #[serde(default, alias = "min")]
     min_reviews: Option<i64>,
+    #[serde(default)]
+    page: Option<u32>,
 }
 
 #[derive(Debug, Clone)]
@@ -1078,7 +1485,7 @@ pub(super) async fn home(
     State(state): State<AppState>,
     Query(query): Query<GameListQuery>,
 ) -> impl IntoResponse {
-    let mut games = {
+    let games = {
         let db = match lock(&state) {
             Ok(db) => db,
             Err(_) => return internal("lock poisoned".to_string()),
@@ -1090,15 +1497,218 @@ pub(super) async fn home(
     };
     let sort = normalize_game_sort(query.sort.as_deref());
     let filters = normalize_game_filters(&query);
+    let page = query.page.unwrap_or(1).max(1) as usize;
+    render_games_page(games, sort, &filters, page, None)
+}
+
+pub(super) async fn games_index(State(state): State<AppState>) -> impl IntoResponse {
+    let games = {
+        let db = match lock(&state) {
+            Ok(db) => db,
+            Err(_) => return internal("lock poisoned".to_string()).into_response(),
+        };
+        match db.list_games() {
+            Ok(games) => games,
+            Err(error) => return internal(error.to_string()).into_response(),
+        }
+    };
+    (
+        StatusCode::OK,
+        [(axum::http::header::CONTENT_TYPE, "application/json")],
+        games_index_json(&games),
+    )
+        .into_response()
+}
+
+pub(super) async fn privacy() -> impl IntoResponse {
+    ok_seo(
+        Section::Other,
+        "Privacy policy | SourceCritic",
+        &legal_page(true),
+        "/privacy/",
+        "What SourceCritic collects, how AdSense and Analytics cookies work, and your LGPD rights.",
+    )
+}
+
+pub(super) async fn terms() -> impl IntoResponse {
+    ok_seo(
+        Section::Other,
+        "Terms of use | SourceCritic",
+        &legal_page(false),
+        "/terms/",
+        "Terms for using SourceCritic. Reviews belong to the outlets that published them.",
+    )
+}
+
+pub(super) async fn most_divisive(State(state): State<AppState>) -> impl IntoResponse {
+    discovery_response(state, "most-divisive/index.html").await
+}
+
+pub(super) async fn disagreements(State(state): State<AppState>) -> impl IntoResponse {
+    discovery_response(state, "disagreements/index.html").await
+}
+
+pub(super) async fn outlet_ranking(State(state): State<AppState>) -> impl IntoResponse {
+    discovery_response(state, "outlets/ranking/index.html").await
+}
+
+pub(super) async fn best_index(State(state): State<AppState>) -> impl IntoResponse {
+    discovery_response(state, "best/index.html").await
+}
+
+pub(super) async fn best_of(
+    State(state): State<AppState>,
+    Path((platform, year)): Path<(String, String)>,
+) -> impl IntoResponse {
+    discovery_response(state, &format!("best/{platform}/{year}/index.html")).await
+}
+
+async fn discovery_response(state: AppState, file: &str) -> axum::response::Response {
+    let (games, outlets) = {
+        let db = match lock(&state) {
+            Ok(db) => db,
+            Err(_) => return internal("lock poisoned".to_string()).into_response(),
+        };
+        match (db.list_games(), db.list_outlets()) {
+            (Ok(games), Ok(mut outlets)) => {
+                outlets.retain(|outlet| is_public_outlet(&outlet.slug));
+                (games, outlets)
+            }
+            (Err(error), _) | (_, Err(error)) => return internal(error.to_string()).into_response(),
+        }
+    };
+    match discovery_pages(&games, &outlets)
+        .into_iter()
+        .find(|(path, _)| path == file)
+    {
+        Some((_, html)) => (StatusCode::OK, Html(html)).into_response(),
+        None => (
+            StatusCode::NOT_FOUND,
+            document(
+                Section::Other,
+                "Not found",
+                "<h1 class=\"page\">Page not found.</h1>",
+                None,
+                &Seo::default(),
+            ),
+        )
+            .into_response(),
+    }
+}
+
+fn ok_seo(
+    section: Section,
+    title: &str,
+    body: &str,
+    path: &str,
+    description: &str,
+) -> (StatusCode, Html<String>) {
+    (
+        StatusCode::OK,
+        document(
+            section,
+            title,
+            body,
+            Some(path),
+            &Seo {
+                description: description.to_string(),
+                ..Seo::default()
+            },
+        ),
+    )
+}
+
+pub(super) async fn home_page(
+    State(state): State<AppState>,
+    Path(page): Path<u32>,
+    Query(query): Query<GameListQuery>,
+) -> impl IntoResponse {
+    let games = {
+        let db = match lock(&state) {
+            Ok(db) => db,
+            Err(_) => return internal("lock poisoned".to_string()),
+        };
+        match db.list_games() {
+            Ok(games) => games,
+            Err(error) => return internal(error.to_string()),
+        }
+    };
+    let sort = normalize_game_sort(query.sort.as_deref());
+    let filters = normalize_game_filters(&query);
+    render_games_page(games, sort, &filters, page.max(1) as usize, None)
+}
+
+fn render_games_page(
+    mut games: Vec<GameView>,
+    sort: &str,
+    filters: &GameFilters,
+    page: usize,
+    path_override: Option<&str>,
+) -> (StatusCode, Html<String>) {
     let platforms = collect_platforms(&games);
     let years = collect_years(&games);
-    let total = games.len();
-    // Keep every game in the DOM so client-side filters can show/hide freely.
+    let catalog_total = games.len();
     sort_games(&mut games, sort);
-    ok(
-        Section::Games,
-        "Games",
-        &game_list(&games, sort, &filters, &platforms, &years, total),
+    let filtered: Vec<GameView> = games
+        .into_iter()
+        .filter(|game| game_matches(game, filters))
+        .collect();
+    let filtered_total = filtered.len();
+    let page_count = filtered_total.div_ceil(PAGE_SIZE).max(1);
+    if page > page_count && filtered_total > 0 {
+        return (
+            StatusCode::NOT_FOUND,
+            document(
+                Section::Other,
+                "Not found",
+                "<h1 class=\"page\">Page not found.</h1>",
+                None,
+                &Seo::default(),
+            ),
+        );
+    }
+    let start = (page - 1).saturating_mul(PAGE_SIZE).min(filtered_total);
+    let end = (start + PAGE_SIZE).min(filtered_total);
+    let slice = if filtered_total == 0 {
+        &filtered[..]
+    } else {
+        &filtered[start..end]
+    };
+    let path = path_override
+        .map(|value| value.to_string())
+        .unwrap_or_else(|| page_href(page));
+    let title = if page <= 1 {
+        "SourceCritic: notas e reviews de jogos da crítica"
+    } else {
+        "SourceCritic: notas e reviews de jogos da crítica"
+    };
+    let description = format!(
+        "Notas da crítica para {filtered_total} jogos, ajustadas pelo hábito de cada veículo. Página {page} de {page_count}."
+    );
+    (
+        StatusCode::OK,
+        document(
+            Section::Games,
+            title,
+            &game_list(
+                slice,
+                sort,
+                filters,
+                &platforms,
+                &years,
+                catalog_total,
+                filtered_total,
+                page,
+                page_count,
+            ),
+            Some(&path),
+            &Seo {
+                description,
+                image: Some(format!("{SITE_ORIGIN}/og-default.png")),
+                json_ld: item_list_json("SourceCritic games", slice),
+                extra_head: pager_head(page, page_count),
+            },
+        ),
     )
 }
 
@@ -1113,7 +1723,11 @@ pub(super) async fn game(
             Err(_) => return internal("lock poisoned".to_string()),
         };
         match db.get_game(&slug) {
-            Ok(game) => game,
+            Ok(game) => game.or_else(|| {
+                db.list_games().ok().and_then(|games| {
+                    games.into_iter().find(|game| public_slug(&game.slug, &game.title) == slug)
+                })
+            }),
             Err(error) => return internal(error.to_string()),
         }
     };
@@ -1125,6 +1739,7 @@ pub(super) async fn game(
                 "Not found",
                 "<h1 class=\"page\">Game not found.</h1>",
                 None,
+                &Seo::default(),
             ),
         );
     };
@@ -1183,6 +1798,7 @@ pub(super) async fn outlet(
                 "Not found",
                 "<h1 class=\"page\">Outlet not found.</h1>",
                 None,
+                &Seo::default(),
             ),
         );
     };
@@ -1215,7 +1831,7 @@ fn normalize_game_filters(query: &GameListQuery) -> GameFilters {
         .filter(|value| !value.is_empty())
         .unwrap_or("all")
         .to_string();
-    let min_reviews = query.min_reviews.unwrap_or(0).max(0);
+    let min_reviews = query.min_reviews.unwrap_or(DEFAULT_MIN_REVIEWS).max(0);
     GameFilters {
         platform,
         year,
@@ -1248,15 +1864,37 @@ fn platform_key(raw: &str) -> String {
     match lower.as_str() {
         "playstation 5" | "ps5" => "ps5".into(),
         "playstation 4" | "ps4" => "ps4".into(),
+        "playstation 3" | "ps3" => "ps3".into(),
+        "playstation 2" | "ps2" => "ps2".into(),
+        "playstation" | "ps1" | "psx" => "ps1".into(),
+        "playstation vita" | "ps vita" | "psvita" | "vita" => "vita".into(),
+        "psp" | "playstation portable" => "psp".into(),
         "xbox series x" | "xbox series x/s" | "xbox series s" | "xbox-series-x" | "xbxs" => {
             "xbox-series".into()
         }
         "xbox one" | "xbox-one" => "xbox-one".into(),
         "nintendo switch 2" | "switch 2" | "nintendo-switch-2" => "switch-2".into(),
         "nintendo switch" | "switch" | "nintendo-switch" => "switch".into(),
+        "nintendo 3ds" | "3ds" => "3ds".into(),
+        "nintendo ds" | "nds" | "ds" => "ds".into(),
+        "nintendo gamecube" | "gamecube" | "game cube" | "gc" => "gamecube".into(),
+        "wii u" | "wiiu" => "wii-u".into(),
+        "wii" => "wii".into(),
+        "nintendo 64" | "n64" => "n64".into(),
+        "super nintendo" | "snes" | "super nes" => "snes".into(),
+        "nes" | "nintendo entertainment system" => "nes".into(),
+        "game boy advance" | "gba" => "gba".into(),
+        "game boy color" | "gbc" => "gbc".into(),
+        "game boy" | "gb" => "gb".into(),
+        "xbox 360" | "x360" => "xbox-360".into(),
+        "xbox" => "xbox".into(),
         "pc" | "windows pc" | "windows" => "pc".into(),
-        "ios" | "iphone/ipad" => "ios".into(),
+        "mac" | "macos" | "os x" => "mac".into(),
+        "linux" => "linux".into(),
+        "ios" | "iphone/ipad" | "iphone" | "ipad" | "ios iphone ipad"
+        | "ios (iphone/ipad)" | "iphone / ipad" | "ios-iphone-ipad" => "ios".into(),
         "android" => "android".into(),
+        "stadia" => "stadia".into(),
         other => other
             .chars()
             .map(|ch| if ch.is_ascii_alphanumeric() { ch } else { '-' })
@@ -1270,13 +1908,34 @@ fn platform_label(key: &str) -> String {
     match key {
         "ps5" => "PlayStation 5".into(),
         "ps4" => "PlayStation 4".into(),
+        "ps3" => "PlayStation 3".into(),
+        "ps2" => "PlayStation 2".into(),
+        "ps1" => "PlayStation".into(),
+        "vita" => "PlayStation Vita".into(),
+        "psp" => "PSP".into(),
         "xbox-series" => "Xbox Series X/S".into(),
         "xbox-one" => "Xbox One".into(),
+        "xbox-360" => "Xbox 360".into(),
+        "xbox" => "Xbox".into(),
         "switch-2" => "Nintendo Switch 2".into(),
         "switch" => "Nintendo Switch".into(),
+        "3ds" => "Nintendo 3DS".into(),
+        "ds" => "Nintendo DS".into(),
+        "gamecube" => "GameCube".into(),
+        "wii-u" => "Wii U".into(),
+        "wii" => "Wii".into(),
+        "n64" => "Nintendo 64".into(),
+        "snes" => "SNES".into(),
+        "nes" => "NES".into(),
+        "gba" => "Game Boy Advance".into(),
+        "gbc" => "Game Boy Color".into(),
+        "gb" => "Game Boy".into(),
         "pc" => "PC".into(),
+        "mac" => "Mac".into(),
+        "linux" => "Linux".into(),
         "ios" => "iOS".into(),
         "android" => "Android".into(),
+        "stadia" => "Stadia".into(),
         other => other
             .split('-')
             .filter(|part| !part.is_empty())
@@ -1472,44 +2131,168 @@ fn sort_bar(_base: &str, current: &str, _default: &str, options: &[(&str, &str)]
     html
 }
 
+fn page_href(page: usize) -> String {
+    if page <= 1 {
+        "/".to_string()
+    } else {
+        format!("/page/{page}/")
+    }
+}
+
+fn pager_head(page: usize, page_count: usize) -> String {
+    let mut html = String::new();
+    if page > 1 {
+        html.push_str(&format!(
+            "<link rel=\"prev\" href=\"{SITE_ORIGIN}{href}\">",
+            href = page_href(page - 1)
+        ));
+    }
+    if page < page_count {
+        html.push_str(&format!(
+            "<link rel=\"next\" href=\"{SITE_ORIGIN}{href}\">",
+            href = page_href(page + 1)
+        ));
+    }
+    html
+}
+
+fn pager_nav(page: usize, page_count: usize) -> String {
+    if page_count <= 1 {
+        return String::new();
+    }
+    let prev = if page > 1 {
+        format!("<a href=\"{}\" rel=\"prev\">Previous</a>", page_href(page - 1))
+    } else {
+        String::new()
+    };
+    let next = if page < page_count {
+        format!("<a href=\"{}\" rel=\"next\">Next</a>", page_href(page + 1))
+    } else {
+        String::new()
+    };
+    format!(
+        "<nav class=\"pager\" id=\"pager\" aria-label=\"Pages\">{prev}<span>Page {page} of {page_count}</span>{next}</nav>"
+    )
+}
+
+fn site_footer() -> String {
+    let newsletter = newsletter_form();
+    format!(
+        "<footer class=\"site-footer\">\
+           <p><strong>Lançamentos e notas da semana</strong></p>\
+           {newsletter}\
+           <nav>\
+             <a href=\"/privacy/\">Privacy</a>\
+             <a href=\"/terms/\">Terms</a>\
+             <a href=\"/about/\">About</a>\
+             <a href=\"/best/\">Best of</a>\
+             <a href=\"/most-divisive/\">Most divisive</a>\
+             <a href=\"/disagreements/\">Disagreements</a>\
+             <a href=\"/outlets/ranking/\">Outlet habits</a>\
+           </nav>\
+           <p>Game metadata and cover art come from IGDB, powered by Twitch. Reviews remain the property of each publication: SourceCritic shows the score, a short excerpt, and a link.</p>\
+         </footer>"
+    )
+}
+
+fn cookie_banner() -> String {
+    String::from(
+        "<div class=\"cookie-banner\" id=\"cookie-banner\" hidden>\
+           <p>Cookies de anúncio (AdSense) e medição (Analytics) ficam desligados até você aceitar. \
+           Ad and analytics cookies stay off until you accept. \
+           <a href=\"/privacy/\">Privacy</a></p>\
+           <div class=\"cookie-actions\">\
+             <button type=\"button\" class=\"reject\" id=\"cookie-reject\">Reject</button>\
+             <button type=\"button\" class=\"accept\" id=\"cookie-accept\">Accept</button>\
+           </div>\
+         </div>",
+    )
+}
+
+fn newsletter_form() -> String {
+    let config = include_str!("../../data/newsletter.json");
+    let endpoint = serde_json::from_str::<serde_json::Value>(config)
+        .ok()
+        .and_then(|value| value.get("endpoint").and_then(|item| item.as_str()).map(str::to_string))
+        .filter(|value| !value.is_empty() && !value.contains("YOUR_"))
+        .unwrap_or_else(|| "https://buttondown.com/api/emails/embed-subscribe/YOUR_BUTTONDOWN_USERNAME".to_string());
+    format!(
+        "<form class=\"newsletter\" action=\"{endpoint}\" method=\"post\" target=\"_blank\">\
+           <label>Email <input type=\"email\" name=\"email\" required autocomplete=\"email\" placeholder=\"you@example.com\"></label>\
+           <button type=\"submit\">Subscribe</button>\
+         </form>",
+        endpoint = esc(&endpoint),
+    )
+}
+
+fn item_list_json(name: &str, games: &[GameView]) -> String {
+    let items: Vec<String> = games
+        .iter()
+        .enumerate()
+        .map(|(index, game)| {
+            format!(
+                "{{\"@type\":\"ListItem\",\"position\":{},\"name\":{},\"url\":\"{SITE_ORIGIN}/game/{}/\"}}",
+                index + 1,
+                serde_json::to_string(&game.title).unwrap_or_else(|_| "\"\"".into()),
+                public_slug(&game.slug, &game.title),
+            )
+        })
+        .collect();
+    format!(
+        "{{\"@context\":\"https://schema.org\",\"@type\":\"ItemList\",\"name\":{},\"itemListElement\":[{}]}}",
+        serde_json::to_string(name).unwrap_or_else(|_| "\"\"".into()),
+        items.join(",")
+    )
+}
+
 fn game_list(
     games: &[GameView],
     sort: &str,
     filters: &GameFilters,
     platforms: &[(String, String)],
     years: &[i32],
-    total_before_filter: usize,
+    catalog_total: usize,
+    filtered_total: usize,
+    page: usize,
+    page_count: usize,
 ) -> String {
     let mut html = String::from(
         "<h1 class=\"page\">Games</h1>\
-         <p class=\"lead\">Outlet scores, adjusted so generous critics do not inflate a game and harsh critics do not drag it down.</p>",
+         <p class=\"lead\">Outlet scores, adjusted so generous critics do not inflate a game and harsh critics do not drag it down.</p>\
+         <section class=\"about-block\"><h2>Lançamentos e notas da semana</h2>",
     );
+    html.push_str(&newsletter_form());
+    html.push_str("</section>");
     html.push_str(&browse_controls(filters, platforms, years, sort));
+    let start = if filtered_total == 0 {
+        0
+    } else {
+        (page - 1) * PAGE_SIZE + 1
+    };
+    let end = start.saturating_add(games.len().saturating_sub(if start == 0 { 0 } else { 1 }));
     html.push_str(&format!(
-        "<p class=\"filter-meta\" id=\"filter-meta\">Showing {shown} of {total} games.</p>",
-        shown = games.len(),
-        total = total_before_filter,
+        "<p class=\"filter-meta\" id=\"filter-meta\">Showing {start}–{end} of {filtered_total} games.</p>",
     ));
-    if total_before_filter == 0 {
+    if catalog_total == 0 {
         html.push_str("<p class=\"empty\">No games yet.</p>");
         return html;
     }
-    html.push_str(&format!(
+    let open = format!(
         "<p class=\"empty\" id=\"game-empty\" hidden>No games match these filters.</p>\
-         <div id=\"game-list\" data-total=\"{total}\">",
-        total = total_before_filter,
-    ));
-    for game in games {
+         <div id=\"game-list\" data-total=\"{filtered_total}\">"
+    );
+    html.push_str(&open);
+    for (index, game) in games.iter().enumerate() {
         let count = if game.review_count == 1 {
             "1 review".to_string()
         } else {
             format!("{} reviews", game.review_count)
         };
-        let cover = cover_img(game.cover_path.as_deref(), false);
+        let cover = cover_img(game.cover_path.as_deref(), false, &game.title);
         let score_value = game.agg_score.unwrap_or(0.0);
         let mean_value = game.simple_mean.unwrap_or(0.0);
-        let score_label = fmt_num(score_value);
-        let mean_label = fmt_num(mean_value);
+        let score_label = fmt_score(score_value);
+        let mean_label = fmt_score(mean_value);
         let platform_keys: Vec<String> = game
             .platforms
             .iter()
@@ -1556,21 +2339,32 @@ fn game_list(
         } else {
             ("", " hidden")
         };
+        let provisional = if game.review_count < 5 {
+            " <span class=\"provisional\">nota provisória</span>"
+        } else {
+            ""
+        };
+        let secondary = if bits_tail.is_empty() {
+            String::new()
+        } else {
+            format!("<span class=\"row-secondary\">{bits_tail}</span>")
+        };
         html.push_str(&format!(
-            "<a class=\"row\" href=\"/game/{slug}\" \
+            "<a class=\"row\" href=\"/game/{slug}/\" \
                 data-score=\"{score_n}\" data-mean=\"{mean_n}\" data-reviews=\"{reviews}\" \
                 data-title=\"{title_attr}\" data-year=\"{year}\" data-platforms=\"{plats}\" \
                 data-score-label=\"{score_label}\" data-mean-label=\"{mean_label}\">\
-               <span class=\"meta\">{cover}<span><strong>{title}</strong>\
-                 <small><span data-score-meta>{meta_html}</span> · {count}{bits_tail}</small></span></span>\
-               <span data-score-display{score_hidden}>{score_html}</span>\
+               <span class=\"meta\">{cover}<span class=\"title-block\"><strong>{title}</strong>\
+                 <small><span class=\"row-secondary\" data-score-meta>{meta_html}</span> · <span class=\"row-count\">{count}</span>{secondary}</small></span></span>\
+               <span data-score-display{score_hidden}>{score_html}{provisional}</span>\
                <span data-mean-display{mean_hidden}>{mean_html}</span>\
              </a>",
-            slug = esc(&game.slug),
+            slug = esc(&public_slug(&game.slug, &game.title)),
+            provisional = provisional,
+            secondary = secondary,
             title = esc(&game.title),
             title_attr = esc(&game.title),
             count = esc(&count),
-            bits_tail = bits_tail,
             meta_html = meta_html,
             score_html = score_compact_html(score_value),
             mean_html = score_compact_html(mean_value),
@@ -1585,8 +2379,13 @@ fn game_list(
             mean_label = esc(&mean_label),
             cover = cover,
         ));
+        if (index + 1) % 25 == 0 {
+            html.push_str(&ad_unit("ad-inlist rect", "280px"));
+        }
     }
     html.push_str("</div>");
+    html.push_str(&pager_nav(page, page_count));
+    html.push_str(&ad_unit("ad-home-end rect", "280px"));
     html
 }
 
@@ -1594,9 +2393,11 @@ fn filter_bar(
     filters: &GameFilters,
     platforms: &[(String, String)],
     years: &[i32],
+    sort: &str,
 ) -> String {
-    let mut html = String::from(
-        "<form class=\"filters\" id=\"game-filters\" aria-label=\"Filters\" role=\"search\">",
+    let mut html = format!(
+        "<form class=\"filters\" id=\"game-filters\" data-sort=\"{sort}\" aria-label=\"Filters\" role=\"search\">",
+        sort = esc(sort),
     );
 
     html.push_str(
@@ -1679,7 +2480,7 @@ fn game_sort_bar(sort: &str) -> String {
 }
 
 fn filters_are_active(filters: &GameFilters) -> bool {
-    filters.platform != "all" || filters.year != "all" || filters.min_reviews > 0
+    filters.platform != "all" || filters.year != "all" || filters.min_reviews != DEFAULT_MIN_REVIEWS
 }
 
 fn browse_controls(
@@ -1703,7 +2504,7 @@ fn browse_controls(
              </button>\
            </div>\
          </div>",
-        filters = filter_bar(filters, platforms, years),
+        filters = filter_bar(filters, platforms, years, sort),
         sort = game_sort_bar(sort),
         reset_hidden = reset_hidden,
     )
@@ -1740,7 +2541,7 @@ fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
             format!("{} reviews", outlet.n)
         };
         html.push_str(&format!(
-            "<a class=\"row\" href=\"/outlet/{slug}\" \
+            "<a class=\"row\" href=\"/outlet/{slug}/\" \
                 data-title=\"{name_attr}\" data-reviews=\"{n}\" data-mu=\"{mu_n}\" data-mu-prime=\"{mu_p_n}\">\
                <span><strong>{name}</strong><small>{count} · μ {mu} · σ {sigma} · μ′ {mu_p} · σ′ {sigma_p}</small></span>\
                <span class=\"score\">{mu_p}</span>\
@@ -1779,7 +2580,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
     for review in &outlet.reviews {
         let raw = match (review.raw_score, review.scale_max) {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
-            _ => format!("{}", fmt_num(review.raw_score_norm)),
+            _ => format!("{}", fmt_score(review.raw_score_norm)),
         };
         let mapped = crate::engine::map_z(review.z_score, outlet.mu_global);
         let excerpt = review
@@ -1801,7 +2602,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
         };
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{game_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\">\
-               <span><strong><a href=\"/game/{game_slug}\">{game}</a></strong>\
+               <span><strong><a href=\"/game/{game_slug}/\">{game}</a></strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
                    <span data-score-meta hidden>Score {mapped}</span>\
@@ -1811,13 +2612,13 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
                <span data-z-display class=\"z\" hidden>Z {z}</span>\
                {excerpt}{source}\
              </div>",
-            game_slug = esc(&review.game_slug),
+            game_slug = esc(&public_slug(&review.game_slug, &review.game_title)),
             game = esc(&review.game_title),
             game_attr = esc(&review.game_title),
             raw = esc(&raw),
-            norm = fmt_num(review.raw_score_norm),
-            z = fmt_num(review.z_score),
-            mapped = fmt_num(mapped),
+            norm = fmt_score(review.raw_score_norm),
+            z = fmt_z(review.z_score),
+            mapped = fmt_score(mapped),
             score_n = mapped,
             z_n = review.z_score,
             excerpt = excerpt,
@@ -1828,7 +2629,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
     format!(
         "<h1 class=\"page\">{name}</h1>\
          <p class=\"muted\">{count}. Catalog baseline μ_global {mu_g}, σ_global {sigma_g}.</p>\
-         <p class=\"lead\">μ<sub>j</sub> and σ<sub>j</sub> are this outlet&apos;s raw mean and spread. μ′<sub>j</sub> and σ′<sub>j</sub> are the shrunk values used when scoring a game—pulled toward the catalog so a thin history cannot dominate. See <a href=\"/score\">how the score works</a>.</p>\
+         <p class=\"lead\">μ<sub>j</sub> and σ<sub>j</sub> are this outlet&apos;s raw mean and spread. μ′<sub>j</sub> and σ′<sub>j</sub> are the shrunk values used when scoring a game—pulled toward the catalog so a thin history cannot dominate. See <a href=\"/score/\">how the score works</a>.</p>\
          <div class=\"stats\">\
            <div class=\"stat\"><span class=\"label\">Raw mean μ<sub>j</sub></span><span class=\"value\">{mu}</span></div>\
            <div class=\"stat\"><span class=\"label\">Raw spread σ<sub>j</sub></span><span class=\"value\">{sigma}</span></div>\
@@ -1848,16 +2649,33 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
     )
 }
 
-fn cover_img(path: Option<&str>, large: bool) -> String {
-    let Some(path) = path.filter(|p| p.starts_with("/covers/")) else {
+fn cover_img(path: Option<&str>, large: bool, title: &str) -> String {
+    let Some(path) = path.filter(|p| p.starts_with("/covers/") && !p.contains("..")) else {
         return String::new();
     };
-    let class = if large { "cover-lg" } else { "cover" };
+    let stem = path
+        .rsplit('/')
+        .next()
+        .unwrap_or(path)
+        .rsplit_once('.')
+        .map(|(name, _)| name)
+        .unwrap_or(path);
+    let width = if large { 400 } else { 112 };
+    let height = if large { 560 } else { 157 };
+    let webp = format!("/covers/{stem}-{width}.webp");
+    let avif = format!("/covers/{stem}-{width}.avif");
+    let alt = format!("Capa de {title}");
+    let loading = if large { "eager" } else { "lazy" };
     format!(
-        "<img class=\"{class}\" src=\"{src}\" alt=\"\" width=\"{w}\" height=\"{h}\" loading=\"lazy\">",
-        src = esc(path),
-        w = if large { 140 } else { 56 },
-        h = if large { 198 } else { 78 },
+        "<picture>\
+           <source type=\"image/avif\" srcset=\"{avif}\">\
+           <source type=\"image/webp\" srcset=\"{webp}\">\
+           <img class=\"{class}\" src=\"{webp}\" alt=\"{alt}\" width=\"{width}\" height=\"{height}\" loading=\"{loading}\">\
+         </picture>",
+        class = if large { "cover-lg" } else { "cover" },
+        avif = esc(&avif),
+        webp = esc(&webp),
+        alt = esc(&alt),
     )
 }
 
@@ -1867,7 +2685,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
     } else {
         format!("{} reviews", game.review_count)
     };
-    let cover = cover_img(game.cover_path.as_deref(), true);
+    let cover = cover_img(game.cover_path.as_deref(), true, &game.title);
     let synopsis = game
         .synopsis
         .as_deref()
@@ -1897,6 +2715,36 @@ fn game_page(game: &GameView, sort: &str) -> String {
         )
     };
     let mut reviews = String::from("<section class=\"reviews\"><h2>Outlet reviews</h2>");
+    // Ports stay on this page. Chips recompute the score from reviews of that port.
+    let mut port_keys: Vec<String> = Vec::new();
+    for platform in &game.platforms {
+        let key = platform_key(platform);
+        if !key.is_empty() && !port_keys.iter().any(|k| k == &key) {
+            port_keys.push(key);
+        }
+    }
+    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+        for platform in &review.platforms {
+            let key = platform_key(platform);
+            if !key.is_empty() && !port_keys.iter().any(|k| k == &key) {
+                port_keys.push(key);
+            }
+        }
+    }
+    port_keys.sort();
+    if port_keys.len() > 1 {
+        reviews.push_str("<div class=\"port-filter\" id=\"port-filter\" role=\"group\" aria-label=\"Filter by platform\">");
+        reviews.push_str("<button type=\"button\" data-port=\"all\" aria-pressed=\"true\">All</button>");
+        for key in &port_keys {
+            reviews.push_str(&format!(
+                "<button type=\"button\" data-port=\"{key}\" aria-pressed=\"false\">{label}</button>",
+                key = esc(key),
+                label = esc(&platform_label(key)),
+            ));
+        }
+        reviews.push_str("</div>");
+        reviews.push_str("<p class=\"port-filter-meta\" id=\"port-filter-meta\"></p>");
+    }
     reviews.push_str(&sort_bar(
         &format!("/game/{}", game.slug),
         sort,
@@ -1904,10 +2752,10 @@ fn game_page(game: &GameView, sort: &str) -> String {
         &[("name", "Outlet"), ("score", "Score"), ("z", "Z")],
     ));
     reviews.push_str("<div id=\"game-reviews\">");
-    for review in &game.reviews {
+    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
         let raw = match (review.raw_score, review.scale_max) {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
-            _ => format!("{}", fmt_num(review.raw_score_norm)),
+            _ => format!("{}", fmt_score(review.raw_score_norm)),
         };
         let mapped = crate::engine::map_z(review.z_score, game.mu_global);
         let excerpt = review
@@ -1917,7 +2765,8 @@ fn game_page(game: &GameView, sort: &str) -> String {
             .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(text)))
             .unwrap_or_default();
         let source = match review.review_url.as_deref().filter(|url| {
-            url.starts_with("https://") || url.starts_with("http://")
+            (url.starts_with("https://") || url.starts_with("http://"))
+                && !url.contains("savethechildren.org")
         }) {
             Some(url) => format!(
                 "<p class=\"source\"><a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">Read original review</a></p>",
@@ -1925,9 +2774,21 @@ fn game_page(game: &GameView, sort: &str) -> String {
             ),
             None => String::new(),
         };
+        let mut plat_keys: Vec<String> = review
+            .platforms
+            .iter()
+            .map(|p| platform_key(p))
+            .filter(|k| !k.is_empty())
+            .collect();
+        // No port tag: the review is of the release, so it counts on every port.
+        if plat_keys.is_empty() {
+            plat_keys = port_keys.clone();
+        }
+        let plats_attr = plat_keys.join(" ");
         reviews.push_str(&format!(
-            "<div class=\"review\" data-title=\"{outlet_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\">\
-               <span><strong><a href=\"/outlet/{outlet_slug}\">{outlet}</a></strong>\
+            "<div class=\"review\" data-title=\"{outlet_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\" \
+               data-mapped=\"{mapped_n}\" data-raw-norm=\"{norm_n}\" data-platforms=\"{plats}\">\
+               <span><strong><a href=\"/outlet/{outlet_slug}/\">{outlet}</a></strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
                    <span data-score-meta hidden>Score {mapped}</span>\
@@ -1941,11 +2802,14 @@ fn game_page(game: &GameView, sort: &str) -> String {
             outlet = esc(&review.outlet_name),
             outlet_attr = esc(&review.outlet_name),
             raw = esc(&raw),
-            norm = fmt_num(review.raw_score_norm),
-            z = fmt_num(review.z_score),
-            mapped = fmt_num(mapped),
+            norm = fmt_score(review.raw_score_norm),
+            z = fmt_z(review.z_score),
+            mapped = fmt_score(mapped),
             score_n = mapped,
             z_n = review.z_score,
+            mapped_n = mapped,
+            norm_n = review.raw_score_norm,
+            plats = esc(&plats_attr),
             excerpt = excerpt,
             source = source,
         ));
@@ -1955,21 +2819,29 @@ fn game_page(game: &GameView, sort: &str) -> String {
         "<div class=\"game-hero\">{cover}<div class=\"text\">\
            <h1 class=\"page\">{title}</h1>\
            <div class=\"score-hero\" aria-label=\"SourceCritic score {score}\">\
-             <span class=\"score-hero-value\">{score}</span>\
+             <span class=\"score-hero-value\" id=\"score-hero-value\" data-base=\"{score}\">{score}</span>\
              <span class=\"score-hero-copy\">\
                <span class=\"score-hero-label\">SourceCritic score</span>\
-               <span class=\"score-hero-meta\">Simple mean {mean} · {count}</span>\
+               <span class=\"score-hero-meta\" id=\"score-hero-meta\" data-base=\"{hero_meta}\">{hero_meta}</span>\
              </span>\
            </div>\
            {synopsis}\
            {meta}\
-           <p class=\"lead\">The published score is adjusted by each outlet&apos;s history. See <a href=\"/score\">how the score works</a>.</p>\
+           <p class=\"lead\">The published score is adjusted by each outlet&apos;s history. See <a href=\"/score/\">how the score works</a>.</p>\
          </div></div>\
-         {reviews}",
+         {reviews}\
+         {buy}\
+         {ad}",
         title = esc(&game.title),
-        score = fmt_num(game.agg_score.unwrap_or(0.0)),
-        mean = fmt_num(game.simple_mean.unwrap_or(0.0)),
-        count = esc(&count),
+        hero_meta = format!(
+            "Simple mean {mean} · {count}{provisional}",
+            mean = fmt_score(game.simple_mean.unwrap_or(0.0)),
+            count = count,
+            provisional = if game.review_count < 5 { " · nota provisória" } else { "" },
+        ),
+        buy = buy_block(&game.title),
+        ad = ad_unit("ad-game rect", "280px"),
+        score = fmt_score(game.agg_score.unwrap_or(0.0)),
         synopsis = synopsis,
         meta = meta,
         cover = cover,
@@ -2097,7 +2969,7 @@ fn about_page() -> String {
          <p class=\"lead\">Answers to common questions, how to reach us, and how to keep SourceCritic online.</p>\
          <section class=\"about-block\" aria-labelledby=\"faq-heading\">\
            <h2 id=\"faq-heading\">FAQ</h2>\
-           <p class=\"lead\">Short answers. For the math, see <a href=\"/score\">how the score works</a>.</p>\
+           <p class=\"lead\">Short answers. For the math, see <a href=\"/score/\">how the score works</a>.</p>\
            <div class=\"faq\">\
              <details open>\
                <summary>What is SourceCritic?</summary>\
@@ -2105,11 +2977,11 @@ fn about_page() -> String {
              </details>\
              <details>\
                <summary>How is the score calculated?</summary>\
-               <p>Every review is normalized to 0–100, compared to that outlet&apos;s history as a $z$-score, mapped back to 0–100, then averaged one vote per outlet. The full walkthrough is on <a href=\"/score\">The score</a>.</p>\
+               <p>Every review is normalized to 0–100, compared to that outlet&apos;s history as a $z$-score, mapped back to 0–100, then averaged one vote per outlet. The full walkthrough is on <a href=\"/score/\">The score</a>.</p>\
              </details>\
              <details>\
                <summary>Where do the reviews come from?</summary>\
-               <p>Scores and excerpts are ingested from published critic outlets in the catalog. Each game page links back to the original review when a source URL is available.</p>\
+               <p>Game metadata (name, platforms, dates, covers, synopsis) comes from the official IGDB API, powered by Twitch, or from RAWG when IGDB credentials are not configured. We do not copy covers or synopsis text from Metacritic or the PlayStation Store. Reviews are collected from each outlet: RSS and sitemap URLs listed in outlets.json, plus schema.org Review markup (reviewRating, author, datePublished). The crawler identifies itself as SourceCriticBot/1.0 (+https://sourcecritic.freedxm.com/about/), respects robots.txt, waits a few seconds between requests to the same domain, and keeps a cache. Only the score, a one- or two-sentence excerpt, the date, the author, and the canonical URL are stored. A review is attached to a game by normalized title plus IGDB id; ambiguous matches wait in review_queue.json. OpenCritic and Metacritic are not requested. OpenCritic Recommend % and Metacritic Users are not shown.</p>\
              </details>\
              <details>\
                <summary>Can I submit or correct a review?</summary>\
@@ -2261,7 +3133,7 @@ The generous outlet's soft $70$ maps to $53.30$ (below the catalog mean). The ha
 }
 
 fn ok(section: Section, title: &str, body: &str) -> (StatusCode, Html<String>) {
-    (StatusCode::OK, document(section, title, body, None))
+    (StatusCode::OK, document(section, title, body, None, &Seo::default()))
 }
 
 fn internal(error: String) -> (StatusCode, Html<String>) {
@@ -2273,35 +3145,57 @@ fn internal(error: String) -> (StatusCode, Html<String>) {
             "Error",
             "<h1 class=\"page\">Internal error.</h1>",
             None,
+            &Seo::default(),
         ),
     )
 }
 
-fn ad_slot_html() -> String {
-    let from_env = std::env::var("SOURCECRITIC_AD_HTML")
-        .ok()
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty());
-    let markup = from_env.or_else(|| AD_HTML.map(|s| s.trim().to_string()).filter(|s| !s.is_empty()));
-    let client = ADSENSE_CLIENT.unwrap_or("");
-    match markup {
-        Some(inner) => format!(
-            "<aside class=\"site-ad-rail\" id=\"site-ad\" hidden \
-               data-cooldown-ms=\"{cooldown}\" data-ad-client=\"{client}\" aria-label=\"Advertisement\">\
-               <span class=\"site-ad-label\">Ad</span>\
-               <div class=\"site-ad-slot\"></div>\
-               <script type=\"text/plain\" id=\"site-ad-src\">{inner}</script>\
-             </aside>",
-            cooldown = AD_COOLDOWN_MS,
-            client = esc(client),
-            // text/plain body must not close the script early; strip closers.
-            inner = inner.replace("</script", "<\\/script"),
-        ),
-        None => String::new(),
+struct Seo {
+    description: String,
+    image: Option<String>,
+    json_ld: String,
+    extra_head: String,
+}
+
+impl Default for Seo {
+    fn default() -> Self {
+        Self {
+            description: String::new(),
+            image: None,
+            json_ld: String::new(),
+            extra_head: String::new(),
+        }
     }
 }
 
-fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Html<String> {
+fn ad_unit(class: &str, min_height: &str) -> String {
+    let client = ADSENSE_CLIENT.unwrap_or("");
+    if client.is_empty() {
+        return String::new();
+    }
+    format!(
+        "<aside class=\"{class} ad-unit\" data-ad-client=\"{client}\" aria-label=\"Advertisement\">\
+           <span class=\"site-ad-label\">Ad</span>\
+           <div class=\"site-ad-slot\" style=\"min-height:{min_height}\">\
+             <ins class=\"adsbygoogle\" style=\"display:block;min-height:{min_height}\" \
+               data-ad-client=\"{client}\" data-ad-slot=\"8380670310\" \
+               data-ad-format=\"rectangle\" data-full-width-responsive=\"false\"></ins>\
+           </div>\
+         </aside>",
+        class = class,
+        client = esc(client),
+        min_height = min_height,
+    )
+}
+
+fn ad_slot_html() -> String {
+    ad_unit("site-ad-rail", "600px").replace(
+        "class=\"site-ad-rail ad-unit\"",
+        "class=\"site-ad-rail ad-unit\" id=\"site-ad\"",
+    )
+}
+
+fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: &Seo) -> Html<String> {
     let (games, outlets, score, about) = match section {
         Section::Games => (" aria-current=\"page\"", "", "", ""),
         Section::Outlets => ("", " aria-current=\"page\"", "", ""),
@@ -2318,25 +3212,60 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
         ""
     };
     let ad = ad_slot_html();
-    let canonical = match path {
-        Some(p) if p == "/" || p.is_empty() => format!("{SITE_ORIGIN}/"),
-        Some(p) => format!("{SITE_ORIGIN}{p}"),
-        None => match section {
-            Section::Games => format!("{SITE_ORIGIN}/"),
-            Section::Outlets => format!("{SITE_ORIGIN}/outlets"),
-            Section::Score => format!("{SITE_ORIGIN}/score"),
-            Section::About => format!("{SITE_ORIGIN}/about"),
-            Section::Other => format!("{SITE_ORIGIN}/"),
-        },
+    let canonical = canonical_url(section, path);
+    let full_title = if title.contains("SourceCritic") {
+        title.to_string()
+    } else {
+        format!("{title} | SourceCritic")
     };
+    let description = if seo.description.is_empty() {
+        format!("{full_title}. Critic scores adjusted for each outlet's scoring habit.")
+    } else {
+        seo.description.clone()
+    };
+    let image = seo
+        .image
+        .clone()
+        .unwrap_or_else(|| format!("{SITE_ORIGIN}/og-default.png"));
+    let json_ld = if seo.json_ld.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "<script type=\"application/ld+json\">{}</script>",
+            seo.json_ld
+        )
+    };
+    let ga = GA_MEASUREMENT_ID.unwrap_or("");
     Html(format!(
         "<!DOCTYPE html>\
          <html lang=\"en\">\
          <head>\
            <meta charset=\"utf-8\">\
            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\
-           <title>{title} · SourceCritic</title>\
+           <title>{title}</title>\
+           <meta name=\"description\" content=\"{description}\">\
            <link rel=\"canonical\" href=\"{canonical}\">\
+           <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\
+           <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\">\
+           <meta property=\"og:title\" content=\"{title}\">\
+           <meta property=\"og:description\" content=\"{description}\">\
+           <meta property=\"og:image\" content=\"{image}\">\
+           <meta property=\"og:url\" content=\"{canonical}\">\
+           <meta property=\"og:type\" content=\"website\">\
+           <meta name=\"twitter:card\" content=\"summary_large_image\">\
+           <meta name=\"twitter:title\" content=\"{title}\">\
+           <meta name=\"twitter:description\" content=\"{description}\">\
+           <meta name=\"twitter:image\" content=\"{image}\">\
+           {json_ld}\
+           {extra_head}\
+           <script>\
+             window.dataLayer=window.dataLayer||[];\
+             function gtag(){{dataLayer.push(arguments);}}\
+             gtag('consent','default',{{\
+               ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',\
+               analytics_storage:'denied',wait_for_update:500\
+             }});\
+           </script>\
            <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\
            <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\
            <link href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap\" rel=\"stylesheet\">\
@@ -2344,32 +3273,61 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>) -> Ht
            <style>{CSS}</style>\
            <script>{SITE_JS}</script>\
          </head>\
-         <body>\
+         <body data-ga=\"{ga}\">\
            <div class=\"page-shell\">\
              <main>\
                <header>\
                  <a class=\"brand\" href=\"/\">SourceCritic</a>\
                  <nav>\
                    <a href=\"/\"{games}>Games</a>\
-                   <a href=\"/outlets\"{outlets}>Outlets</a>\
-                   <a href=\"/score\"{score}>The score</a>\
-                   <a href=\"/about\"{about}>About</a>\
+                   <a href=\"/outlets/\"{outlets}>Outlets</a>\
+                   <a href=\"/score/\"{score}>The score</a>\
+                   <a href=\"/about/\"{about}>About</a>\
                  </nav>\
                </header>\
+               {cookie}\
                {body}\
+               {footer}\
              </main>\
              {ad}\
            </div>\
          </body>\
          </html>",
-        title = esc(title),
+        title = esc(&full_title),
+        description = esc(&description),
         canonical = esc(&canonical),
+        image = esc(&image),
+        json_ld = json_ld,
+        extra_head = seo.extra_head,
+        ga = esc(ga),
         games = games,
         outlets = outlets,
         score = score,
         about = about,
+        footer = site_footer(),
+        cookie = cookie_banner(),
         ad = ad,
     ))
+}
+
+fn canonical_url(section: Section, path: Option<&str>) -> String {
+    let raw = match path {
+        Some(p) if p == "/" || p.is_empty() => "/".to_string(),
+        Some(p) => p.to_string(),
+        None => match section {
+            Section::Games => "/".to_string(),
+            Section::Outlets => "/outlets/".to_string(),
+            Section::Score => "/score/".to_string(),
+            Section::About => "/about/".to_string(),
+            Section::Other => "/".to_string(),
+        },
+    };
+    let with_slash = if raw == "/" || raw.ends_with('/') {
+        raw
+    } else {
+        format!("{raw}/")
+    };
+    format!("{SITE_ORIGIN}{with_slash}")
 }
 
 /// Render every public HTML page for the static export.
@@ -2380,52 +3338,117 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
     let mut games = db.list_games().map_err(|e| e.to_string())?;
     let platforms = collect_platforms(&games);
     let years = collect_years(&games);
-    let total = games.len();
     sort_games(&mut games, "score");
     let filters = GameFilters {
         platform: "all".into(),
         year: "all".into(),
-        min_reviews: 0,
+        min_reviews: DEFAULT_MIN_REVIEWS,
     };
-    pages.push((
-        "index.html".into(),
-        document(
-            Section::Games,
-            "Games",
-            &game_list(&games, "score", &filters, &platforms, &years, total),
-            Some("/"),
-        )
-        .0,
-    ));
+    let catalog_total = games.len();
+    let filtered: Vec<GameView> = games
+        .iter()
+        .filter(|game| game_matches(game, &filters))
+        .cloned()
+        .collect();
+    let filtered_total = filtered.len();
+    let page_count = filtered_total.div_ceil(PAGE_SIZE).max(1);
+    for page in 1..=page_count {
+        let start = (page - 1) * PAGE_SIZE;
+        let end = (start + PAGE_SIZE).min(filtered_total);
+        let slice = if filtered_total == 0 {
+            &filtered[..]
+        } else {
+            &filtered[start..end]
+        };
+        let path = page_href(page);
+        let file = if page == 1 {
+            "index.html".to_string()
+        } else {
+            format!("page/{page}/index.html")
+        };
+        let description = format!(
+            "Notas da crítica para {filtered_total} jogos, ajustadas pelo hábito de cada veículo. Página {page} de {page_count}."
+        );
+        pages.push((
+            file,
+            document(
+                Section::Games,
+                "SourceCritic: notas e reviews de jogos da crítica",
+                &game_list(
+                    slice,
+                    "score",
+                    &filters,
+                    &platforms,
+                    &years,
+                    catalog_total,
+                    filtered_total,
+                    page,
+                    page_count,
+                ),
+                Some(&path),
+                &Seo {
+                    description,
+                    image: Some(format!("{SITE_ORIGIN}/og-default.png")),
+                    json_ld: item_list_json("SourceCritic games", slice),
+                    extra_head: pager_head(page, page_count),
+                },
+            )
+            .0,
+        ));
+    }
 
+    let mut used_public: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
     for game in &games {
         let mut detailed = db
             .get_game(&game.slug)
             .map_err(|e| e.to_string())?
             .ok_or_else(|| format!("missing game {}", game.slug))?;
         sort_game_reviews(&mut detailed.reviews, "name", detailed.mu_global);
-        let path = format!("/game/{}", detailed.slug);
+        let mut slug = public_slug(&detailed.slug, &detailed.title);
+        if !used_public.insert(slug.clone()) {
+            slug = detailed.slug.clone();
+        }
+        let path = format!("/game/{slug}/");
         pages.push((
-            format!("game/{}/index.html", detailed.slug),
+            format!("game/{slug}/index.html"),
             document(
                 Section::Other,
-                &detailed.title,
+                &format!("{}: nota da crítica e reviews", detailed.title),
                 &game_page(&detailed, "name"),
                 Some(&path),
+                &game_seo(&detailed, &slug),
             )
             .0,
         ));
+        if slug != detailed.slug {
+            pages.push((
+                format!("game/{}/index.html", detailed.slug),
+                redirect_page(&path),
+            ));
+        }
     }
+    pages.push((
+        "game/baldur-s-gate-3/index.html".into(),
+        redirect_page("/game/baldurs-gate-3/"),
+    ));
 
     let mut outlets = db.list_outlets().map_err(|e| e.to_string())?;
+    outlets.retain(|outlet| is_public_outlet(&outlet.slug));
     sort_outlets(&mut outlets, "reviews");
     pages.push((
         "outlets/index.html".into(),
         document(
             Section::Outlets,
-            "Outlets",
+            "Outlets | SourceCritic",
             &outlet_list(&outlets, "reviews"),
-            Some("/outlets"),
+            Some("/outlets/"),
+            &Seo {
+                description: format!(
+                    "{} critic outlets and the scoring habit behind each SourceCritic score.",
+                    outlets.len()
+                ),
+                ..Seo::default()
+            },
         )
         .0,
     ));
@@ -2436,14 +3459,24 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             .map_err(|e| e.to_string())?
             .ok_or_else(|| format!("missing outlet {}", outlet.slug))?;
         sort_outlet_reviews(&mut detailed.reviews, "name", detailed.mu_global);
-        let path = format!("/outlet/{}", detailed.slug);
+        let path = format!("/outlet/{}/", detailed.slug);
         pages.push((
             format!("outlet/{}/index.html", detailed.slug),
             document(
                 Section::Outlets,
-                &detailed.name,
+                &format!("{} reviews | SourceCritic", detailed.name),
                 &outlet_page(&detailed, "name"),
                 Some(&path),
+                &Seo {
+                    description: format!(
+                        "{} has {} reviews in SourceCritic. Raw mean {}, shrunk mean {}.",
+                        detailed.name,
+                        detailed.n,
+                        fmt_num(detailed.mu),
+                        fmt_num(detailed.mu_prime)
+                    ),
+                    ..Seo::default()
+                },
             )
             .0,
         ));
@@ -2451,12 +3484,61 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
 
     pages.push((
         "score/index.html".into(),
-        document(Section::Score, "The score", &method_page(), Some("/score")).0,
+        document(
+            Section::Score,
+            "How the SourceCritic score is calculated",
+            &method_page(),
+            Some("/score/"),
+            &Seo {
+                description: "How SourceCritic turns each outlet's habit into a 0–100 score: normalize, z-score, map, then average.".into(),
+                ..Seo::default()
+            },
+        )
+        .0,
     ));
     pages.push((
         "about/index.html".into(),
-        document(Section::About, "About", &about_page(), Some("/about")).0,
+        document(
+            Section::About,
+            "About SourceCritic: methodology and sources",
+            &about_page(),
+            Some("/about/"),
+            &Seo {
+                description: "Where SourceCritic scores come from, how reviews are collected, and how to get in touch.".into(),
+                ..Seo::default()
+            },
+        )
+        .0,
     ));
+    pages.push((
+        "privacy/index.html".into(),
+        document(
+            Section::Other,
+            "Privacy policy | SourceCritic",
+            &legal_page(true),
+            Some("/privacy/"),
+            &Seo {
+                description: "What SourceCritic collects, how AdSense and Analytics cookies work, and your LGPD rights.".into(),
+                ..Seo::default()
+            },
+        )
+        .0,
+    ));
+    pages.push((
+        "terms/index.html".into(),
+        document(
+            Section::Other,
+            "Terms of use | SourceCritic",
+            &legal_page(false),
+            Some("/terms/"),
+            &Seo {
+                description: "Terms for using SourceCritic. Reviews belong to the outlets that published them.".into(),
+                ..Seo::default()
+            },
+        )
+        .0,
+    ));
+    pages.extend(discovery_pages(&games, &outlets));
     pages.push((
         "404.html".into(),
         document(
@@ -2464,11 +3546,43 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             "Not found",
             "<h1 class=\"page\">Page not found.</h1><p class=\"lead\"><a href=\"/\">Back to games</a></p>",
             Some("/"),
+            &Seo::default(),
         )
         .0,
     ));
 
     Ok(pages)
+}
+
+pub fn games_index_json(games: &[GameView]) -> String {
+    let mut items = Vec::new();
+    for game in games {
+        let platforms: Vec<String> = game.platforms.iter().map(|platform| platform_key(platform)).collect();
+        let labels = platforms
+            .iter()
+            .map(|key| platform_label(key))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let stem = game
+            .cover_path
+            .as_deref()
+            .and_then(|path| path.rsplit('/').next())
+            .and_then(|file| file.rsplit_once('.').map(|(name, _)| name.to_string()));
+        let cover = stem.map(|stem| format!("/covers/{stem}-112.webp"));
+        items.push(serde_json::json!({
+            "slug": public_slug(&game.slug, &game.title),
+            "title": game.title,
+            "score": game.agg_score.unwrap_or(0.0),
+            "mean": game.simple_mean.unwrap_or(0.0),
+            "reviews": game.review_count,
+            "year": game.release_year,
+            "platforms": platforms,
+            "platform_labels": labels,
+            "cover": cover,
+            "provisional": game.review_count < 5,
+        }));
+    }
+    serde_json::to_string(&items).unwrap_or_else(|_| "[]".into())
 }
 
 
@@ -2484,6 +3598,169 @@ fn esc(value: &str) -> String {
         }
     }
     out
+}
+
+fn is_public_outlet(slug: &str) -> bool {
+    !matches!(slug, "metacritic-users" | "opencritic-recommend")
+}
+
+fn redirect_page(target: &str) -> String {
+    format!(
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">\
+         <link rel=\"canonical\" href=\"{origin}{target}\">\
+         <meta http-equiv=\"refresh\" content=\"0; url={target}\">\
+         <title>Redirect</title></head><body>\
+         <p><a href=\"{target}\">Continue</a></p></body></html>",
+        origin = SITE_ORIGIN,
+        target = esc(target),
+    )
+}
+
+fn game_seo(game: &GameView, slug: &str) -> Seo {
+    let score = fmt_score(game.agg_score.unwrap_or(0.0));
+    let year = game
+        .release_year
+        .map(|year| format!(" ({year})"))
+        .unwrap_or_default();
+    let platforms = game
+        .platforms
+        .iter()
+        .map(|platform| platform_label(&platform_key(platform)))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let platform_bit = if platforms.is_empty() {
+        String::new()
+    } else {
+        format!(" Platforms: {platforms}.")
+    };
+    let description = format!(
+        "{}{year} has a SourceCritic score of {score} from {} critic reviews.{platform_bit}",
+        game.title, game.review_count
+    );
+    let image = game.cover_path.as_deref().map(|path| {
+        let stem = path
+            .rsplit('/')
+            .next()
+            .unwrap_or(path)
+            .rsplit_once('.')
+            .map(|(name, _)| name)
+            .unwrap_or(path);
+        format!("{SITE_ORIGIN}/covers/{stem}-400.webp")
+    });
+    Seo {
+        description,
+        image,
+        json_ld: game_json_ld(game, slug),
+        extra_head: String::new(),
+    }
+}
+
+fn game_json_ld(game: &GameView, slug: &str) -> String {
+    let mut reviews = Vec::new();
+    for review in game.reviews.iter().filter(|review| is_public_outlet(&review.outlet_slug)) {
+        let url = review
+            .review_url
+            .as_deref()
+            .filter(|url| url.starts_with("http://") || url.starts_with("https://"));
+        let rating = fmt_score(review.raw_score_norm);
+        let mut item = serde_json::json!({
+            "@type": "Review",
+            "author": {"@type": "Organization", "name": review.outlet_name},
+            "reviewRating": {
+                "@type": "Rating",
+                "ratingValue": rating,
+                "bestRating": "100",
+                "worstRating": "0"
+            }
+        });
+        if let Some(url) = url {
+            item["url"] = serde_json::Value::String(url.to_string());
+        }
+        reviews.push(item);
+    }
+    let mut value = serde_json::json!({
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": game.title,
+        "url": format!("{SITE_ORIGIN}/game/{slug}/"),
+        "description": game.synopsis.clone().unwrap_or_default(),
+        "gamePlatform": game.platforms.iter().map(|platform| platform_label(&platform_key(platform))).collect::<Vec<_>>(),
+        "review": reviews,
+    });
+    if let Some(year) = game.release_year {
+        value["datePublished"] = serde_json::Value::String(year.to_string());
+    }
+    if game.review_count >= 5 {
+        value["aggregateRating"] = serde_json::json!({
+            "@type": "AggregateRating",
+            "ratingValue": fmt_score(game.agg_score.unwrap_or(0.0)),
+            "bestRating": "100",
+            "worstRating": "0",
+            "ratingCount": game.review_count
+        });
+    }
+    serde_json::to_string(&value).unwrap_or_else(|_| "{}".into())
+}
+
+fn fmt_score(value: f64) -> String {
+    format!("{}", value.round() as i64)
+}
+
+fn fmt_z(value: f64) -> String {
+    format!("{:.2}", value)
+}
+
+fn fold_accents(value: &str) -> String {
+    value
+        .chars()
+        .map(|ch| match ch {
+            'á' | 'à' | 'â' | 'ã' | 'ä' | 'å' => 'a',
+            'é' | 'è' | 'ê' | 'ë' => 'e',
+            'í' | 'ì' | 'î' | 'ï' => 'i',
+            'ó' | 'ò' | 'ô' | 'õ' | 'ö' => 'o',
+            'ú' | 'ù' | 'û' | 'ü' => 'u',
+            'ç' => 'c',
+            'ñ' => 'n',
+            other => other,
+        })
+        .collect()
+}
+
+fn slugify_title(title: &str) -> String {
+    let mut cleaned = String::new();
+    for ch in title.chars() {
+        if matches!(ch, '\'' | '’' | 'ʼ' | '`') {
+            continue;
+        }
+        cleaned.push(ch);
+    }
+    let folded = fold_accents(&cleaned.to_lowercase());
+    let mut slug = String::new();
+    let mut dash = false;
+    for ch in folded.chars() {
+        if ch.is_ascii_alphanumeric() {
+            if dash && !slug.is_empty() {
+                slug.push('-');
+            }
+            dash = false;
+            slug.push(ch);
+        } else {
+            dash = true;
+        }
+    }
+    slug
+}
+
+/// Apostrophes are deleted before hyphenating (`baldurs-gate-3`, `blueys-happy-snaps`).
+/// Existing slugs change only when that rule reproduces the title slug.
+fn public_slug(slug: &str, title: &str) -> String {
+    let from_title = slugify_title(title);
+    let collapsed = slug.replace("-s-", "s-");
+    if from_title == collapsed && collapsed != slug {
+        collapsed
+    } else {
+        slug.to_string()
+    }
 }
 
 fn fmt_num(value: f64) -> String {
@@ -2505,22 +3782,8 @@ fn cmp_num_html(label: &str, score: f64, mean: f64) -> String {
 }
 
 fn score_compact_html(value: f64) -> String {
-    let full = fmt_num(value);
-    let (whole, frac) = match full.split_once('.') {
-        Some((whole, frac)) => (whole.to_string(), format!(".{frac}")),
-        None => (full, String::new()),
-    };
-    if frac.is_empty() {
-        return format!("<span class=\"score\">{whole}</span>", whole = esc(&whole));
-    }
-    format!(
-        "<span class=\"score score-compact\" title=\"{full}\">\
-           <span class=\"whole\">{whole}</span><span class=\"frac\">{frac}</span>\
-         </span>",
-        full = esc(&format!("{whole}{frac}")),
-        whole = esc(&whole),
-        frac = esc(&frac),
-    )
+    let full = fmt_score(value);
+    format!("<span class=\"score\">{full}</span>", full = esc(&full))
 }
 
 /// Metacritic descriptions often end with leftover tags like `[Nintendo]` or `[GTA VI]`.
@@ -2578,6 +3841,342 @@ fn slugify(value: &str) -> String {
     slug
 }
 
+fn legal_page(privacy: bool) -> String {
+    if privacy {
+        String::from(
+            "<h1 class=\"page\">Privacy policy</h1>\
+             <p class=\"lead\">SourceCritic is a static site. This notice covers the LGPD (Brazil) and the GDPR (EEA and UK).</p>\
+             <section class=\"about-block\"><h2>English</h2>\
+             <p>We collect the least we can. The pages themselves do not ask for an account. If you subscribe to the newsletter, the email address goes to the provider named in the form (Buttondown, MailerLite, or Beehiiv) and is used only to send the weekly releases and scores. If you email us, we keep that message to reply.</p>\
+             <p>Advertising (Google AdSense) and measurement (Google Analytics) cookies stay off until you accept them. Visitors in the EEA and the UK see Google's certified Privacy &amp; messaging CMP. Everyone else sees our banner. Consent Mode v2 defaults to denied for ad_storage, ad_user_data, ad_personalization, and analytics_storage. Rejecting leaves those tags unloaded.</p>\
+             <p>Purpose: show critic scores, fund hosting with ads, and understand which pages are used. Legal bases: consent for cookies, and legitimate interest for the publishing of publicly available review scores.</p>\
+             <p>You can ask for access, correction, deletion, or portability of personal data we hold, and you can withdraw cookie consent by clearing site data. Contact <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
+             <p>Reviews belong to the outlets that wrote them. SourceCritic shows the score, a short excerpt of one or two sentences, and a link to the original. We do not republish the full text.</p>\
+             </section>\
+             <section class=\"about-block\"><h2>Português</h2>\
+             <p>O SourceCritic é um site estático. Não pedimos conta. Se você assina a newsletter, o e-mail vai para o serviço indicado no formulário e serve só para os lançamentos e as notas da semana. Se você escreve para o contato, guardamos a mensagem para responder.</p>\
+             <p>Cookies de publicidade (Google AdSense) e de medição (Google Analytics) ficam bloqueados até o aceite. Visitantes da Europa e do Reino Unido veem a CMP certificada do Google (Privacy &amp; messaging, do AdSense). Os demais veem o nosso aviso. O Consent Mode v2 começa negado para ad_storage, ad_user_data, ad_personalization e analytics_storage.</p>\
+             <p>Finalidade: exibir notas da crítica, manter o site com anúncios e saber quais páginas são lidas. Bases: consentimento para cookies e legítimo interesse para publicar notas já públicas.</p>\
+             <p>Pela LGPD você pode pedir acesso, correção, exclusão, portabilidade e informação sobre o uso. Para retirar o consentimento, apague os dados do site neste navegador. Contato: <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
+             <p>As reviews pertencem aos veículos. O site mostra a nota, um trecho curto de uma ou duas frases e o link. Não republicamos o texto integral.</p>\
+             </section>"
+        )
+    } else {
+        String::from(
+            "<h1 class=\"page\">Terms of use</h1>\
+             <p class=\"lead\">Using SourceCritic means you accept these terms.</p>\
+             <section class=\"about-block\"><h2>English</h2>\
+             <p>Scores are an editorial transformation of published critic reviews. They are not an official score from any outlet, Metacritic, or OpenCritic. The method is described on <a href=\"/score/\">how the score works</a> and <a href=\"/about/\">about</a>.</p>\
+             <p>Review text, scores, and names belong to the outlets. We display the score, a short excerpt, and a link. Do not treat an excerpt as the full review. Affiliate buttons (\"Onde comprar\") may earn a commission at no extra cost to you; prices are not shown until a store feed is connected.</p>\
+             <p>The site is provided as is. We do not promise that every score, platform, or year is complete. For privacy requests, use the address on <a href=\"/privacy/\">privacy</a>.</p>\
+             </section>\
+             <section class=\"about-block\"><h2>Português</h2>\
+             <p>As notas são uma leitura editorial de reviews já publicadas. Não são a nota oficial de um veículo, do Metacritic ou do OpenCritic. O método está em <a href=\"/score/\">como a nota é calculada</a> e em <a href=\"/about/\">sobre</a>.</p>\
+             <p>O texto, a nota e o nome pertencem ao veículo. Mostramos a nota, um trecho curto e o link. Os botões \"Onde comprar\" podem gerar comissão sem custo extra; o preço em reais fica preparado para uma integração futura.</p>\
+             <p>O site é oferecido no estado em que está. Pedidos sobre dados pessoais vão para o contato da página de <a href=\"/privacy/\">privacidade</a>.</p>\
+             </section>"
+        )
+    }
+}
+
+fn buy_block(title: &str) -> String {
+    let config = include_str!("../../data/affiliates.json");
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(config) else {
+        return String::new();
+    };
+    let Some(stores) = value.get("stores").and_then(|item| item.as_array()) else {
+        return String::new();
+    };
+    let query = urlencoding_min(title);
+    let mut buttons = String::new();
+    for store in stores {
+        let name = store.get("name").and_then(|item| item.as_str()).unwrap_or("Store");
+        let id = store.get("affiliate_id").and_then(|item| item.as_str()).unwrap_or("");
+        let template = store.get("url_template").and_then(|item| item.as_str()).unwrap_or("");
+        if template.is_empty() {
+            continue;
+        }
+        let url = template
+            .replace("{query}", &query)
+            .replace("{affiliate_id}", id);
+        let price = store.get("price_brl").and_then(|item| item.as_f64());
+        let price_html = match price {
+            Some(price) => format!("<small>R$ {price:.2}</small>"),
+            None => "<small data-price-brl></small>".to_string(),
+        };
+        buttons.push_str(&format!(
+            "<a href=\"{url}\" rel=\"sponsored nofollow noopener\" target=\"_blank\">{name}{price_html}</a>",
+            url = esc(&url),
+            name = esc(name),
+            price_html = price_html,
+        ));
+    }
+    let note = value
+        .get("disclosure_pt")
+        .and_then(|item| item.as_str())
+        .unwrap_or("Links de afiliado: podemos receber comissão sem custo para você.");
+    format!(
+        "<section class=\"buy-block\"><h2>Onde comprar</h2>\
+         <div class=\"buy-actions\">{buttons}</div>\
+         <p class=\"buy-note\">{note}</p></section>",
+        note = esc(note),
+    )
+}
+
+fn urlencoding_min(value: &str) -> String {
+    let mut out = String::new();
+    for byte in value.as_bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' => out.push(*byte as char),
+            b' ' => out.push('+'),
+            other => out.push_str(&format!("%{other:02X}")),
+        }
+    }
+    out
+}
+
+fn population_std(values: &[f64]) -> f64 {
+    if values.is_empty() {
+        return 0.0;
+    }
+    let mean = values.iter().sum::<f64>() / values.len() as f64;
+    let var = values.iter().map(|value| {
+        let delta = value - mean;
+        delta * delta
+    }).sum::<f64>() / values.len() as f64;
+    var.sqrt()
+}
+
+fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec<(String, String)> {
+    let mut pages = Vec::new();
+    let mut divisive: Vec<&GameView> = games
+        .iter()
+        .filter(|game| game.review_count >= 5)
+        .collect();
+    divisive.sort_by(|a, b| {
+        let a_std = population_std(&a.reviews.iter().map(|review| review.raw_score_norm).collect::<Vec<_>>());
+        let b_std = population_std(&b.reviews.iter().map(|review| review.raw_score_norm).collect::<Vec<_>>());
+        b_std.partial_cmp(&a_std).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    divisive.truncate(40);
+    let lead_std = divisive.first().map(|game| {
+        population_std(&game.reviews.iter().map(|review| review.raw_score_norm).collect::<Vec<_>>())
+    });
+    let intro = match (divisive.first(), lead_std) {
+        (Some(game), Some(std)) => format!(
+            "{} games with at least 5 reviews, ordered by how far the outlets sit from each other. {} leads, with a standard deviation of {:.1} points.",
+            divisive.len(),
+            esc(&game.title),
+            std
+        ),
+        _ => "Not enough reviews yet to rank disagreements between outlets.".into(),
+    };
+    pages.push(list_page(
+        "most-divisive/index.html",
+        "/most-divisive/",
+        "Most divisive games | SourceCritic",
+        "Most divisive",
+        &intro,
+        &divisive,
+    ));
+
+    let mut gaps: Vec<&GameView> = games
+        .iter()
+        .filter(|game| game.review_count >= 5)
+        .filter(|game| game.agg_score.is_some() && game.simple_mean.is_some())
+        .collect();
+    gaps.sort_by(|a, b| {
+        let a_gap = (a.agg_score.unwrap_or(0.0) - a.simple_mean.unwrap_or(0.0)).abs();
+        let b_gap = (b.agg_score.unwrap_or(0.0) - b.simple_mean.unwrap_or(0.0)).abs();
+        b_gap.partial_cmp(&a_gap).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    gaps.truncate(40);
+    let gap_intro = if let Some(game) = gaps.first() {
+        let gap = (game.agg_score.unwrap_or(0.0) - game.simple_mean.unwrap_or(0.0)).abs();
+        format!(
+            "Where the adjusted SourceCritic score moves furthest from a plain average. {} differs by {:.0} points.",
+            esc(&game.title),
+            gap
+        )
+    } else {
+        "No scored games yet.".into()
+    };
+    pages.push(list_page(
+        "disagreements/index.html",
+        "/disagreements/",
+        "Where SourceCritic disagrees with the average | SourceCritic",
+        "Biggest gaps",
+        &gap_intro,
+        &gaps,
+    ));
+
+    let mut generous: Vec<&crate::db::OutletView> = outlets.iter().filter(|outlet| outlet.n >= 10).collect();
+    generous.sort_by(|a, b| b.mu_prime.partial_cmp(&a.mu_prime).unwrap_or(std::cmp::Ordering::Equal));
+    let mut harsh = generous.clone();
+    harsh.sort_by(|a, b| a.mu_prime.partial_cmp(&b.mu_prime).unwrap_or(std::cmp::Ordering::Equal));
+    generous.truncate(15);
+    harsh.truncate(15);
+    let rank_intro = match (generous.first(), harsh.first()) {
+        (Some(high), Some(low)) => format!(
+            "Habits already shrunk toward the catalog. {} scores highest on average (μ′ {}); {} scores lowest (μ′ {}).",
+            esc(&high.name),
+            fmt_num(high.mu_prime),
+            esc(&low.name),
+            fmt_num(low.mu_prime)
+        ),
+        _ => "Outlet habits appear once a publication has at least 10 reviews.".into(),
+    };
+    let mut body = format!(
+        "<h1 class=\"page\">Outlet habits</h1><p class=\"lead\">{rank_intro}</p><h2>Most generous</h2><div id=\"outlet-list\">"
+    );
+    for outlet in &generous {
+        body.push_str(&format!(
+            "<a class=\"row\" href=\"/outlet/{slug}/\"><span><strong>{name}</strong><small>μ′ {mu}</small></span><span class=\"score\">{mu}</span></a>",
+            slug = esc(&outlet.slug),
+            name = esc(&outlet.name),
+            mu = fmt_num(outlet.mu_prime),
+        ));
+    }
+    body.push_str("</div><h2>Harshest</h2><div>");
+    for outlet in &harsh {
+        body.push_str(&format!(
+            "<a class=\"row\" href=\"/outlet/{slug}/\"><span><strong>{name}</strong><small>μ′ {mu}</small></span><span class=\"score\">{mu}</span></a>",
+            slug = esc(&outlet.slug),
+            name = esc(&outlet.name),
+            mu = fmt_num(outlet.mu_prime),
+        ));
+    }
+    body.push_str("</div>");
+    pages.push((
+        "outlets/ranking/index.html".into(),
+        document(
+            Section::Outlets,
+            "Most generous and harshest outlets | SourceCritic",
+            &body,
+            Some("/outlets/ranking/"),
+            &Seo {
+                description: rank_intro.replace("&amp;", "&"),
+                json_ld: String::new(),
+                image: None,
+                extra_head: String::new(),
+            },
+        )
+        .0,
+    ));
+
+    let best_platforms = [
+        "ps5", "ps4", "ps3", "ps2", "ps1", "psp", "vita", "switch", "switch-2", "3ds", "ds",
+        "wii", "wii-u", "gamecube", "n64", "pc", "xbox-series", "xbox-one", "xbox-360", "xbox", "ios",
+    ];
+    let mut best_index = String::from(
+        "<h1 class=\"page\">Best of</h1><p class=\"lead\">Highest SourceCritic scores for a platform and a year, among games with at least 5 reviews.</p><div>",
+    );
+    let mut best_count = 0usize;
+    let platform_keys = collect_platforms(games);
+    let year_list = collect_years(games);
+    for (key, label) in platform_keys.iter().filter(|(key, _)| best_platforms.contains(&key.as_str())) {
+        for year in &year_list {
+            let mut picked: Vec<&GameView> = games
+                .iter()
+                .filter(|game| game.review_count >= 5 && game.release_year == Some(*year))
+                .filter(|game| game.platforms.iter().any(|platform| platform_key(platform) == *key))
+                .collect();
+            if picked.len() < 5 {
+                continue;
+            }
+            picked.sort_by(|a, b| {
+                b.agg_score
+                    .partial_cmp(&a.agg_score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+            picked.truncate(25);
+            let avg = picked.iter().filter_map(|game| game.agg_score).sum::<f64>() / picked.len() as f64;
+            let leader = &picked[0];
+            let intro = format!(
+                "Melhores jogos de {label} em {year}. Os {n} primeiros têm nota média {avg}. {title} lidera com {score}.",
+                n = picked.len(),
+                avg = fmt_score(avg),
+                title = esc(&leader.title),
+                score = fmt_score(leader.agg_score.unwrap_or(0.0)),
+            );
+            let path = format!("/best/{key}/{year}/");
+            pages.push(list_page(
+                &format!("best/{key}/{year}/index.html"),
+                &path,
+                &format!("Melhores jogos de {label} em {year} | SourceCritic"),
+                &format!("Melhores de {label} em {year}"),
+                &intro,
+                &picked,
+            ));
+            best_index.push_str(&format!(
+                "<a class=\"row\" href=\"{path}\"><span><strong>Melhores jogos de {label} em {year}</strong></span></a>"
+            ));
+            best_count += 1;
+        }
+    }
+    best_index.push_str("</div>");
+    if best_count == 0 {
+        best_index.push_str("<p class=\"empty\">No platform-year has five scored games yet.</p>");
+    }
+    pages.push((
+        "best/index.html".into(),
+        document(
+            Section::Other,
+            "Best games by platform and year | SourceCritic",
+            &best_index,
+            Some("/best/"),
+            &Seo {
+                description: "Lists of the highest SourceCritic scores by platform and year.".into(),
+                ..Seo::default()
+            },
+        )
+        .0,
+    ));
+    pages
+}
+
+fn list_page(
+    file: &str,
+    path: &str,
+    title: &str,
+    heading: &str,
+    intro: &str,
+    games: &[&GameView],
+) -> (String, String) {
+    let mut body = format!(
+        "<h1 class=\"page\">{heading}</h1><p class=\"lead\">{intro}</p><div id=\"game-list\">",
+        heading = esc(heading),
+    );
+    for game in games {
+        let slug = public_slug(&game.slug, &game.title);
+        body.push_str(&format!(
+            "<a class=\"row\" href=\"/game/{slug}/\"><span class=\"title-block\"><strong>{title}</strong><small>{reviews} reviews</small></span><span class=\"score\">{score}</span></a>",
+            slug = esc(&slug),
+            title = esc(&game.title),
+            reviews = game.review_count,
+            score = fmt_score(game.agg_score.unwrap_or(0.0)),
+        ));
+    }
+    body.push_str("</div>");
+    let owned: Vec<GameView> = games.iter().map(|game| (*game).clone()).collect();
+    (
+        file.to_string(),
+        document(
+            Section::Other,
+            title,
+            &body,
+            Some(path),
+            &Seo {
+                description: intro.replace("&amp;", "&"),
+                json_ld: item_list_json(heading, &owned),
+                image: Some(format!("{SITE_ORIGIN}/og-default.png")),
+                extra_head: String::new(),
+            },
+        )
+        .0,
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2586,6 +4185,15 @@ mod tests {
     fn slugifies_titles() {
         assert_eq!(slugify("Hades II"), "hades-ii");
         assert_eq!(slugify("Ação"), "acao");
+        assert_eq!(public_slug("bluey-s-happy-snaps", "Bluey's Happy Snaps"), "blueys-happy-snaps");
+        assert_eq!(public_slug("baldurs-gate-3", "Baldur's Gate 3"), "baldurs-gate-3");
+        assert_eq!(
+            public_slug(
+                "dragon-quest-xi-s-echoes-of-an-elusive-age",
+                "Dragon Quest XI S: Echoes of an Elusive Age - Definitive Edition"
+            ),
+            "dragon-quest-xi-s-echoes-of-an-elusive-age"
+        );
     }
 
     #[test]

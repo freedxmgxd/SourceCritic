@@ -1,0 +1,5 @@
+{
+  "provider": "buttondown",
+  "endpoint": "https://buttondown.com/api/emails/embed-subscribe/YOUR_BUTTONDOWN_USERNAME",
+  "headline": "Lançamentos e notas da semana"
+}
