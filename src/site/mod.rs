@@ -67,6 +67,12 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
         format!("User-agent: *\nAllow: /\nSitemap: {SITE_ORIGIN}/sitemap.xml\n"),
     )?;
 
+    // AdSense authorized sellers (same pub as freedxm.com).
+    fs::write(
+        out_dir.join("ads.txt"),
+        "google.com, pub-5490722539415533, DIRECT, f08c47fec0942fa0\n",
+    )?;
+
     let sitemap = build_sitemap(&files);
     fs::write(out_dir.join("sitemap.xml"), sitemap)?;
 
