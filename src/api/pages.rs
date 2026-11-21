@@ -2197,7 +2197,7 @@ fn site_footer() -> String {
 
 fn cookie_banner() -> String {
     String::from(
-        "<div class=\"cookie-banner\" id=\"cookie-banner\" hidden>\
+        "<div class=\"cookie-banner\" id=\"cookie-banner\">\
            <p>Cookies de anúncio (AdSense) e medição (Analytics) ficam desligados até você aceitar. \
            Ad and analytics cookies stay off until you accept. \
            <a href=\"/privacy/\">Privacy</a></p>\
