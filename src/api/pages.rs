@@ -20,6 +20,8 @@ const CSS: &str = r#"
   --accent-soft: #f3e0e8;
   --accent-mid: #e4c4d0;
   --danger: #c2410c;
+  --cmp-high: #7a3d96;
+  --cmp-low: #c24747;
   --code-bg: #1a1218;
   --code-ink: #eddfe6;
   --surface-hover: #f4ecef;
@@ -114,6 +116,12 @@ nav a[aria-current="page"] {
   border-bottom: 1px solid var(--line);
   text-decoration: none;
   color: inherit;
+}
+
+/* `display: flex` above would otherwise override the hidden attribute. */
+.row[hidden],
+#game-empty[hidden] {
+  display: none !important;
 }
 
 .row:first-of-type { border-top: 1px solid var(--line); }
@@ -445,6 +453,10 @@ nav a[aria-current="page"] {
   background: transparent;
 }
 
+.filters .filter-search {
+  grid-column: 1 / -1;
+}
+
 .filters label {
   display: flex;
   flex-direction: column;
@@ -455,7 +467,8 @@ nav a[aria-current="page"] {
   text-transform: uppercase;
 }
 
-.filters select {
+.filters select,
+.filters input[type="search"] {
   font: inherit;
   text-transform: none;
   letter-spacing: 0;
@@ -464,10 +477,20 @@ nav a[aria-current="page"] {
   border-radius: 10px;
   background: white;
   padding: 8px 10px;
-  cursor: pointer;
 }
 
-.filters select:focus-visible {
+.filters select { cursor: pointer; }
+
+.filters input[type="search"] {
+  width: 100%;
+}
+
+.filters input[type="search"]::placeholder {
+  color: color-mix(in srgb, var(--muted) 75%, white);
+}
+
+.filters select:focus-visible,
+.filters input[type="search"]:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
   outline-offset: 2px;
 }
@@ -561,6 +584,15 @@ nav.sort button[data-sort]:focus-visible {
   color: var(--muted);
   font-size: 0.9rem;
 }
+
+.row small .cmp-high,
+.row small .cmp-low {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.row small .cmp-high { color: var(--cmp-high); }
+.row small .cmp-low { color: var(--cmp-low); }
 
 .about-block {
   margin: 22px 0 0;
@@ -830,9 +862,12 @@ const SITE_JS: &str = r#"
         var showMean = key === "mean";
         scoreEl.hidden = showMean;
         meanEl.hidden = !showMean;
-        meta.textContent = showMean
-          ? ("score " + (row.getAttribute("data-score-label") || ""))
-          : ("simple mean " + (row.getAttribute("data-mean-label") || ""));
+        var scoreLabel = row.getAttribute("data-score-label") || "";
+        var meanLabel = row.getAttribute("data-mean-label") || "";
+        // Color encodes score vs mean: red if score > mean, purple if score < mean.
+        meta.innerHTML = showMean
+          ? ("score " + cmpNumHtml(scoreLabel, num(row, "data-score"), num(row, "data-mean")))
+          : ("simple mean " + cmpNumHtml(meanLabel, num(row, "data-score"), num(row, "data-mean")));
       });
     }
     if (list.id === "game-reviews" || list.id === "outlet-reviews") {
@@ -850,11 +885,19 @@ const SITE_JS: &str = r#"
       });
     }
   }
+  function cmpNumHtml(label, score, mean) {
+    if (!isFinite(score) || !isFinite(mean) || score === mean) {
+      return label;
+    }
+    var cls = score > mean ? "cmp-low" : "cmp-high";
+    return '<span class="' + cls + '">' + label + "</span>";
+  }
   function filtersActive(form) {
     var platform = (form.platform && form.platform.value) || "all";
     var year = (form.year && form.year.value) || "all";
     var minReviews = Number((form.min_reviews && form.min_reviews.value) || 0);
-    return platform !== "all" || year !== "all" || minReviews > 0;
+    var q = ((form.q && form.q.value) || "").trim();
+    return platform !== "all" || year !== "all" || minReviews > 0 || q.length > 0;
   }
   function applyGameFilters() {
     var list = document.getElementById("game-list");
@@ -865,16 +908,18 @@ const SITE_JS: &str = r#"
     var platform = (form.platform && form.platform.value) || "all";
     var year = (form.year && form.year.value) || "all";
     var minReviews = Number((form.min_reviews && form.min_reviews.value) || 0);
+    var q = ((form.q && form.q.value) || "").trim().toLowerCase();
     var total = Number(list.getAttribute("data-total") || 0);
     var shown = 0;
     Array.prototype.forEach.call(list.querySelectorAll(".row"), function (row) {
       var ok = true;
       if (platform !== "all") {
-        var plats = (row.getAttribute("data-platforms") || "").split(/\s+/);
+        var plats = (row.getAttribute("data-platforms") || "").split(/\s+/).filter(Boolean);
         ok = plats.indexOf(platform) !== -1;
       }
       if (ok && year !== "all") ok = row.getAttribute("data-year") === year;
       if (ok && minReviews > 0) ok = num(row, "data-reviews") >= minReviews;
+      if (ok && q) ok = text(row, "data-title").indexOf(q) !== -1;
       row.hidden = !ok;
       if (ok) shown += 1;
     });
@@ -889,6 +934,7 @@ const SITE_JS: &str = r#"
     if (form.platform) form.platform.value = "all";
     if (form.year) form.year.value = "all";
     if (form.min_reviews) form.min_reviews.value = "0";
+    if (form.q) form.q.value = "";
     applyGameFilters();
   }
   function bindSort(listId, defaultKey) {
@@ -913,6 +959,10 @@ const SITE_JS: &str = r#"
     if (form) {
       form.addEventListener("submit", function (ev) { ev.preventDefault(); applyGameFilters(); });
       form.addEventListener("change", applyGameFilters);
+      form.addEventListener("input", applyGameFilters);
+      Array.prototype.forEach.call(form.querySelectorAll("select"), function (sel) {
+        sel.addEventListener("change", applyGameFilters);
+      });
     }
     var reset = document.getElementById("filter-reset");
     if (reset) reset.addEventListener("click", resetGameFilters);
@@ -920,6 +970,7 @@ const SITE_JS: &str = r#"
     bindSort("outlet-list", "reviews");
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
+    if (form) applyGameFilters();
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var value = btn.getAttribute("data-copy") || "";
@@ -1042,7 +1093,7 @@ pub(super) async fn home(
     let platforms = collect_platforms(&games);
     let years = collect_years(&games);
     let total = games.len();
-    games.retain(|game| game_matches(game, &filters));
+    // Keep every game in the DOM so client-side filters can show/hide freely.
     sort_games(&mut games, sort);
     ok(
         Section::Games,
@@ -1241,6 +1292,7 @@ fn platform_label(key: &str) -> String {
     }
 }
 
+#[allow(dead_code)]
 fn game_matches(game: &GameView, filters: &GameFilters) -> bool {
     if game.review_count < filters.min_reviews {
         return false;
@@ -1487,23 +1539,43 @@ fn game_list(
         } else {
             format!(" · {}", esc(&bits_prefix))
         };
+        // Same rule either way: red if score > mean, purple if score < mean.
+        let meta_html = if sort == "mean" {
+            format!(
+                "score {}",
+                cmp_num_html(&score_label, score_value, mean_value)
+            )
+        } else {
+            format!(
+                "simple mean {}",
+                cmp_num_html(&mean_label, score_value, mean_value)
+            )
+        };
+        let (score_hidden, mean_hidden) = if sort == "mean" {
+            (" hidden", "")
+        } else {
+            ("", " hidden")
+        };
         html.push_str(&format!(
             "<a class=\"row\" href=\"/game/{slug}\" \
                 data-score=\"{score_n}\" data-mean=\"{mean_n}\" data-reviews=\"{reviews}\" \
                 data-title=\"{title_attr}\" data-year=\"{year}\" data-platforms=\"{plats}\" \
                 data-score-label=\"{score_label}\" data-mean-label=\"{mean_label}\">\
                <span class=\"meta\">{cover}<span><strong>{title}</strong>\
-                 <small><span data-score-meta>simple mean {mean_label}</span> · {count}{bits_tail}</small></span></span>\
-               <span data-score-display>{score_html}</span>\
-               <span data-mean-display hidden>{mean_html}</span>\
+                 <small><span data-score-meta>{meta_html}</span> · {count}{bits_tail}</small></span></span>\
+               <span data-score-display{score_hidden}>{score_html}</span>\
+               <span data-mean-display{mean_hidden}>{mean_html}</span>\
              </a>",
             slug = esc(&game.slug),
             title = esc(&game.title),
             title_attr = esc(&game.title),
             count = esc(&count),
             bits_tail = bits_tail,
+            meta_html = meta_html,
             score_html = score_compact_html(score_value),
             mean_html = score_compact_html(mean_value),
+            score_hidden = score_hidden,
+            mean_hidden = mean_hidden,
             score_n = score_value,
             mean_n = mean_value,
             reviews = game.review_count,
@@ -1524,7 +1596,13 @@ fn filter_bar(
     years: &[i32],
 ) -> String {
     let mut html = String::from(
-        "<form class=\"filters\" id=\"game-filters\" aria-label=\"Filters\">",
+        "<form class=\"filters\" id=\"game-filters\" aria-label=\"Filters\" role=\"search\">",
+    );
+
+    html.push_str(
+        "<label class=\"filter-search\">Search\
+           <input type=\"search\" name=\"q\" placeholder=\"Search games\" autocomplete=\"off\" spellcheck=\"false\">\
+         </label>",
     );
 
     html.push_str("<label>Platform<select name=\"platform\">");
@@ -2414,6 +2492,16 @@ fn fmt_num(value: f64) -> String {
         .trim_end_matches('0')
         .trim_end_matches('.')
         .to_string()
+}
+
+/// Subtitle figure color from score vs mean: red if score > mean, purple if score < mean.
+fn cmp_num_html(label: &str, score: f64, mean: f64) -> String {
+    let label = esc(label);
+    if !score.is_finite() || !mean.is_finite() || (score - mean).abs() < f64::EPSILON {
+        return label;
+    }
+    let class = if score > mean { "cmp-low" } else { "cmp-high" };
+    format!("<span class=\"{class}\">{label}</span>")
 }
 
 fn score_compact_html(value: f64) -> String {
