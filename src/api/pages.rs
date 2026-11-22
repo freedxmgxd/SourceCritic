@@ -4666,22 +4666,12 @@ pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
 }
 
 fn hero_review_count(html: &str) -> Option<usize> {
-    let rest = html.split("Simple mean ").nth(1)?;
-    let window: String = rest.chars().take(800).collect();
-    let mut plain = String::new();
-    let mut in_tag = false;
-    for ch in window.chars() {
-        if ch == '<' {
-            in_tag = true;
-        } else if ch == '>' {
-            in_tag = false;
-        } else if !in_tag {
-            plain.push(ch);
-        }
-    }
-    let before = plain.split(" review").next()?;
-    let number = before.rsplit(|ch: char| !ch.is_ascii_digit()).next()?;
-    number.parse().ok()
+    // The script in the head also says "Simple mean" and "review", so the
+    // published total is the hero's data-count, not the first digit in the page.
+    let rest = html.split("id=\"score-hero-meta\"").nth(1)?;
+    let tag = rest.split('>').next()?;
+    let count = tag.split("data-count=\"").nth(1)?.split('"').next()?;
+    count.parse().ok()
 }
 
 #[cfg(test)]
@@ -4707,6 +4697,13 @@ mod tests {
     fn formats_without_trailing_zeros() {
         assert_eq!(fmt_num(80.0), "80");
         assert_eq!(fmt_num(75.5), "75.5");
+    }
+
+    #[test]
+    fn review_total_comes_from_the_hero_not_the_script() {
+        let html = r#"<script>heroMeta.innerHTML = "Simple mean " + count + " review"</script>
+<span id="score-hero-meta" data-mean="80" data-count="11">Simple mean 80 · 11 reviews</span>"#;
+        assert_eq!(hero_review_count(html), Some(11));
     }
 
     #[test]
