@@ -310,7 +310,6 @@ fn recompute(conn: &Connection) -> Result<(), DbError> {
          JOIN outlets o ON o.id = r.outlet_id
          JOIN games g ON g.id = r.game_id
          WHERE r.raw_score IS NOT NULL
-           AND r.raw_score > 0
            AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend')",
     )?;
     let inputs = stmt

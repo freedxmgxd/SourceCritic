@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-shot integrity repair for the committed catalog.
 
-Drops blocked sources, nulls missing and yes/no scores, merges duplicate
+Drops blocked sources, nulls missing scores, keeps yes/no verdicts as 100/0, merges duplicate
 outlet spellings, normalizes review URLs, clips excerpts, and restores
 original release years. Safe to run again.
 """
@@ -19,7 +19,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 ROOT = Path(__file__).resolve().parents[1]
 BLOCKED_SLUGS = {"metacritic-users", "opencritic-recommend"}
-# Yes/no outlets. A 0 or 100 here is a verdict, not a numeric score.
+# Yes/no outlets. 0 and 100 are the verdict and stay in the score.
 VERDICT_SLUGS = {"kotaku"}
 BAD_HOSTS = {
     "savethechildren.org",
@@ -199,9 +199,10 @@ def numeric_score(score, slug: str):
         value = float(score)
     except (TypeError, ValueError):
         return None
+    if slug in VERDICT_SLUGS:
+        return value
+    # A stored 0 on a numeric outlet is a missing score, not a real zero.
     if value == 0.0:
-        return None
-    if slug in VERDICT_SLUGS and value in (0.0, 100.0):
         return None
     return value
 
@@ -338,14 +339,16 @@ def repair_db(path: Path, seed_path: Path) -> None:
     nulled = 0
     unlinked = 0
     clipped = 0
-    for rid, slug, raw, excerpt, url in con.execute(
-        """SELECT r.id, o.slug, r.raw_score, r.excerpt, r.review_url
+    for rid, slug, raw, norm, excerpt, url in con.execute(
+        """SELECT r.id, o.slug, r.raw_score, r.raw_score_norm, r.excerpt, r.review_url
            FROM reviews r JOIN outlets o ON o.id = r.outlet_id"""
     ):
         if slug in BLOCKED_SLUGS:
             con.execute("DELETE FROM reviews WHERE id=?", (rid,))
             removed += 1
             continue
+        if slug in VERDICT_SLUGS and raw is None and norm is not None:
+            raw = norm
         score = numeric_score(raw, slug)
         new_excerpt = clip_excerpt(excerpt)
         new_url = normalize_url(url)

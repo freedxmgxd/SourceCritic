@@ -2642,9 +2642,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
     ));
     reviews.push_str("<div id=\"outlet-reviews\">");
     for review in outlet.reviews.iter().filter(|review| {
-        review
-            .raw_score
-            .is_some_and(|score| score.is_finite() && score > 0.0)
+        review.raw_score.is_some_and(|score| score.is_finite())
     }) {
         let raw = match (review.raw_score, review.scale_max) {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
@@ -3724,12 +3722,10 @@ fn is_public_outlet(slug: &str) -> bool {
     !matches!(slug, "metacritic-users" | "opencritic-recommend")
 }
 
-/// A review counts only when it has a real numeric score and is not a blocked source.
+/// A review counts when it has a score, including a yes/no verdict stored as 0 or 100.
 fn counts_for_score(review: &crate::db::ReviewView) -> bool {
     is_public_outlet(&review.outlet_slug)
-        && review
-            .raw_score
-            .is_some_and(|score| score.is_finite() && score > 0.0)
+        && review.raw_score.is_some_and(|score| score.is_finite())
 }
 
 fn scored_norms(game: &GameView) -> Vec<f64> {
