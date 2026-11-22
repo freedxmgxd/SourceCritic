@@ -327,6 +327,18 @@ nav a[aria-current="page"] {
   min-width: 7.5ch;
 }
 
+/* Decision: only the sorted figure is the headline. Sort by score shows the
+   SourceCritic score; the simple mean stays in the subtitle. `inline-flex`
+   would otherwise paint the hidden figure beside it. */
+.score-compact[hidden],
+[data-score-display][hidden],
+[data-mean-display][hidden],
+[data-z-display][hidden],
+[data-score-meta][hidden],
+[data-z-meta][hidden] {
+  display: none !important;
+}
+
 .score-compact .frac {
   display: inline-block;
   max-width: 0;
@@ -337,9 +349,52 @@ nav a[aria-current="page"] {
 }
 
 .score-compact:hover .frac,
-.score-compact:focus-visible .frac {
+.score-compact:focus-visible .frac,
+.score-hero:hover .frac,
+.score-hero:focus-within .frac {
   max-width: 5ch;
   opacity: 1;
+}
+
+/* Decision: the hero and the list subtitle use the same hover fraction as the
+   headline number, without the wide list-score slot. */
+.score-hero-value.score-compact,
+.score-meta-num.score-compact {
+  min-width: 0;
+}
+
+/* Decision: discovery lists show the score and the simple mean together, both
+   as headline figures, so the gap is visible without opening the game.
+   Red means the score is above the mean; purple means it is below. */
+.score-pair {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex: none;
+}
+.score-pair-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 3.2rem;
+}
+.score-pair-item .score-compact {
+  font-family: "IBM Plex Serif", Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.score-pair .cmp-low .score-compact { color: var(--cmp-low); }
+.score-pair .cmp-high .score-compact { color: var(--cmp-high); }
+.score-pair-item small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .walk {
@@ -951,6 +1006,8 @@ nav.sort button[data-sort]:focus-visible {
   .row-secondary { display: none !important; }
   .row strong { white-space: normal; overflow-wrap: anywhere; }
   .score { font-size: 1.4rem; margin-left: 6px; padding-left: 0; }
+  .score-pair { gap: 10px; }
+  .score-pair-item .score-compact { font-size: 1.35rem; }
   .cover { width: 44px; height: 62px; }
 }
 
@@ -1053,15 +1110,17 @@ const SITE_JS: &str = r#"
         var meanEl = row.querySelector("[data-mean-display]");
         var meta = row.querySelector("[data-score-meta]");
         if (!scoreEl || !meanEl || !meta) return;
+        // Decision: sort by score highlights the SourceCritic score and puts the
+        // simple mean in the subtitle. Sort by simple mean does the opposite.
+        // Red still means score > mean, purple means score < mean.
         var showMean = key === "mean";
         scoreEl.hidden = showMean;
         meanEl.hidden = !showMean;
-        var scoreLabel = row.getAttribute("data-score-label") || "";
-        var meanLabel = row.getAttribute("data-mean-label") || "";
-        // Color encodes score vs mean: red if score > mean, purple if score < mean.
+        var score = num(row, "data-score");
+        var mean = num(row, "data-mean");
         meta.innerHTML = showMean
-          ? ("score " + cmpNumHtml(scoreLabel, num(row, "data-score"), num(row, "data-mean")))
-          : ("simple mean " + cmpNumHtml(meanLabel, num(row, "data-score"), num(row, "data-mean")));
+          ? ("score " + colorFigure(score, mean, score, "score-compact score-meta-num"))
+          : ("simple mean " + colorFigure(score, mean, mean, "score-compact score-meta-num"));
       });
     }
     if (list.id === "game-reviews" || list.id === "outlet-reviews") {
@@ -1079,12 +1138,28 @@ const SITE_JS: &str = r#"
       });
     }
   }
-  function cmpNumHtml(label, score, mean) {
-    if (!isFinite(score) || !isFinite(mean) || score === mean) {
-      return label;
-    }
+  // Decision: the number at rest is the integer. Hover and keyboard focus
+  // reveal two decimal places on the headline, the subtitle, and the game page.
+  function scoreParts(value) {
+    var n = Number(value);
+    if (!isFinite(n)) n = 0;
+    var text = (Math.round(n * 100) / 100).toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+    var dot = text.indexOf(".");
+    if (dot < 0) return { text: text, html: '<span class="whole">' + text + "</span>" };
+    return {
+      text: text,
+      html: '<span class="whole">' + text.slice(0, dot) + '</span><span class="frac">' + text.slice(dot) + "</span>"
+    };
+  }
+  function figure(value, className) {
+    var parts = scoreParts(value);
+    return '<span class="' + className + '" title="' + parts.text + '">' + parts.html + "</span>";
+  }
+  function colorFigure(score, mean, value, className) {
+    var html = figure(value, className);
+    if (!isFinite(score) || !isFinite(mean) || score === mean) return html;
     var cls = score > mean ? "cmp-low" : "cmp-high";
-    return '<span class="' + cls + '">' + label + "</span>";
+    return '<span class="' + cls + '">' + html + "</span>";
   }
   function fold(value) {
     return (value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -1158,17 +1233,30 @@ const SITE_JS: &str = r#"
     var slice = matched.slice((page - 1) * pageSize, page * pageSize);
     var html = "";
     slice.forEach(function (game, index) {
-      var score = Math.round(Number(game.score) || 0);
-      var mean = Math.round(Number(game.mean) || 0);
+      var score = Number(game.score) || 0;
+      var mean = Number(game.mean) || 0;
+      var showMean = sort === "mean";
       var provisional = Number(game.reviews) < 5 ? " <span class=\"provisional\">provisional score</span>" : "";
       var bits = "";
       if (game.year) bits += game.year;
       if (game.platform_labels) bits += (bits ? " · " : "") + game.platform_labels;
-      html += '<a class="row" href="/game/' + game.slug + '/"><span class="meta">' +
-        (game.cover ? '<img class="cover" src="' + game.cover + '" alt="Cover of ' + game.title.replace(/"/g, "&quot;") + '" width="112" height="157" loading="lazy">' : "") +
-        '<span class="title-block"><strong>' + game.title + '</strong><small><span class="row-count">' +
+      var headline = figure(showMean ? mean : score, "score score-compact") + provisional;
+      var subtitle = showMean
+        ? ("score " + colorFigure(score, mean, score, "score-compact score-meta-num"))
+        : ("simple mean " + colorFigure(score, mean, mean, "score-compact score-meta-num"));
+      var title = String(game.title || "").replace(/[&<>"]/g, function (ch) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch];
+      });
+      html += '<a class="row" href="/game/' + game.slug + '/" data-score="' + score + '" data-mean="' + mean + '"><span class="meta">' +
+        (game.cover ? '<img class="cover" src="' + game.cover + '" alt="Cover of ' + title + '" width="112" height="157" loading="lazy">' : "") +
+        '<span class="title-block"><strong>' + title + '</strong><small><span class="row-secondary" data-score-meta>' +
+        subtitle + '</span><span class="row-dot row-secondary"> · </span><span class="row-count">' +
         game.reviews + ' reviews</span>' + (bits ? '<span class="row-secondary"> · ' + bits + '</span>' : '') +
-        '</small></span></span><span class="score">' + score + provisional + '</span></a>';
+        '</small></span></span>' +
+        (showMean
+          ? '<span data-score-display hidden></span><span data-mean-display>' + headline + '</span>'
+          : '<span data-score-display>' + headline + '</span><span data-mean-display hidden></span>') +
+        '</a>';
       if ((index + 1) % 25 === 0) html += window.__scAdInlist || "";
     });
     list.innerHTML = html;
@@ -1299,15 +1387,25 @@ const SITE_JS: &str = r#"
       var hero = document.getElementById("score-hero-value");
       var heroMeta = document.getElementById("score-hero-meta");
       var label = btnLabel(port) || port;
-      if (port === "all") {
-        if (hero) hero.textContent = hero.getAttribute("data-base") || hero.textContent;
-        if (heroMeta) heroMeta.innerHTML = heroMeta.getAttribute("data-base") || heroMeta.innerHTML;
-      } else {
-        var score = mappedN ? Math.round(mappedSum / mappedN) : 0;
-        var mean = rawN ? Math.round(rawSum / rawN) : 0;
-        if (hero) hero.textContent = String(score);
+      function fillHero(score, mean, count, provisional) {
+        if (hero) hero.innerHTML = scoreParts(score).html;
         if (heroMeta) {
-          heroMeta.textContent = label + " · simple mean " + mean + " · " + shown + (shown === 1 ? " review" : " reviews");
+          heroMeta.innerHTML = "Simple mean " + figure(mean, "score-compact score-meta-num") +
+            " · " + count + (count === 1 ? " review" : " reviews") +
+            (provisional ? " · provisional score" : "");
+        }
+      }
+      if (port === "all") {
+        fillHero(
+          num(hero || list, "data-score"),
+          num(heroMeta || list, "data-mean"),
+          Number((heroMeta && heroMeta.getAttribute("data-count")) || shown),
+          heroMeta && heroMeta.getAttribute("data-provisional") === "1"
+        );
+      } else {
+        fillHero(mappedN ? mappedSum / mappedN : 0, rawN ? rawSum / rawN : 0, shown, shown < 5);
+        if (heroMeta && label) {
+          heroMeta.innerHTML = label + " · " + heroMeta.innerHTML;
         }
       }
       if (meta) {
@@ -2357,6 +2455,9 @@ fn game_list(
         let mean_value = game.simple_mean.unwrap_or(0.0);
         let score_label = fmt_score(score_value);
         let mean_label = fmt_score(mean_value);
+        // Decision: sort by score highlights the SourceCritic score and puts the
+        // simple mean in the subtitle. Sort by simple mean does the opposite.
+        // Red still means score > mean; purple means score < mean.
         let platform_keys: Vec<String> = game
             .platforms
             .iter()
@@ -2386,22 +2487,16 @@ fn game_list(
         } else {
             format!(" · {}", esc(&bits_prefix))
         };
-        // Same rule either way: red if score > mean, purple if score < mean.
         let meta_html = if sort == "mean" {
             format!(
                 "score {}",
-                cmp_num_html(&score_label, score_value, mean_value)
+                colored_figure(score_value, score_value, mean_value)
             )
         } else {
             format!(
                 "simple mean {}",
-                cmp_num_html(&mean_label, score_value, mean_value)
+                colored_figure(mean_value, score_value, mean_value)
             )
-        };
-        let (score_hidden, mean_hidden) = if sort == "mean" {
-            (" hidden", "")
-        } else {
-            ("", " hidden")
         };
         let provisional = if game.review_count < 5 {
             " <span class=\"provisional\">provisional score</span>"
@@ -2420,20 +2515,30 @@ fn game_list(
                 data-score-label=\"{score_label}\" data-mean-label=\"{mean_label}\">\
                <span class=\"meta\">{cover}<span class=\"title-block\"><strong>{title}</strong>\
                  <small><span class=\"row-secondary\" data-score-meta>{meta_html}</span><span class=\"row-dot row-secondary\"> · </span><span class=\"row-count\">{count}</span>{secondary}</small></span></span>\
-               <span data-score-display{score_hidden}>{score_html}{provisional}</span>\
-               <span data-mean-display{mean_hidden}>{mean_html}</span>\
+               {score_html}{mean_html}\
              </a>",
             slug = esc(&public_slug(&game.slug, &game.title)),
-            provisional = provisional,
             secondary = secondary,
             title = esc(&game.title),
             title_attr = esc(&game.title),
             count = esc(&count),
             meta_html = meta_html,
-            score_html = score_compact_html(score_value),
-            mean_html = score_compact_html(mean_value),
-            score_hidden = score_hidden,
-            mean_hidden = mean_hidden,
+            score_html = format!(
+                "{}{provisional}",
+                score_figure(
+                    score_value,
+                    "score score-compact",
+                    if sort == "mean" { "data-score-display hidden" } else { "data-score-display" },
+                )
+            ),
+            mean_html = format!(
+                "{}{provisional}",
+                score_figure(
+                    mean_value,
+                    "score score-compact",
+                    if sort == "mean" { "data-mean-display" } else { "data-mean-display hidden" },
+                )
+            ),
             score_n = score_value,
             mean_n = mean_value,
             reviews = game.review_count,
@@ -2673,10 +2778,10 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
                <span><strong><a href=\"/game/{game_slug}/\">{game}</a></strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
-                   <span data-score-meta hidden>Score {mapped}</span>\
+                   <span data-score-meta hidden>Score {mapped_sub}</span>\
                  </small>\
                </span>\
-               <span data-score-display class=\"mapped\" title=\"This review&apos;s contribution to the game score\">Score {mapped}</span>\
+               <span data-score-display class=\"mapped\" title=\"This review&apos;s contribution to the game score\">Score {mapped_fig}</span>\
                <span data-z-display class=\"z\" hidden>Z {z}</span>\
                {excerpt}{source}\
              </div>",
@@ -2684,9 +2789,10 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
             game = esc(&review.game_title),
             game_attr = esc(&review.game_title),
             raw = esc(&raw),
-            norm = fmt_score(review.raw_score_norm),
+            norm = score_figure(review.raw_score_norm, "score-compact score-meta-num", ""),
             z = fmt_z(review.z_score),
-            mapped = fmt_score(mapped),
+            mapped_fig = score_figure(mapped, "score-compact", ""),
+            mapped_sub = score_figure(mapped, "score-compact score-meta-num", ""),
             score_n = mapped,
             z_n = review.z_score,
             excerpt = excerpt,
@@ -2860,10 +2966,10 @@ fn game_page(game: &GameView, sort: &str) -> String {
                <span><strong><a href=\"/outlet/{outlet_slug}/\">{outlet}</a></strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
-                   <span data-score-meta hidden>Score {mapped}</span>\
+                   <span data-score-meta hidden>Score {mapped_sub}</span>\
                  </small>\
                </span>\
-               <span data-score-display class=\"mapped\" title=\"This outlet&apos;s contribution to the game score\">Score {mapped}</span>\
+               <span data-score-display class=\"mapped\" title=\"This outlet&apos;s contribution to the game score\">Score {mapped_fig}</span>\
                <span data-z-display class=\"z\" hidden>Z {z}</span>\
                {excerpt}{source}\
              </div>",
@@ -2871,9 +2977,10 @@ fn game_page(game: &GameView, sort: &str) -> String {
             outlet = esc(&review.outlet_name),
             outlet_attr = esc(&review.outlet_name),
             raw = esc(&raw),
-            norm = fmt_score(review.raw_score_norm),
+            norm = score_figure(review.raw_score_norm, "score-compact score-meta-num", ""),
             z = fmt_z(review.z_score),
-            mapped = fmt_score(mapped),
+            mapped_fig = score_figure(mapped, "score-compact", ""),
+            mapped_sub = score_figure(mapped, "score-compact score-meta-num", ""),
             score_n = mapped,
             z_n = review.z_score,
             mapped_n = mapped,
@@ -2888,10 +2995,10 @@ fn game_page(game: &GameView, sort: &str) -> String {
         "<div class=\"game-hero\">{cover}<div class=\"text\">\
            <h1 class=\"page\">{title}</h1>\
            <div class=\"score-hero\" aria-label=\"SourceCritic score {score}\">\
-             <span class=\"score-hero-value\" id=\"score-hero-value\" data-base=\"{score}\">{score}</span>\
+             {score_html}\
              <span class=\"score-hero-copy\">\
                <span class=\"score-hero-label\">SourceCritic score</span>\
-               <span class=\"score-hero-meta\" id=\"score-hero-meta\" data-base=\"{hero_meta}\">{hero_meta}</span>\
+               <span class=\"score-hero-meta\" id=\"score-hero-meta\" data-mean=\"{mean_n}\" data-count=\"{scored}\" data-provisional=\"{provisional_flag}\">{hero_meta}</span>\
              </span>\
            </div>\
            {buy}\
@@ -2902,9 +3009,24 @@ fn game_page(game: &GameView, sort: &str) -> String {
          {reviews}\
          {ad}",
         title = esc(&game.title),
+        score_html = score_figure(
+            game.agg_score.unwrap_or(0.0),
+            "score-hero-value score-compact",
+            &format!(
+                "id=\"score-hero-value\" data-score=\"{}\"",
+                game.agg_score.unwrap_or(0.0)
+            ),
+        ),
+        mean_n = game.simple_mean.unwrap_or(0.0),
+        scored = scored,
+        provisional_flag = if scored < 5 { "1" } else { "0" },
         hero_meta = format!(
             "Simple mean {mean} · {count}{provisional}",
-            mean = fmt_score(game.simple_mean.unwrap_or(0.0)),
+            mean = score_figure(
+                game.simple_mean.unwrap_or(0.0),
+                "score-compact score-meta-num",
+                ""
+            ),
             count = count,
             provisional = if scored < 5 { " · provisional score" } else { "" },
         ),
@@ -3485,7 +3607,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             format!("page/{page}/index.html")
         };
         let description = format!(
-            "Notas da crítica para {filtered_total} jogos, ajustadas pelo hábito de cada veículo. Página {page} de {page_count}."
+            "Critic scores for {filtered_total} games, adjusted for each outlet's scoring habit. Page {page} of {page_count}."
         );
         pages.push((
             file,
@@ -3945,19 +4067,48 @@ fn fmt_num(value: f64) -> String {
         .to_string()
 }
 
-/// Subtitle figure color from score vs mean: red if score > mean, purple if score < mean.
-fn cmp_num_html(label: &str, score: f64, mean: f64) -> String {
-    let label = esc(label);
-    if !score.is_finite() || !mean.is_finite() || (score - mean).abs() < f64::EPSILON {
-        return label;
+/// Decision: the resting figure is the rounded integer. Hover and keyboard
+/// focus reveal two decimal places. Used for the list headline, the list
+/// subtitle, the game-page score and simple mean, and each review's score.
+fn score_parts(value: f64) -> (String, String, String) {
+    let rounded = (value * 100.0).round() / 100.0;
+    let text = format!("{rounded:.2}");
+    let text = text.trim_end_matches('0').trim_end_matches('.').to_string();
+    match text.split_once('.') {
+        Some((whole, frac)) => (whole.to_string(), format!(".{frac}"), text),
+        None => (text.clone(), String::new(), text),
     }
-    let class = if score > mean { "cmp-low" } else { "cmp-high" };
-    format!("<span class=\"{class}\">{label}</span>")
 }
 
-fn score_compact_html(value: f64) -> String {
-    let full = fmt_score(value);
-    format!("<span class=\"score\">{full}</span>", full = esc(&full))
+fn score_figure(value: f64, class: &str, attrs: &str) -> String {
+    let (whole, frac, title) = score_parts(value);
+    let inner = if frac.is_empty() {
+        format!("<span class=\"whole\">{whole}</span>", whole = esc(&whole))
+    } else {
+        format!(
+            "<span class=\"whole\">{whole}</span><span class=\"frac\">{frac}</span>",
+            whole = esc(&whole),
+            frac = esc(&frac),
+        )
+    };
+    let attrs = if attrs.is_empty() {
+        String::new()
+    } else {
+        format!(" {attrs}")
+    };
+    format!(
+        "<span class=\"{class}\"{attrs} title=\"{title}\">{inner}</span>",
+        title = esc(&title),
+    )
+}
+
+fn colored_figure(value: f64, score: f64, mean: f64) -> String {
+    let figure = score_figure(value, "score-compact score-meta-num", "");
+    if !score.is_finite() || !mean.is_finite() || (score - mean).abs() < f64::EPSILON {
+        return figure;
+    }
+    let class = if score > mean { "cmp-low" } else { "cmp-high" };
+    format!("<span class=\"{class}\">{figure}</span>")
 }
 
 /// Metacritic descriptions often end with leftover tags like `[Nintendo]` or `[GTA VI]`.
@@ -4020,20 +4171,11 @@ fn legal_page(privacy: bool) -> String {
         String::from(
             "<h1 class=\"page\">Privacy policy</h1>\
              <p class=\"lead\">SourceCritic is a static site. This notice covers the LGPD (Brazil) and the GDPR (EEA, UK, and Switzerland).</p>\
-             <section class=\"about-block\"><h2>English</h2>\
              <p>We collect the least we can. The pages themselves do not ask for an account. If you subscribe to the newsletter, the email address goes to the provider named in the form (Buttondown, MailerLite, or Beehiiv) and is used only to send the weekly releases and scores. If you email us, we keep that message to reply.</p>\
              <p>Advertising (Google AdSense) and measurement (Google Analytics) stay off until you choose. Visitors in the EEA, the UK, and Switzerland see Google's certified Privacy &amp; messaging CMP. Everyone else sees our banner. Consent Mode v2 defaults to denied for ad_storage, ad_user_data, ad_personalization, and analytics_storage. Accepting allows personalized ads and analytics. Rejecting outside those regions still shows non-personalized ads: ad_storage is granted, ad_user_data and ad_personalization stay denied, and AdSense is asked for non-personalized ads. Analytics stays off.</p>\
              <p>Purpose: show critic scores, fund hosting with ads, and understand which pages are used. Legal bases: consent for cookies, and legitimate interest for the publishing of publicly available review scores.</p>\
              <p>You can ask for access, correction, deletion, or portability of personal data we hold, and you can withdraw cookie consent by clearing site data. Contact <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
-             <p>Reviews belong to the outlets that wrote them. SourceCritic shows the score, a short excerpt of one or two sentences, and a link to the original. We do not republish the full text.</p>\
-             </section>\
-             <section class=\"about-block\"><h2>Português</h2>\
-             <p>O SourceCritic é um site estático. Não pedimos conta. Se você assina a newsletter, o e-mail vai para o serviço indicado no formulário e serve só para os lançamentos e as notas da semana. Se você escreve para o contato, guardamos a mensagem para responder.</p>\
-             <p>Publicidade (Google AdSense) e medição (Google Analytics) ficam desligadas até a escolha. Visitantes do EEE, do Reino Unido e da Suíça veem a CMP certificada do Google (Privacy &amp; messaging). Os demais veem o nosso aviso. O Consent Mode v2 começa negado. Aceitar libera anúncios personalizados e analytics. Recusar, fora dessas regiões, ainda mostra anúncios não personalizados: ad_storage concedido, ad_user_data e ad_personalization negados. A medição continua desligada.</p>\
-             <p>Finalidade: exibir notas da crítica, manter o site com anúncios e saber quais páginas são lidas. Bases: consentimento para cookies e legítimo interesse para publicar notas já públicas.</p>\
-             <p>Pela LGPD você pode pedir acesso, correção, exclusão, portabilidade e informação sobre o uso. Para retirar o consentimento, apague os dados do site neste navegador. Contato: <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
-             <p>As reviews pertencem aos veículos. O site mostra a nota, um trecho curto de uma ou duas frases e o link. Não republicamos o texto integral.</p>\
-             </section>"
+             <p>Reviews belong to the outlets that wrote them. SourceCritic shows the score, a short excerpt of one or two sentences, and a link to the original. We do not republish the full text.</p>"
         )
     } else {
         String::from(
@@ -4074,18 +4216,16 @@ fn buy_block(title: &str, platforms: &[String]) -> String {
             continue;
         }
         let id_key = store.get("id_key").and_then(|item| item.as_str()).unwrap_or("");
-        let Some(id) = configured_id(id_key) else {
-            continue;
-        };
+        let id = configured_id(id_key);
         let name = store.get("name").and_then(|item| item.as_str()).unwrap_or("Store");
         let template = store.get("url").and_then(|item| item.as_str()).unwrap_or("");
         if template.is_empty() || template.contains("YOUR_") {
-            if template.contains("YOUR_") {
-                warn_placeholder(id_key);
-            }
             continue;
         }
-        let url = template.replace("{query}", &query).replace("{id}", &id);
+        let url = store_url(template, &query, id.as_deref());
+        if url.contains("YOUR_") || url.contains("{id}") {
+            continue;
+        }
         buttons.push_str(&format!(
             "<a href=\"{url}\" rel=\"sponsored nofollow noopener\" target=\"_blank\">{name}<small data-price-brl></small></a>",
             url = esc(&url),
@@ -4100,6 +4240,30 @@ fn buy_block(title: &str, platforms: &[String]) -> String {
          <div class=\"buy-actions\">{buttons}</div>\
          <p class=\"buy-note\">Affiliate links: we may earn a commission at no cost to you.</p></section>"
     )
+}
+
+/// Search URL for a store. A placeholder affiliate id is left off the link.
+fn store_url(template: &str, query: &str, id: Option<&str>) -> String {
+    let (base, query_string) = template.split_once('?').unwrap_or((template, ""));
+    let mut params = Vec::new();
+    if !query_string.is_empty() {
+        for part in query_string.split('&') {
+            let (key, value) = part.split_once('=').unwrap_or((part, ""));
+            if value.contains("{id}") {
+                if let Some(id) = id {
+                    params.push(format!("{key}={id}"));
+                }
+                continue;
+            }
+            params.push(part.replace("{query}", query));
+        }
+    }
+    let path = base.replace("{query}", query);
+    if params.is_empty() {
+        path
+    } else {
+        format!("{path}?{}", params.join("&"))
+    }
 }
 
 fn urlencoding_min(value: &str) -> String {
@@ -4400,12 +4564,43 @@ fn list_page(
     );
     for game in games {
         let slug = public_slug(&game.slug, &game.title);
+        let score = game.agg_score.unwrap_or(0.0);
+        let mean = game.simple_mean.unwrap_or(0.0);
+        let gap = score - mean;
+        let tone = if gap > 0.05 {
+            "cmp-low"
+        } else if gap < -0.05 {
+            "cmp-high"
+        } else {
+            ""
+        };
+        let paint = |html: String| -> String {
+            if tone.is_empty() {
+                html
+            } else {
+                format!("<span class=\"{tone}\">{html}</span>")
+            }
+        };
+        let reviews = if game.review_count == 1 {
+            "1 review".to_string()
+        } else {
+            format!("{} reviews", game.review_count)
+        };
         body.push_str(&format!(
-            "<a class=\"row\" href=\"/game/{slug}/\"><span class=\"title-block\"><strong>{title}</strong><small>{reviews} reviews</small></span><span class=\"score\">{score}</span></a>",
+            "<a class=\"row\" href=\"/game/{slug}/\">\
+               <span class=\"title-block\"><strong>{title}</strong>\
+                 <small>{reviews} · gap {gap}</small></span>\
+               <span class=\"score-pair\">\
+                 <span class=\"score-pair-item\">{score_html}<small>score</small></span>\
+                 <span class=\"score-pair-item\">{mean_html}<small>mean</small></span>\
+               </span>\
+             </a>",
             slug = esc(&slug),
             title = esc(&game.title),
-            reviews = game.review_count,
-            score = fmt_score(game.agg_score.unwrap_or(0.0)),
+            reviews = esc(&reviews),
+            gap = paint(score_figure(gap, "score-compact score-meta-num", "")),
+            score_html = paint(score_figure(score, "score-compact", "")),
+            mean_html = paint(score_figure(mean, "score-compact", "")),
         ));
     }
     body.push_str("</div>");
@@ -4472,8 +4667,19 @@ pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
 
 fn hero_review_count(html: &str) -> Option<usize> {
     let rest = html.split("Simple mean ").nth(1)?;
-    let head = rest.split('<').next()?;
-    let before = head.split(" review").next()?;
+    let window: String = rest.chars().take(800).collect();
+    let mut plain = String::new();
+    let mut in_tag = false;
+    for ch in window.chars() {
+        if ch == '<' {
+            in_tag = true;
+        } else if ch == '>' {
+            in_tag = false;
+        } else if !in_tag {
+            plain.push(ch);
+        }
+    }
+    let before = plain.split(" review").next()?;
     let number = before.rsplit(|ch: char| !ch.is_ascii_digit()).next()?;
     number.parse().ok()
 }
@@ -4501,6 +4707,16 @@ mod tests {
     fn formats_without_trailing_zeros() {
         assert_eq!(fmt_num(80.0), "80");
         assert_eq!(fmt_num(75.5), "75.5");
+    }
+
+    #[test]
+    fn hover_score_keeps_the_integer_and_the_fraction() {
+        let html = score_figure(82.37, "score score-compact", "data-score-display");
+        assert!(html.contains(">82<"));
+        assert!(html.contains(".37"));
+        assert!(html.contains("score-compact"));
+        let whole = score_figure(80.0, "score score-compact", "");
+        assert!(!whole.contains("frac"));
     }
 
     #[test]
