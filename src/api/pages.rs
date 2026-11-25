@@ -54,10 +54,10 @@ main {
 
 header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding-bottom: 18px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -90,6 +90,49 @@ nav a[aria-current="page"] {
   color: var(--accent);
   background: var(--accent-soft);
   font-weight: 600;
+}
+
+.site-nav {
+  align-items: center;
+  column-gap: 18px;
+  row-gap: 8px;
+}
+
+@media (min-width: 900px) {
+  .nav-group + .nav-group {
+    margin-left: 6px;
+    padding-left: 22px;
+    border-left: 1px solid var(--line);
+  }
+}
+
+.nav-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+}
+
+header .site-nav a {
+  padding: 0 0 2px;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+header .site-nav a:hover {
+  color: var(--ink);
+  background: none;
+}
+
+header .site-nav a[aria-current="page"] {
+  color: var(--accent);
+  background: none;
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 .page {
@@ -496,6 +539,41 @@ nav a[aria-current="page"] {
   border-radius: 14px;
   color: var(--muted);
   text-align: center;
+}
+
+.outlet-search {
+  margin: 4px 0 12px;
+}
+
+.outlet-search label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.outlet-search input[type="search"] {
+  font: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  padding: 10px 12px;
+}
+
+.outlet-search input[type="search"]::placeholder {
+  color: color-mix(in srgb, var(--muted) 75%, white);
+}
+
+.outlet-search input[type="search"]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
+  outline-offset: 2px;
 }
 
 .browse-controls {
@@ -953,7 +1031,7 @@ nav.sort button[data-sort]:focus-visible {
 
 @media (max-width: 720px) {
   main { padding: 22px 18px 32px; }
-  header { flex-direction: column; align-items: flex-start; }
+  .nav-group { column-gap: 14px; }
   .stats { grid-template-columns: 1fr 1fr; }
   .filters { grid-template-columns: 1fr; }
   .browse-toolbar { align-items: flex-start; }
@@ -1272,6 +1350,42 @@ const SITE_JS: &str = r#"
     form.setAttribute("data-sort", "score");
     syncBrowse();
   }
+  function bindOutletSearch() {
+    var form = document.getElementById("outlet-search");
+    var list = document.getElementById("outlet-list");
+    if (!form || !list) return;
+    var input = form.querySelector("input[type='search']");
+    var empty = document.getElementById("outlet-empty");
+    var meta = document.getElementById("outlet-search-meta");
+    function apply() {
+      var q = fold((input ? input.value : "").trim());
+      var shown = 0;
+      var total = 0;
+      Array.prototype.forEach.call(list.children, function (row) {
+        if (!row.classList || !row.classList.contains("row")) return;
+        total += 1;
+        var name = fold(row.getAttribute("data-title") || "");
+        var match = !q || name.indexOf(q) !== -1;
+        row.hidden = !match;
+        if (match) shown += 1;
+      });
+      if (empty) empty.hidden = shown !== 0;
+      if (meta) {
+        if (!q) {
+          meta.hidden = true;
+          meta.textContent = "";
+        } else {
+          meta.hidden = false;
+          meta.textContent = "Showing " + shown + " of " + total + (total === 1 ? " outlet." : " outlets.");
+        }
+      }
+    }
+    if (input) input.addEventListener("input", apply);
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      apply();
+    });
+  }
   function bindSort(listId, defaultKey) {
     var list = document.getElementById(listId);
     if (!list) return;
@@ -1306,6 +1420,7 @@ const SITE_JS: &str = r#"
     if (reset) reset.addEventListener("click", resetGameFilters);
     bindSort("game-list", "score");
     bindSort("outlet-list", "reviews");
+    bindOutletSearch();
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
     if (form && !stateIsDefault(formState(form))) syncBrowse();
@@ -1475,6 +1590,7 @@ const SITE_JS: &str = r#"
 })();
 "#;
 
+#[derive(Clone, Copy)]
 enum Section {
     Games,
     Outlets,
@@ -2223,21 +2339,56 @@ fn pager_nav(page: usize, page_count: usize) -> String {
     )
 }
 
-fn site_footer() -> String {
+fn aria_current(active: bool) -> &'static str {
+    if active {
+        " aria-current=\"page\""
+    } else {
+        ""
+    }
+}
+
+fn site_header(section: Section, path: Option<&str>) -> String {
+    let path = path.unwrap_or("");
+    let on_ranking = path.starts_with("/outlets/ranking");
     format!(
-        "<footer class=\"site-footer\">\
-           <nav>\
-             <a href=\"/privacy/\">Privacy</a>\
-             <a href=\"/terms/\">Terms</a>\
-             <a href=\"/about/\">About</a>\
-             <a href=\"/best/\">Best of</a>\
-             <a href=\"/most-divisive/\">Most divisive</a>\
-             <a href=\"/disagreements/\">Disagreements</a>\
-             <a href=\"/outlets/ranking/\">Outlet habits</a>\
+        "<header>\
+           <a class=\"brand\" href=\"/\">SourceCritic</a>\
+           <nav class=\"site-nav\" aria-label=\"Site\">\
+             <div class=\"nav-group\">\
+               <a href=\"/\"{games}>Games</a>\
+               <a href=\"/outlets/\"{outlets}>Outlets</a>\
+               <a href=\"/score/\"{score}>The score</a>\
+               <a href=\"/about/\"{about}>About</a>\
+             </div>\
+             <div class=\"nav-group\">\
+               <a href=\"/best/\"{best}>Best of</a>\
+               <a href=\"/most-divisive/\"{divisive}>Most divisive</a>\
+               <a href=\"/disagreements/\"{disagreements}>Disagreements</a>\
+               <a href=\"/outlets/ranking/\"{habits}>Outlet habits</a>\
+             </div>\
            </nav>\
-           <p>Game metadata and cover art come from IGDB, powered by Twitch. Reviews remain the property of each publication: SourceCritic shows the score, a short excerpt, and a link.</p>\
-         </footer>"
+         </header>",
+        games = aria_current(matches!(section, Section::Games)),
+        outlets = aria_current(matches!(section, Section::Outlets) && !on_ranking),
+        score = aria_current(matches!(section, Section::Score)),
+        about = aria_current(matches!(section, Section::About)),
+        best = aria_current(path == "/best" || path.starts_with("/best/")),
+        divisive = aria_current(path.starts_with("/most-divisive")),
+        disagreements = aria_current(path.starts_with("/disagreements")),
+        habits = aria_current(on_ranking),
     )
+}
+
+fn site_footer() -> String {
+    "<footer class=\"site-footer\">\
+       <nav aria-label=\"Footer\">\
+         <a href=\"/privacy/\">Privacy</a>\
+         <a href=\"/terms/\">Terms</a>\
+         <a href=\"/about/\">About</a>\
+       </nav>\
+       <p>Game metadata and cover art come from IGDB, powered by Twitch. Reviews remain the property of each publication: SourceCritic shows the score, a short excerpt, and a link.</p>\
+     </footer>"
+        .to_string()
 }
 
 fn cookie_banner() -> String {
@@ -2615,7 +2766,13 @@ fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
     }
     let mut html = String::from(
         "<h1 class=\"page\">Outlets</h1>\
-         <p class=\"lead\">Each review site has a raw habit ($\\mu_j$, $\\sigma_j$) and a shrunk habit ($\\mu'_j$, $\\sigma'_j$) pulled toward the catalog. Open one to see every review that built those numbers.</p>",
+         <p class=\"lead\">Each review site has a raw habit ($\\mu_j$, $\\sigma_j$) and a shrunk habit ($\\mu'_j$, $\\sigma'_j$) pulled toward the catalog. Open one to see every review that built those numbers.</p>\
+         <form class=\"outlet-search\" id=\"outlet-search\" role=\"search\">\
+           <label>Search\
+             <input type=\"search\" name=\"q\" placeholder=\"Search outlets\" autocomplete=\"off\" spellcheck=\"false\">\
+           </label>\
+         </form>\
+         <p class=\"filter-meta\" id=\"outlet-search-meta\" hidden></p>",
     );
     html.push_str(&sort_bar(
         "/outlets",
@@ -2669,6 +2826,7 @@ fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
         ));
     }
     html.push_str("</div>");
+    html.push_str("<p class=\"empty\" id=\"outlet-empty\" hidden>No outlets match that search.</p>");
     html
 }
 
@@ -3371,13 +3529,7 @@ fn ad_slot_html() -> String {
 }
 
 fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: &Seo) -> Html<String> {
-    let (games, outlets, score, about) = match section {
-        Section::Games => (" aria-current=\"page\"", "", "", ""),
-        Section::Outlets => ("", " aria-current=\"page\"", "", ""),
-        Section::Score => ("", "", " aria-current=\"page\"", ""),
-        Section::About => ("", "", "", " aria-current=\"page\""),
-        Section::Other => ("", "", "", ""),
-    };
+    let header = site_header(section, path);
     let katex = if matches!(section, Section::Score | Section::Outlets | Section::About) {
         r#"<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -3468,15 +3620,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
            {gtm_body}\
            <div class=\"page-shell\">\
              <main>\
-               <header>\
-                 <a class=\"brand\" href=\"/\">SourceCritic</a>\
-                 <nav>\
-                   <a href=\"/\"{games}>Games</a>\
-                   <a href=\"/outlets/\"{outlets}>Outlets</a>\
-                   <a href=\"/score/\"{score}>The score</a>\
-                   <a href=\"/about/\"{about}>About</a>\
-                 </nav>\
-               </header>\
+               {header}\
                {cookie}\
                {body}\
                {footer}\
@@ -3495,10 +3639,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
         gtm_head = gtm_head,
         gtm_body = gtm_body,
         ga = esc(&ga),
-        games = games,
-        outlets = outlets,
-        score = score,
-        about = about,
+        header = header,
         footer = site_footer(),
         cookie = cookie_banner(),
         ad = ad,
