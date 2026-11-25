@@ -2344,6 +2344,18 @@ fn site_config() -> serde_json::Value {
     serde_json::from_str(include_str!("../../data/config.json")).unwrap_or_else(|_| serde_json::json!({}))
 }
 
+fn gtm_container_id() -> Option<String> {
+    let id = configured_id("gtm_id")?;
+    let valid = id.starts_with("GTM-")
+        && id.len() > 4
+        && id.bytes().all(|byte| byte.is_ascii_alphanumeric() || byte == b'-');
+    if valid {
+        Some(id)
+    } else {
+        None
+    }
+}
+
 fn configured_id(key: &str) -> Option<String> {
     let value = site_config()
         .get(key)
@@ -3476,6 +3488,19 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
         )
     };
     let ga = configured_id("ga4_id").unwrap_or_default();
+    let (gtm_boot, gtm_head, gtm_body) = match gtm_container_id() {
+        Some(id) => (
+            "gtag('js', new Date());dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});"
+                .to_string(),
+            format!(
+                "<script async src=\"https://www.googletagmanager.com/gtm.js?id={id}\"></script>"
+            ),
+            format!(
+                "<noscript><iframe src=\"https://www.googletagmanager.com/ns.html?id={id}\" height=\"0\" width=\"0\" style=\"display:none;visibility:hidden\"></iframe></noscript>"
+            ),
+        ),
+        None => (String::new(), String::new(), String::new()),
+    };
     Html(format!(
         "<!DOCTYPE html>\
          <html lang=\"en\">\
@@ -3505,7 +3530,9 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
                ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',\
                analytics_storage:'denied',wait_for_update:500\
              }});\
+             {gtm_boot}\
            </script>\
+           {gtm_head}\
            <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\
            <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\
            <link href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap\" rel=\"stylesheet\">\
@@ -3514,6 +3541,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
            <script>{SITE_JS}</script>\
          </head>\
          <body data-ga=\"{ga}\">\
+           {gtm_body}\
            <div class=\"page-shell\">\
              <main>\
                <header>\
@@ -3539,6 +3567,9 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
         image = esc(&image),
         json_ld = json_ld,
         extra_head = seo.extra_head,
+        gtm_boot = gtm_boot,
+        gtm_head = gtm_head,
+        gtm_body = gtm_body,
         ga = esc(&ga),
         games = games,
         outlets = outlets,
@@ -4172,7 +4203,7 @@ fn legal_page(privacy: bool) -> String {
             "<h1 class=\"page\">Privacy policy</h1>\
              <p class=\"lead\">SourceCritic is a static site. This notice covers the LGPD (Brazil) and the GDPR (EEA, UK, and Switzerland).</p>\
              <p>We collect the least we can. The pages themselves do not ask for an account. If you subscribe to the newsletter, the email address goes to the provider named in the form (Buttondown, MailerLite, or Beehiiv) and is used only to send the weekly releases and scores. If you email us, we keep that message to reply.</p>\
-             <p>Advertising (Google AdSense) and measurement (Google Analytics) stay off until you choose. Visitors in the EEA, the UK, and Switzerland see Google's certified Privacy &amp; messaging CMP. Everyone else sees our banner. Consent Mode v2 defaults to denied for ad_storage, ad_user_data, ad_personalization, and analytics_storage. Accepting allows personalized ads and analytics. Rejecting outside those regions still shows non-personalized ads: ad_storage is granted, ad_user_data and ad_personalization stay denied, and AdSense is asked for non-personalized ads. Analytics stays off.</p>\
+             <p>Google Tag Manager loads on each page. Advertising (Google AdSense) and measurement (Google Analytics) stay off until you choose. Visitors in the EEA, the UK, and Switzerland see Google's certified Privacy &amp; messaging CMP. Everyone else sees our banner. Consent Mode v2 defaults to denied for ad_storage, ad_user_data, ad_personalization, and analytics_storage. Accepting allows personalized ads and analytics. Rejecting outside those regions still shows non-personalized ads: ad_storage is granted, ad_user_data and ad_personalization stay denied, and AdSense is asked for non-personalized ads. Analytics stays off.</p>\
              <p>Purpose: show critic scores, fund hosting with ads, and understand which pages are used. Legal bases: consent for cookies, and legitimate interest for the publishing of publicly available review scores.</p>\
              <p>You can ask for access, correction, deletion, or portability of personal data we hold, and you can withdraw cookie consent by clearing site data. Contact <a href=\"mailto:joeltondbrandao@freedxm.com\">joeltondbrandao@freedxm.com</a>.</p>\
              <p>Reviews belong to the outlets that wrote them. SourceCritic shows the score, a short excerpt of one or two sentences, and a link to the original. We do not republish the full text.</p>"
