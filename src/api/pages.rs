@@ -226,52 +226,16 @@ nav a[aria-current="page"] {
   font-family: "IBM Plex Serif", Georgia, serif;
   font-size: 1.15rem;
 }
-.port-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin: 0 0 12px;
-}
-.port-filter button {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--muted);
-  border-radius: 999px;
-  padding: 4px 10px 4px 12px;
-  font: inherit;
-  font-size: 0.88rem;
-  cursor: pointer;
-}
-.port-filter .port-score {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--accent);
-}
-.port-filter button[aria-pressed="true"] {
-  border-color: var(--text);
-  color: var(--text);
-  background: color-mix(in srgb, var(--text) 8%, transparent);
-}
-.port-filter-meta {
-  margin: 0 0 10px;
-  color: var(--muted);
-  font-size: 0.92rem;
-}
-.review {
+.review, .unscored {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px 16px;
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
 }
-.review:first-of-type { border-top: 1px solid var(--line); }
-.review strong { display: block; font-size: 1.02rem; }
-.review small {
+.review:first-of-type, .unscored:first-of-type { border-top: 1px solid var(--line); }
+.review strong, .unscored strong { display: block; font-size: 1.02rem; }
+.review small, .unscored small {
   display: block;
   margin-top: 3px;
   color: var(--muted);
@@ -287,7 +251,7 @@ nav a[aria-current="page"] {
   white-space: nowrap;
   text-align: right;
 }
-.review .excerpt {
+.review .excerpt, .unscored .excerpt {
   grid-column: 1 / -1;
   margin: 0;
   color: var(--text-body);
@@ -295,13 +259,13 @@ nav a[aria-current="page"] {
   line-height: 1.5;
   max-width: 42rem;
 }
-.review .source {
+.review .source, .unscored .source {
   grid-column: 1 / -1;
   font-size: 0.88rem;
 }
-.review strong a { color: inherit; text-decoration: none; }
-.review strong a:hover { color: var(--accent); text-decoration: underline; }
-.review .source a { color: var(--accent); }
+.review strong a, .unscored strong a { color: inherit; text-decoration: none; }
+.review strong a:hover, .unscored strong a:hover { color: var(--accent); text-decoration: underline; }
+.review .source a, .unscored .source a { color: var(--accent); }
 
 @media (max-width: 640px) {
   .game-hero { flex-direction: column; }
@@ -1344,7 +1308,6 @@ const SITE_JS: &str = r#"
     bindSort("outlet-list", "reviews");
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
-    bindPortFilter();
     if (form && !stateIsDefault(formState(form))) syncBrowse();
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -1359,74 +1322,6 @@ const SITE_JS: &str = r#"
     });
     initConsent();
   });
-  function bindPortFilter() {
-    var list = document.getElementById("game-reviews");
-    var bar = document.getElementById("port-filter");
-    var meta = document.getElementById("port-filter-meta");
-    if (!list || !bar) return;
-    function apply(port) {
-      var shown = 0;
-      var rawSum = 0;
-      var rawN = 0;
-      var mappedSum = 0;
-      var mappedN = 0;
-      Array.prototype.forEach.call(list.querySelectorAll(".review"), function (row) {
-        var plats = (row.getAttribute("data-platforms") || "").split(/\s+/).filter(Boolean);
-        var ok = port === "all" || plats.indexOf(port) !== -1;
-        row.hidden = !ok;
-        if (!ok) return;
-        shown += 1;
-        var raw = num(row, "data-raw-norm");
-        var mapped = num(row, "data-mapped");
-        if (isFinite(raw)) { rawSum += raw; rawN += 1; }
-        if (isFinite(mapped)) { mappedSum += mapped; mappedN += 1; }
-      });
-      Array.prototype.forEach.call(bar.querySelectorAll("[data-port]"), function (btn) {
-        btn.setAttribute("aria-pressed", btn.getAttribute("data-port") === port ? "true" : "false");
-      });
-      var hero = document.getElementById("score-hero-value");
-      var heroMeta = document.getElementById("score-hero-meta");
-      var label = btnLabel(port) || port;
-      function fillHero(score, mean, count, provisional) {
-        if (hero) hero.innerHTML = scoreParts(score).html;
-        if (heroMeta) {
-          heroMeta.innerHTML = "Simple mean " + figure(mean, "score-compact score-meta-num") +
-            " · " + count + (count === 1 ? " review" : " reviews") +
-            (provisional ? " · provisional score" : "");
-        }
-      }
-      if (port === "all") {
-        fillHero(
-          num(hero || list, "data-score"),
-          num(heroMeta || list, "data-mean"),
-          Number((heroMeta && heroMeta.getAttribute("data-count")) || shown),
-          heroMeta && heroMeta.getAttribute("data-provisional") === "1"
-        );
-      } else {
-        fillHero(mappedN ? mappedSum / mappedN : 0, rawN ? rawSum / rawN : 0, shown, shown < 5);
-        if (heroMeta && label) {
-          heroMeta.innerHTML = label + " · " + heroMeta.innerHTML;
-        }
-      }
-      if (meta) {
-        meta.textContent = port === "all"
-          ? ("All platforms · " + shown + " reviews")
-          : (label + " · " + shown + " reviews");
-      }
-    }
-    function btnLabel(port) {
-      var btn = bar.querySelector('[data-port="' + port + '"]');
-      if (!btn) return port;
-      var name = btn.querySelector(".port-name");
-      return name ? name.textContent : btn.textContent;
-    }
-    bar.addEventListener("click", function (ev) {
-      var btn = ev.target.closest("[data-port]");
-      if (!btn || !bar.contains(btn)) return;
-      apply(btn.getAttribute("data-port") || "all");
-    });
-    apply("all");
-  }
   function isEeaUk() {
     var tz = "";
     try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
@@ -1690,6 +1585,13 @@ pub(super) async fn best_index(State(state): State<AppState>) -> impl IntoRespon
     discovery_response(state, "best/index.html").await
 }
 
+pub(super) async fn best_platform(
+    State(state): State<AppState>,
+    Path(platform): Path<String>,
+) -> impl IntoResponse {
+    discovery_response(state, &format!("best/{platform}/index.html")).await
+}
+
 pub(super) async fn best_of(
     State(state): State<AppState>,
     Path((platform, year)): Path<(String, String)>,
@@ -1715,7 +1617,16 @@ async fn discovery_response(state: AppState, file: &str) -> axum::response::Resp
         .into_iter()
         .find(|(path, _)| path == file)
     {
-        Some((_, html)) => (StatusCode::OK, Html(html)).into_response(),
+        Some((_, html)) => {
+            if let Some(target) = refresh_target(&html) {
+                return (
+                    StatusCode::MOVED_PERMANENTLY,
+                    [(axum::http::header::LOCATION, target)],
+                )
+                    .into_response();
+            }
+            (StatusCode::OK, Html(html)).into_response()
+        }
         None => (
             StatusCode::NOT_FOUND,
             document(
@@ -1996,13 +1907,13 @@ fn collect_years(games: &[GameView]) -> Vec<i32> {
 fn platform_key(raw: &str) -> String {
     let lower = raw.trim().to_lowercase();
     match lower.as_str() {
-        "playstation 5" | "ps5" => "ps5".into(),
-        "playstation 4" | "ps4" => "ps4".into(),
-        "playstation 3" | "ps3" => "ps3".into(),
-        "playstation 2" | "ps2" => "ps2".into(),
+        "playstation 5" | "ps5" | "playstation-5" | "playstation5" => "ps5".into(),
+        "playstation 4" | "ps4" | "playstation-4" | "playstation4" => "ps4".into(),
+        "playstation 3" | "ps3" | "playstation-3" | "playstation3" => "ps3".into(),
+        "playstation 2" | "ps2" | "playstation-2" | "playstation2" => "ps2".into(),
         "playstation" | "ps1" | "psx" => "ps1".into(),
-        "playstation vita" | "ps vita" | "psvita" | "vita" => "vita".into(),
-        "psp" | "playstation portable" => "psp".into(),
+        "playstation vita" | "ps vita" | "psvita" | "vita" | "playstation-vita" => "vita".into(),
+        "psp" | "playstation portable" | "playstation-portable" => "psp".into(),
         "xbox series x" | "xbox series x/s" | "xbox series s" | "xbox-series-x" | "xbxs" => {
             "xbox-series".into()
         }
@@ -2074,6 +1985,9 @@ fn platform_label(key: &str) -> String {
             .split('-')
             .filter(|part| !part.is_empty())
             .map(|part| {
+                if part.eq_ignore_ascii_case("playstation") {
+                    return "PlayStation".to_string();
+                }
                 let mut chars = part.chars();
                 match chars.next() {
                     Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
@@ -2716,26 +2630,40 @@ fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
     ));
     html.push_str("<div id=\"outlet-list\">");
     for outlet in outlets {
-        let count = if outlet.n == 1 {
-            "1 review".to_string()
+        let (count, score) = if outlet.n == 0 {
+            (
+                format!("{} reviews, none scored", outlet.reviews.len()),
+                "—".to_string(),
+            )
         } else {
-            format!("{} reviews", outlet.n)
+            let count = if outlet.n == 1 {
+                "1 review".to_string()
+            } else {
+                format!("{} reviews", outlet.n)
+            };
+            (
+                format!(
+                    "{count} · μ {mu} · σ {sigma} · μ′ {mu_p} · σ′ {sigma_p}",
+                    mu = fmt_num(outlet.mu),
+                    sigma = fmt_num(outlet.sigma),
+                    mu_p = fmt_num(outlet.mu_prime),
+                    sigma_p = fmt_num(outlet.sigma_prime),
+                ),
+                fmt_num(outlet.mu_prime),
+            )
         };
         html.push_str(&format!(
             "<a class=\"row\" href=\"/outlet/{slug}/\" \
                 data-title=\"{name_attr}\" data-reviews=\"{n}\" data-mu=\"{mu_n}\" data-mu-prime=\"{mu_p_n}\">\
-               <span><strong>{name}</strong><small>{count} · μ {mu} · σ {sigma} · μ′ {mu_p} · σ′ {sigma_p}</small></span>\
-               <span class=\"score\">{mu_p}</span>\
+               <span><strong>{name}</strong><small>{count}</small></span>\
+               <span class=\"score\">{score}</span>\
              </a>",
             slug = esc(&outlet.slug),
             name = esc(&outlet.name),
             name_attr = esc(&outlet.name),
             count = count,
             n = outlet.n,
-            mu = fmt_num(outlet.mu),
-            sigma = fmt_num(outlet.sigma),
-            mu_p = fmt_num(outlet.mu_prime),
-            sigma_p = fmt_num(outlet.sigma_prime),
+            score = score,
             mu_n = outlet.mu,
             mu_p_n = outlet.mu_prime,
         ));
@@ -2745,7 +2673,13 @@ fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
 }
 
 fn outlet_page(outlet: &OutletView, sort: &str) -> String {
-    let count = if outlet.n == 1 {
+    let unscored_outlet = outlet.slug == "kotaku" || outlet.n == 0;
+    let count = if unscored_outlet {
+        let notes = outlet.reviews.len();
+        format!(
+            "{notes} reviews, none scored. Listed for the excerpt and the link"
+        )
+    } else if outlet.n == 1 {
         "1 review".to_string()
     } else {
         format!("{} reviews", outlet.n)
@@ -2759,7 +2693,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
     ));
     reviews.push_str("<div id=\"outlet-reviews\">");
     for review in outlet.reviews.iter().filter(|review| {
-        review.raw_score.is_some_and(|score| score.is_finite())
+        !unscored_outlet && review.raw_score.is_some_and(|score| score.is_finite())
     }) {
         let raw = match (review.raw_score, review.scale_max) {
             (Some(score), Some(scale)) => format!("{score}/{scale}"),
@@ -2812,25 +2746,57 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
         ));
     }
     reviews.push_str("</div></section>");
+    if unscored_outlet {
+        reviews.clear();
+        let mut notes = String::new();
+        for review in &outlet.reviews {
+            notes.push_str(&unscored_card(
+                &format!(
+                    "<a href=\"/game/{slug}/\">{title}</a>",
+                    slug = esc(&public_slug(&review.game_slug, &review.game_title)),
+                    title = esc(&review.game_title),
+                ),
+                review.excerpt.as_deref(),
+                review.review_url.as_deref(),
+            ));
+        }
+        reviews.push_str(&unscored_section(&notes));
+    }
+    let stats = if unscored_outlet {
+        String::new()
+    } else {
+        format!(
+            "<p class=\"lead\">μ<sub>j</sub> and σ<sub>j</sub> are this outlet&apos;s raw mean and spread. μ′<sub>j</sub> and σ′<sub>j</sub> are the shrunk values used when scoring a game—pulled toward the catalog so a thin history cannot dominate. See <a href=\"/score/\">how the score works</a>.</p>\
+             <div class=\"stats\">\
+               <div class=\"stat\"><span class=\"label\">Raw mean μ<sub>j</sub></span><span class=\"value\">{mu}</span></div>\
+               <div class=\"stat\"><span class=\"label\">Raw spread σ<sub>j</sub></span><span class=\"value\">{sigma}</span></div>\
+               <div class=\"stat\"><span class=\"label\">Shrunk mean μ′<sub>j</sub></span><span class=\"value\">{mu_p}</span></div>\
+               <div class=\"stat\"><span class=\"label\">Shrunk spread σ′<sub>j</sub></span><span class=\"value\">{sigma_p}</span></div>\
+             </div>",
+            mu = fmt_num(outlet.mu),
+            sigma = fmt_num(outlet.sigma),
+            mu_p = fmt_num(outlet.mu_prime),
+            sigma_p = fmt_num(outlet.sigma_prime),
+        )
+    };
+    let baseline = if unscored_outlet {
+        String::new()
+    } else {
+        format!(
+            " Catalog baseline μ_global {mu_g}, σ_global {sigma_g}.",
+            mu_g = fmt_num(outlet.mu_global),
+            sigma_g = fmt_num(outlet.sigma_global),
+        )
+    };
     format!(
         "<h1 class=\"page\">{name}</h1>\
-         <p class=\"muted\">{count}. Catalog baseline μ_global {mu_g}, σ_global {sigma_g}.</p>\
-         <p class=\"lead\">μ<sub>j</sub> and σ<sub>j</sub> are this outlet&apos;s raw mean and spread. μ′<sub>j</sub> and σ′<sub>j</sub> are the shrunk values used when scoring a game—pulled toward the catalog so a thin history cannot dominate. See <a href=\"/score/\">how the score works</a>.</p>\
-         <div class=\"stats\">\
-           <div class=\"stat\"><span class=\"label\">Raw mean μ<sub>j</sub></span><span class=\"value\">{mu}</span></div>\
-           <div class=\"stat\"><span class=\"label\">Raw spread σ<sub>j</sub></span><span class=\"value\">{sigma}</span></div>\
-           <div class=\"stat\"><span class=\"label\">Shrunk mean μ′<sub>j</sub></span><span class=\"value\">{mu_p}</span></div>\
-           <div class=\"stat\"><span class=\"label\">Shrunk spread σ′<sub>j</sub></span><span class=\"value\">{sigma_p}</span></div>\
-         </div>\
+         <p class=\"muted\">{count}.{baseline}</p>\
+         {stats}\
          {reviews}",
         name = esc(&outlet.name),
         count = count,
-        mu_g = fmt_num(outlet.mu_global),
-        sigma_g = fmt_num(outlet.sigma_global),
-        mu = fmt_num(outlet.mu),
-        sigma = fmt_num(outlet.sigma),
-        mu_p = fmt_num(outlet.mu_prime),
-        sigma_p = fmt_num(outlet.sigma_prime),
+        baseline = baseline,
+        stats = stats,
         reviews = reviews,
     )
 }
@@ -2902,34 +2868,6 @@ fn game_page(game: &GameView, sort: &str) -> String {
         )
     };
     let mut reviews = String::from("<section class=\"reviews\"><h2>Outlet reviews</h2>");
-    // Ports stay on this page. Chips recompute the score from reviews of that port.
-    let mut port_keys: Vec<String> = Vec::new();
-    for platform in &game.platforms {
-        let key = platform_key(platform);
-        if !key.is_empty() && !port_keys.iter().any(|k| k == &key) {
-            port_keys.push(key);
-        }
-    }
-    for review in game.reviews.iter().filter(|review| counts_for_score(review)) {
-        for platform in &review.platforms {
-            let key = platform_key(platform);
-            if !key.is_empty() && !port_keys.iter().any(|k| k == &key) {
-                port_keys.push(key);
-            }
-        }
-    }
-    port_keys.sort();
-    if port_keys.len() > 1 {
-        reviews.push_str("<div class=\"port-filter\" id=\"port-filter\" role=\"group\" aria-label=\"Filter by platform\">");
-        let (all_score, _, _) = port_stats(game, &port_keys, None);
-        reviews.push_str(&port_chip("all", "All", all_score, true));
-        for key in &port_keys {
-            let (score, _, _) = port_stats(game, &port_keys, Some(key));
-            reviews.push_str(&port_chip(key, &platform_label(key), score, false));
-        }
-        reviews.push_str("</div>");
-        reviews.push_str("<p class=\"port-filter-meta\" id=\"port-filter-meta\"></p>");
-    }
     reviews.push_str(&sort_bar(
         &format!("/game/{}", game.slug),
         sort,
@@ -2961,20 +2899,9 @@ fn game_page(game: &GameView, sort: &str) -> String {
             ),
             None => String::new(),
         };
-        let mut plat_keys: Vec<String> = review
-            .platforms
-            .iter()
-            .map(|p| platform_key(p))
-            .filter(|k| !k.is_empty())
-            .collect();
-        // No port tag: the review is of the release, so it counts on every port.
-        if plat_keys.is_empty() {
-            plat_keys = port_keys.clone();
-        }
-        let plats_attr = plat_keys.join(" ");
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{outlet_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\" \
-               data-mapped=\"{mapped_n}\" data-raw-norm=\"{norm_n}\" data-platforms=\"{plats}\">\
+               data-mapped=\"{mapped_n}\" data-raw-norm=\"{norm_n}\">\
                <span><strong><a href=\"/outlet/{outlet_slug}/\">{outlet}</a></strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
@@ -2997,12 +2924,26 @@ fn game_page(game: &GameView, sort: &str) -> String {
             z_n = review.z_score,
             mapped_n = mapped,
             norm_n = review.raw_score_norm,
-            plats = esc(&plats_attr),
             excerpt = excerpt,
             source = source,
         ));
     }
     reviews.push_str("</div></section>");
+    let mut notes = String::new();
+    for review in game.reviews.iter().filter(|review| {
+        is_public_outlet(&review.outlet_slug) && !counts_for_score(review)
+    }) {
+        notes.push_str(&unscored_card(
+            &format!(
+                "<a href=\"/outlet/{slug}/\">{name}</a>",
+                slug = esc(&review.outlet_slug),
+                name = esc(&review.outlet_name),
+            ),
+            review.excerpt.as_deref(),
+            review.review_url.as_deref(),
+        ));
+    }
+    reviews.push_str(&unscored_section(&notes));
     format!(
         "<div class=\"game-hero\">{cover}<div class=\"text\">\
            <h1 class=\"page\">{title}</h1>\
@@ -3212,51 +3153,33 @@ fn about_page() -> String {
     )
 }
 
-fn port_chip(key: &str, label: &str, score: i64, pressed: bool) -> String {
+fn unscored_card(title_html: &str, excerpt: Option<&str>, url: Option<&str>) -> String {
+    let excerpt = excerpt
+        .filter(|text| !text.is_empty())
+        .map(clip_excerpt)
+        .filter(|text| !text.is_empty())
+        .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(&text)))
+        .unwrap_or_default();
+    let source = match url.filter(|url| url.starts_with("https://") || url.starts_with("http://")) {
+        Some(url) => format!(
+            "<p class=\"source\"><a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">Read original review</a></p>",
+            url = esc(url),
+        ),
+        None => String::new(),
+    };
     format!(
-        "<button type=\"button\" data-port=\"{key}\" aria-pressed=\"{pressed}\" aria-label=\"{label}, score {score}\">\
-           <span class=\"port-name\">{label}</span>\
-           <span class=\"port-score\">{score}</span>\
-         </button>",
-        key = esc(key),
-        label = esc(label),
-        score = score,
-        pressed = if pressed { "true" } else { "false" },
+        "<div class=\"unscored\"><span><strong>{title_html}</strong><small>No score</small></span>{excerpt}{source}</div>"
     )
 }
 
-/// Mean mapped score for reviews of one port. Reviews with no port tag count on every port.
-fn port_stats(game: &GameView, port_keys: &[String], port: Option<&str>) -> (i64, i64, usize) {
-    let mut raw_sum = 0.0;
-    let mut mapped_sum = 0.0;
-    let mut n = 0usize;
-    for review in game.reviews.iter().filter(|review| counts_for_score(review)) {
-        let mut keys: Vec<String> = review
-            .platforms
-            .iter()
-            .map(|platform| platform_key(platform))
-            .filter(|key| !key.is_empty())
-            .collect();
-        if keys.is_empty() {
-            keys = port_keys.to_vec();
-        }
-        if let Some(port) = port {
-            if !keys.iter().any(|key| key == port) {
-                continue;
-            }
-        }
-        raw_sum += review.raw_score_norm;
-        mapped_sum += crate::engine::map_z(review.z_score, game.mu_global);
-        n += 1;
+fn unscored_section(cards: &str) -> String {
+    if cards.is_empty() {
+        return String::new();
     }
-    if n == 0 {
-        return (0, 0, 0);
-    }
-    let count = n as f64;
-    (
-        (mapped_sum / count).round() as i64,
-        (raw_sum / count).round() as i64,
-        n,
+    format!(
+        "<section class=\"reviews\"><h2>Reviews without a score</h2>\
+         <p class=\"muted\">No numeric grade is published, so these are not part of the SourceCritic score.</p>\
+         {cards}</section>"
     )
 }
 
@@ -3510,6 +3433,7 @@ fn document(section: Section, title: &str, body: &str, path: Option<&str>, seo: 
            <title>{title}</title>\
            <meta name=\"description\" content=\"{description}\">\
            <link rel=\"canonical\" href=\"{canonical}\">\
+           <link rel=\"icon\" href=\"/favicon.ico\" sizes=\"32x32\">\
            <link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\">\
            <link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\">\
            <meta property=\"og:title\" content=\"{title}\">\
@@ -3875,9 +3799,10 @@ fn is_public_outlet(slug: &str) -> bool {
     !matches!(slug, "metacritic-users" | "opencritic-recommend")
 }
 
-/// A review counts when it has a score, including a yes/no verdict stored as 0 or 100.
+/// A review counts when the outlet published a number. Kotaku does not.
 fn counts_for_score(review: &crate::db::ReviewView) -> bool {
     is_public_outlet(&review.outlet_slug)
+        && review.outlet_slug != "kotaku"
         && review.raw_score.is_some_and(|score| score.is_finite())
 }
 
@@ -3932,6 +3857,17 @@ fn clip_excerpt(text: &str) -> String {
         out.push('…');
     }
     out
+}
+
+pub(crate) fn refresh_target(html: &str) -> Option<String> {
+    let marker = "http-equiv=\"refresh\" content=\"0; url=";
+    let rest = html.split(marker).nth(1)?;
+    let target = rest.split('"').next()?;
+    if target.starts_with('/') {
+        Some(target.replace("&amp;", "&"))
+    } else {
+        None
+    }
 }
 
 fn redirect_page(target: &str) -> String {
@@ -4485,6 +4421,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
     let year_list = collect_years(games);
     for (key, label) in platform_keys.iter().filter(|(key, _)| best_platforms.contains(&key.as_str())) {
         let mut platform_years_linked = Vec::new();
+        let mut emitted_legacy = false;
         for year in &year_list {
             let mut picked: Vec<&GameView> = games
                 .iter()
@@ -4496,6 +4433,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
             });
             if picked.len() < 5 {
                 if legacy {
+                    emitted_legacy = true;
                     let target = format!("/best/{key}/");
                     pages.push((
                         format!("best/{key}/{year}/index.html"),
@@ -4534,10 +4472,13 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
             ));
             best_count += 1;
         }
-        if !platform_years_linked.is_empty() {
+        if !platform_years_linked.is_empty() || emitted_legacy {
             let mut body = format!(
                 "<h1 class=\"page\">Best {label} games</h1><p class=\"lead\">Years with at least five scored games that launched on {label}.</p><div>"
             );
+            if platform_years_linked.is_empty() {
+                body.push_str("<p class=\"empty\">No year has five scored games yet.</p>");
+            }
             for (year, path) in &platform_years_linked {
                 body.push_str(&format!(
                     "<a class=\"row\" href=\"{path}\"><span><strong>{label} {year}</strong></span></a>"
@@ -4745,6 +4686,22 @@ mod tests {
         assert!(html.contains("score-compact"));
         let whole = score_figure(80.0, "score score-compact", "");
         assert!(!whole.contains("frac"));
+    }
+
+    #[test]
+    fn playstation_slugs_keep_the_brand_spelling() {
+        assert_eq!(platform_label(&platform_key("playstation")), "PlayStation");
+        assert_eq!(platform_label(&platform_key("playstation-2")), "PlayStation 2");
+        assert_eq!(platform_label(&platform_key("playstation-3")), "PlayStation 3");
+        assert_eq!(platform_label(&platform_key("playstation-vita")), "PlayStation Vita");
+        assert_eq!(platform_label(&platform_key("playstation-5")), "PlayStation 5");
+    }
+
+    #[test]
+    fn refresh_target_reads_the_meta_url() {
+        let html = redirect_page("/best/ps2/");
+        assert_eq!(refresh_target(&html).as_deref(), Some("/best/ps2/"));
+        assert!(refresh_target("<p>no redirect</p>").is_none());
     }
 
     #[test]

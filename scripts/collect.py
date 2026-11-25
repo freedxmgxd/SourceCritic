@@ -278,15 +278,17 @@ def collect_feed(outlet: dict, index: dict[str, list[dict]], queue: list[dict], 
         for node in jsonld_reviews(page):
             item = node.get("itemReviewed") if isinstance(node.get("itemReviewed"), dict) else {}
             title = item.get("name") or node.get("name") or ""
-            score = rating_to_100(node, float(outlet.get("scale_max") or 100))
-            if not title or score is None:
+            # Kotaku pages do not carry a grade. A yes/no flag must not become 100.
+            unscored = outlet.get("slug") == "kotaku"
+            score = None if unscored else rating_to_100(node, float(outlet.get("scale_max") or 100))
+            if not title or (score is None and not unscored):
                 continue
             game, reason = attach(index, str(title), None)
             record = {
                 "outlet_slug": outlet.get("slug"),
                 "outlet_name": outlet.get("name"),
                 "title": title,
-                "score": round(score, 2),
+                "score": None if score is None else round(score, 2),
                 "excerpt": excerpt_of(str(node.get("reviewBody") or node.get("description") or "")),
                 "author": (node.get("author") or {}).get("name") if isinstance(node.get("author"), dict) else node.get("author"),
                 "date": node.get("datePublished"),

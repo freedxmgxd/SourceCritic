@@ -5,12 +5,22 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 SEED = ROOT / "data" / "seed_reviews.json"
 SYNOPSES = ROOT / "data" / "game_synopses.json"
+
+from adapters import (  # noqa: E402
+    PSEUDO_OUTLET_SLUGS,
+    UNSCORED_SLUGS,
+    outlet_merge_key,
+    publication_merge_name,
+    sanitize_review_url,
+)
 
 
 def main() -> None:
@@ -29,6 +39,7 @@ def main() -> None:
             if isinstance(value, str) and value.strip()
         }
     reviews = []
+    skipped = 0
     for game_slug, game in data.items():
         cover = game.get("cover") or f"/covers/{game_slug}.jpg"
         release_year = game.get("release_year")
@@ -36,21 +47,46 @@ def main() -> None:
         steam_appid = game.get("steam_appid")
         steam_lists = game.get("steam_lists") or []
         synopsis = (game.get("synopsis") or synopses.get(game_slug) or "").strip()
-        for review in game["reviews"]:
+        for review in game.get("reviews") or []:
+            outlet_slug = outlet_merge_key(review)
+            if outlet_slug in PSEUDO_OUTLET_SLUGS:
+                skipped += 1
+                continue
+            unscored = outlet_slug in UNSCORED_SLUGS
+            score = review.get("score")
+            score_f = None
+            if not unscored:
+                if score is None:
+                    skipped += 1
+                    continue
+                try:
+                    score_f = float(score)
+                except (TypeError, ValueError):
+                    skipped += 1
+                    continue
+            outlet_name = publication_merge_name(
+                (review.get("publication") or review.get("outlet") or outlet_slug).strip()
+            )
             item = {
-                "outlet_slug": review["slug"] or review["publication"].lower(),
-                "outlet_name": review["publication"],
+                "outlet_slug": outlet_slug,
+                "outlet_name": outlet_name,
                 "game_slug": game_slug,
                 "game_title": game["title"],
                 "cover_path": cover,
-                "raw_score": review["score"],
                 "scale_max": 100.0,
-                "raw_score_norm": review["score"],
+                "raw_score_norm": 0.0 if score_f is None else score_f,
             }
+            if score_f is not None:
+                item["raw_score"] = score_f
             if release_year is not None:
                 item["release_year"] = int(release_year)
             if platforms:
                 item["platforms"] = list(platforms)
+            review_plats = [
+                p for p in (review.get("platforms") or []) if isinstance(p, str) and p.strip()
+            ]
+            if review_plats:
+                item["review_platforms"] = review_plats
             if steam_appid:
                 item["steam_appid"] = int(steam_appid)
             if steam_lists:
@@ -59,10 +95,12 @@ def main() -> None:
                 item["synopsis"] = synopsis
             if review.get("excerpt"):
                 item["excerpt"] = review["excerpt"]
-            url = (review.get("url") or "").strip()
-            if url.startswith("http://") or url.startswith("https://"):
+            url = sanitize_review_url(review.get("url"))
+            if url:
                 item["review_url"] = url
             reviews.append(item)
+    if skipped:
+        print(f"skipped {skipped} unscored/pseudo reviews")
 
     total_upserted = 0
     last_games = []

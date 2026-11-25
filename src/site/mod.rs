@@ -46,13 +46,26 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
     pages::audit_pages(&files).map_err(ExportError::Db)?;
     eprintln!("writing {} pages", files.len());
     let mut html_pages = 0usize;
+    let mut redirects: Vec<(String, String)> = Vec::new();
     for (rel, html) in &files {
+        if rel.starts_with("best/") {
+            if let Some(target) = pages::refresh_target(html) {
+                redirects.push((static_url(rel), target));
+            }
+        }
         let path = out_dir.join(rel);
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
         }
         fs::write(&path, html)?;
         html_pages += 1;
+    }
+    if !redirects.is_empty() {
+        let mut body = String::from("# Legacy /best/{platform}/{year}/ URLs\n");
+        for (from, to) in &redirects {
+            body.push_str(&format!("{from} {to} 301\n"));
+        }
+        fs::write(out_dir.join("_redirects"), body)?;
     }
 
     let covers_src = PathBuf::from("static/covers");
@@ -61,7 +74,7 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
     if covers_src.is_dir() {
         cover_files = copy_dir_recursive(&covers_src, &covers_dst)?;
     }
-    for name in ["favicon.svg", "apple-touch-icon.png", "og-default.png"] {
+    for name in ["favicon.ico", "favicon.svg", "apple-touch-icon.png", "og-default.png"] {
         let src = PathBuf::from("static").join(name);
         if src.is_file() {
             fs::copy(&src, out_dir.join(name))?;
@@ -137,6 +150,16 @@ fn chrono_date() -> String {
     let m = if mp < 10 { mp + 3 } else { mp - 9 };
     let y = if m <= 2 { y + 1 } else { y };
     format!("{y:04}-{m:02}-{d:02}")
+}
+
+fn static_url(rel: &str) -> String {
+    if let Some(dir) = rel.strip_suffix("/index.html") {
+        format!("/{dir}/")
+    } else if rel == "index.html" {
+        "/".to_string()
+    } else {
+        format!("/{rel}")
+    }
 }
 
 fn page_loc(path: &str) -> Option<String> {

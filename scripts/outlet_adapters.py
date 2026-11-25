@@ -199,6 +199,9 @@ def normalize_score(
             best_f = 100.0
     if best_f <= worst_f:
         return None
+    # Missing / placeholder 0 with no explicit scale → treat as unscored.
+    if score == 0 and best is None and worst is None and outlet_slug not in DEFAULT_BEST:
+        return None
     norm = (score - worst_f) / (best_f - worst_f) * 100.0
     return max(0.0, min(100.0, norm))
 

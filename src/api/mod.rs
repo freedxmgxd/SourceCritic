@@ -7,7 +7,7 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
-use tower_http::services::ServeDir;
+use tower_http::services::{ServeDir, ServeFile};
 
 use crate::db::{Database, GameView, IncomingReview, ReviewView};
 
@@ -71,6 +71,8 @@ pub fn app(db: Database) -> Router {
         .route("/disagreements", get(pages::disagreements))
         .route("/disagreements/", get(pages::disagreements))
         .route("/best/", get(pages::best_index))
+        .route("/best/{platform}", get(pages::best_platform))
+        .route("/best/{platform}/", get(pages::best_platform))
         .route("/best/{platform}/{year}", get(pages::best_of))
         .route("/best/{platform}/{year}/", get(pages::best_of))
         .route("/games-index.json", get(pages::games_index))
@@ -78,6 +80,12 @@ pub fn app(db: Database) -> Router {
         .route("/games", get(list_games))
         .route("/games/{slug}", get(get_game))
         .nest_service("/covers", ServeDir::new("static/covers"))
+        .route_service("/favicon.ico", ServeFile::new("static/favicon.ico"))
+        .route_service("/favicon.svg", ServeFile::new("static/favicon.svg"))
+        .route_service(
+            "/apple-touch-icon.png",
+            ServeFile::new("static/apple-touch-icon.png"),
+        )
         .with_state(state)
 }
 
@@ -294,7 +302,7 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
     let excerpt = review
         .excerpt
         .as_ref()
-        .map(|value| value.trim().to_string())
+        .map(|value| crate::db::decode_entities(value.trim()))
         .filter(|value| !value.is_empty());
     let review_url = review
         .review_url
@@ -332,18 +340,24 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
     let synopsis = review
         .synopsis
         .as_ref()
-        .map(|value| value.trim().to_string())
+        .map(|value| crate::db::decode_entities(value.trim()))
         .filter(|value| !value.is_empty());
+    // Kotaku does not publish a grade. Ignore any 0/100 carried over from an aggregator.
+    let unscored = outlet_slug == "kotaku";
     Ok(IncomingReview {
         outlet_slug: outlet_slug.to_string(),
-        outlet_name: outlet_name.to_string(),
+        outlet_name: crate::db::decode_entities(outlet_name),
         game_slug: game_slug.to_string(),
-        game_title: game_title.to_string(),
+        game_title: crate::db::decode_entities(game_title),
         cover_path,
         release_year,
         platforms,
         synopsis,
-        raw_score: review.raw_score.or(Some(review.raw_score_norm)),
+        raw_score: if unscored {
+            None
+        } else {
+            review.raw_score.or(Some(review.raw_score_norm))
+        },
         scale_max: review.scale_max,
         raw_score_norm: review.raw_score_norm,
         excerpt,

@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Metacritic + OpenCritic review/detail adapters used by scrape_catalog."""
+"""Outlet merge helpers. Metacritic and OpenCritic fetches are disabled."""
 
 from __future__ import annotations
 
 import json
 import re
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -139,127 +140,53 @@ def _mc_score(game: dict) -> float | None:
 
 
 def search_mc(title: str) -> dict | None:
-    scored_exact: list[dict] = []
-    scored_fuzzy: list[dict] = []
-    unscored: list[dict] = []
-    for query in search_queries(title):
-        q = urllib.parse.quote(query)
-        url = (
-            "https://backend.metacritic.com/finder/metacritic/search/"
-            f"{q}/web?apiKey={MC_API_KEY}&limit=10"
-        )
-        try:
-            data = http_json(url)
-        except Exception:
-            continue
-        items = (data.get("data") or {}).get("items") or []
-        games = [it for it in items if it.get("type") == "game-title" and it.get("slug")]
-        want = norm(query)
-        for game in games:
-            cand = norm(game.get("title") or "")
-            if not similar_enough(want, cand):
-                continue
-            has_score = _mc_score(game) is not None
-            exact = cand == want
-            if exact and has_score:
-                scored_exact.append(game)
-            elif has_score:
-                scored_fuzzy.append(game)
-            else:
-                unscored.append(game)
-        if scored_exact:
-            return scored_exact[0]
-    if scored_exact:
-        return scored_exact[0]
-    if scored_fuzzy:
-        return scored_fuzzy[0]
-    return unscored[0] if unscored else None
+    """Metacritic search is disabled (compliance)."""
+    del title
+    return None
 
 
 def mc_details(slug: str) -> dict | None:
-    url = (
-        "https://backend.metacritic.com/composer/metacritic/pages/games/"
-        f"{slug}/web?apiKey={MC_API_KEY}"
-    )
-    try:
-        data = http_json(url)
-    except urllib.error.HTTPError:
-        return None
-    components = data.get("components") or []
-    if not components:
-        return None
-    item = (components[0].get("data") or {}).get("item") or {}
-    if not item.get("slug"):
-        return None
-    summary = item.get("criticScoreSummary") or {}
-    images = item.get("images") or []
-    card = next((img for img in images if img.get("typeName") == "cardImage"), None)
-    if card is None and images:
-        card = images[0]
-    cover_url = None
-    if card and card.get("bucketPath"):
-        cover_url = f"https://www.metacritic.com/a/img/catalog{card['bucketPath']}"
-    platforms = []
-    for platform in item.get("platforms") or []:
-        name = platform.get("name") or platform.get("shortName")
+    """Metacritic game details are disabled (compliance)."""
+    del slug
+    return None
+
+
+def _mc_platform_name(it: dict) -> str | None:
+    plat = it.get("platform")
+    if isinstance(plat, str) and plat.strip():
+        return plat.strip()
+    if isinstance(plat, dict):
+        name = (plat.get("name") or "").strip()
         if name:
-            platforms.append(name)
-    if not platforms and item.get("platform"):
-        platforms.append(item["platform"])
-    return {
-        "title": item.get("title") or slug,
-        "slug": item.get("slug") or slug,
-        "metascore": summary.get("score"),
-        "review_count": summary.get("reviewCount") or 0,
-        "premiere_year": item.get("premiereYear"),
-        "cover_url": cover_url,
-        "platforms": platforms,
-    }
+            return name
+    product = it.get("reviewedProduct") or {}
+    nested = product.get("platform") or {}
+    if isinstance(nested, dict):
+        name = (nested.get("name") or "").strip()
+        if name:
+            return name
+    return None
 
 
 def mc_reviews(slug: str) -> list[dict]:
-    items: list[dict] = []
-    offset = 0
-    while True:
-        params = {
-            "apiKey": MC_API_KEY,
-            "offset": str(offset),
-            "filter": "all",
-            "sortOptions": "date",
-            "componentName": "critic-reviews",
-        }
-        url = (
-            "https://backend.metacritic.com/reviews/metacritic/critic/games/"
-            f"{slug}/web?" + urllib.parse.urlencode(params)
-        )
-        data = http_json(url)
-        batch = ((data.get("data") or {}).get("items")) or []
-        total = (data.get("data") or {}).get("totalResults") or 0
-        items.extend(batch)
-        offset += len(batch)
-        if not batch or offset >= total:
-            break
-        time.sleep(0.06)
-    by_pub: dict[str, dict] = {}
-    for it in items:
-        name = (it.get("publicationName") or "").strip()
-        score = it.get("score")
-        if not name or score is None:
-            continue
-        row = {
-            "publication": name,
-            "slug": it.get("publicationSlug") or slugify(name),
-            "score": float(score),
-            "source": "metacritic",
-        }
-        quote = (it.get("quote") or "").strip()
-        if quote:
-            row["excerpt"] = quote
-        link = (it.get("url") or "").strip()
-        if link.startswith("http://") or link.startswith("https://"):
-            row["url"] = link
-        by_pub[name] = row
-    return list(by_pub.values())
+    """Metacritic critic reviews are disabled (compliance)."""
+    del slug
+    return []
+
+
+def is_mc_edition_slug(slug: str | None) -> bool:
+    if not slug:
+        return False
+    return bool(_MC_EDITION_SLUG_RE.search(slug.strip().lower()))
+
+
+def prefer_base_mc_slug(slug: str | None, title: str | None = None) -> str | None:
+    """If catalog/search resolved to a Gold/Complete/port SKU, prefer the base game."""
+    if not slug or not is_mc_edition_slug(slug):
+        return slug
+    # Strip one edition suffix and re-check details exist via caller.
+    base = _MC_EDITION_SLUG_RE.sub("", slug.strip().lower()).strip("-")
+    return base or slug
 
 
 def load_oc_index() -> dict:
@@ -277,30 +204,8 @@ def load_oc_index() -> dict:
 
 
 def search_oc(title: str, *, fuzzy: bool = False) -> tuple[int, str] | None:
-    """Resolve OpenCritic id/slug. Fuzzy scan of the full index is opt-in (slow)."""
-    idx = load_oc_index()
-    by_slug = idx.get("by_slug") or {}
-    by_fold = idx.get("by_fold") or {}
-    id_to_slug = idx.get("id_to_slug") or {}
-    for query in search_queries(title):
-        slug = slugify(query)
-        if slug in by_slug:
-            return int(by_slug[slug]), slug
-        fold = slug.replace("-", " ")
-        if fold in by_fold:
-            gid = int(by_fold[fold])
-            return gid, id_to_slug.get(str(gid), slug)
-        soft = fold_key(query)
-        if soft in by_fold:
-            gid = int(by_fold[soft])
-            return gid, id_to_slug.get(str(gid), slugify(soft))
-        if not fuzzy:
-            continue
-        want = soft or norm(query)
-        for fold_name, gid in by_fold.items():
-            if similar_enough(want, fold_name):
-                gid = int(gid)
-                return gid, id_to_slug.get(str(gid), slugify(fold_name))
+    """OpenCritic search is disabled (compliance)."""
+    del title, fuzzy
     return None
 
 
@@ -310,93 +215,52 @@ def oc_parse_state(html: str) -> dict:
     )
     if not match:
         return {}
-    raw = unescape(match.group(1).replace("&q;", '"').replace("&s;", "'"))
+    # OpenCritic embeds a custom-escaped JSON blob (&q; &s; &a; …).
+    raw = (
+        unescape(match.group(1))
+        .replace("&q;", '"')
+        .replace("&s;", "'")
+        .replace("&a;", "&")
+    )
     return json.loads(raw)
 
 
+_BAD_URL_HOSTS = (
+    "savethechildren.org",
+    "support.savethechildren.org",
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+)
+
+
+def sanitize_review_url(url: str | None) -> str | None:
+    """Normalize aggregator URLs; drop donation / junk / non-http links."""
+    if not url:
+        return None
+    link = unescape(str(url)).strip().replace("&a;", "&").replace("&amp;", "&")
+    if not (link.startswith("http://") or link.startswith("https://")):
+        return None
+    host = urllib.parse.urlparse(link).hostname or ""
+    host = host.lower().removeprefix("www.")
+    if any(host == bad or host.endswith("." + bad) for bad in _BAD_URL_HOSTS):
+        return None
+    # Trailer / non-review media hosts occasionally leak into OC externalUrl.
+    if host in {"imdb.com", "m.imdb.com"}:
+        return None
+    return link
+
+
 def oc_reviews(game_id: int, slug: str) -> list[dict]:
-    out: list[dict] = []
-    seen: set[str] = set()
-    page = 1
-    while page <= 30:
-        url = f"https://opencritic.com/game/{game_id}/{slug}/reviews"
-        if page > 1:
-            url += f"?page={page}"
-        try:
-            html = http_text(url, OC_UA)
-        except Exception:
-            break
-        state = oc_parse_state(html)
-        batch = []
-        for value in state.values():
-            if isinstance(value, list) and value and isinstance(value[0], dict):
-                if "score" in value[0] and "Outlet" in value[0]:
-                    batch = value
-                    break
-        if not batch:
-            break
-        for review in batch:
-            outlet = (review.get("Outlet") or {}).get("name") or ""
-            score = review.get("score")
-            if not outlet or score is None or score < 0:
-                continue
-            key = outlet.lower()
-            if key in seen:
-                continue
-            seen.add(key)
-            item = {
-                "publication": outlet,
-                "slug": slugify(outlet),
-                "score": float(score),
-                "source": "opencritic",
-            }
-            snippet = (review.get("snippet") or "").strip()
-            if snippet:
-                item["excerpt"] = snippet
-            link = (review.get("externalUrl") or "").strip()
-            if link.startswith("http://") or link.startswith("https://"):
-                item["url"] = link
-            out.append(item)
-        if len(batch) < 20:
-            break
-        page += 1
-        time.sleep(0.08)
-    return out
+    """OpenCritic reviews are disabled (compliance)."""
+    del game_id, slug
+    return []
 
 
 def oc_details(game_id: int, slug: str) -> dict | None:
-    try:
-        html = http_text(f"https://opencritic.com/game/{game_id}/{slug}", OC_UA)
-    except Exception:
-        return None
-    state = oc_parse_state(html)
-    game = state.get(f"game/{game_id}") or {}
-    if not game:
-        return None
-    year = None
-    date = game.get("firstReleaseDate") or ""
-    if isinstance(date, str) and len(date) >= 4 and date[:4].isdigit():
-        year = int(date[:4])
-    platforms = []
-    for platform in game.get("Platforms") or game.get("platforms") or []:
-        name = platform.get("name") or platform.get("shortName")
-        if name:
-            platforms.append(name)
-    images = game.get("images") or {}
-    box = images.get("box") or {}
-    cover_url = box.get("og") or box.get("sm") or (images.get("banner") or {}).get("og")
-    if isinstance(cover_url, str) and cover_url.startswith("//"):
-        cover_url = "https:" + cover_url
-    return {
-        "title": game.get("name") or slug.replace("-", " ").title(),
-        "slug": slug,
-        "opencritic_id": game_id,
-        "opencritic_score": game.get("topCriticScore"),
-        "review_count": game.get("numReviews") or 0,
-        "premiere_year": year,
-        "cover_url": cover_url,
-        "platforms": platforms,
-    }
+    """OpenCritic details are disabled (compliance)."""
+    del game_id, slug
+    return None
 
 
 def _source_rank(source: str | None) -> int:
@@ -451,12 +315,133 @@ OUTLET_ALIASES: dict[str, str] = {
     "games-tm": "games-tm",
     "play-zine": "play-zine",
     "play!-zine": "play-zine",
+    # TLD / punctuation slug variants (MC vs OC / API drift).
+    "gameblogfr": "gameblog-fr",
+    "gameblog-fr": "gameblog-fr",
+    "4pde": "4p-de",
+    "4p-de": "4p-de",
+    "gamescz": "games-cz",
+    "games-cz": "games-cz",
+    "jeuxvideocom": "jeuxvideo-com",
+    "jeuxvideo-com": "jeuxvideo-com",
+    "gameovergr": "gameover-gr",
+    "gameover-gr": "gameover-gr",
+    "gamernl": "gamer-nl",
+    "gamer-nl": "gamer-nl",
+    "insidegamernl": "insidegamer-nl",
+    "insidegamer-nl": "insidegamer-nl",
+    "totalgamesnet": "totalgames-net",
+    "totalgames-net": "totalgames-net",
+    "uagnait": "uagna-it",
+    "uagna-it": "uagna-it",
+    "level7nu": "level7-nu",
+    "level7-nu": "level7-nu",
+    "playtm": "play-tm",
+    "play-tm": "play-tm",
+    "playgroundru": "playground-ru",
+    "playground-ru": "playground-ru",
+    "gamer-20": "gamer-2-0",
+    "gamer-2-0": "gamer-2-0",
+    "official-us-playstation-magazine": "official-u-s-playstation-magazine",
+    "official-u-s-playstation-magazine": "official-u-s-playstation-magazine",
+    "whats-it-like": "what-s-it-like",
+    "what-s-it-like": "what-s-it-like",
+    "gamers-hell": "gamer-s-hell",
+    "gamer-s-hell": "gamer-s-hell",
+    "gamers-pulse": "gamer-s-pulse",
+    "gamer-s-pulse": "gamer-s-pulse",
+    "gamersat": "gamers-at",
+    "gamers-at": "gamers-at",
+    "gamertv": "gamer-tv",
+    "gamer-tv": "gamer-tv",
+    "videogameszonede": "videogameszone-de",
+    "videogameszone-de": "videogameszone-de",
+    "rogerebertcom": "rogerebert-com",
+    "rogerebert-com": "rogerebert-com",
+    "spilstrom": "spilstr-m",
+    "spilstr-m": "spilstr-m",
+    "julien-chieze": "julien-chi-ze",
+    "julien-chi-ze": "julien-chi-ze",
+    "dreamcastnet": "dreamcast-net",
+    "dreamcast-net": "dreamcast-net",
+    "gamesvillageit": "gamesvillage-it",
+    "gamesvillage-it": "gamesvillage-it",
+    "lets-play-video-games": "let-s-play-video-games",
+    "let-s-play-video-games": "let-s-play-video-games",
+    "ps3bloggense": "ps3bloggen-se",
+    "ps3bloggen-se": "ps3bloggen-se",
+    "applenapps": "apple-n-apps",
+    "apple-n-apps": "apple-n-apps",
+    "yahoo!": "yahoo",
+    "yahoo": "yahoo",
+    "gamezilla!": "gamezilla",
+    "gamezilla": "gamezilla",
+    "spank!": "spank",
+    "spank": "spank",
+    "d+pad-magazine": "d-pad-magazine",
+    "d-pad-magazine": "d-pad-magazine",
+    "wham!-gaming": "wham-gaming",
+    "wham-gaming": "wham-gaming",
+    "antagonist-antcom": "antagonist-ant-com",
+    "antagonist----antcom": "antagonist-ant-com",
+    "antagonist-ant-com": "antagonist-ant-com",
+    # Same outlet, MC country suffix vs OC bare name.
+    "merlin-in-kazan": "merlin-in-kazan",
+    "merlin-in-kazan-turkey": "merlin-in-kazan",
+    "merlinin-kazan-turkey": "merlin-in-kazan",
+    "pc-games-russia": "pc-games",
+    "pc-games": "pc-games",
+    # IGN regional sites — one vote per locale brand.
+    "ign-italia": "ign-italia",
+    "ign-italy": "ign-italia",
+    "ign-espana": "ign-espana",
+    "ign-espa-a": "ign-espana",
+    "ign-spain": "ign-espana",
+    "ign-deutschland": "ign-deutschland",
+    "ign-germany": "ign-deutschland",
+    "ign-nordic": "ign-nordic",
+    "ign-sweden": "ign-nordic",
+    "ign-ads": "ign",
     # Direct adapters: keep stable ids even when aggregator uses display names.
     "ign": "ign",
     "pc-gamer": "pc-gamer",
     "eurogamer": "eurogamer",
     "gamespot": "gamespot",
 }
+
+
+# Aggregate user scores / recommend % — never treat as critic outlets.
+PSEUDO_OUTLET_SLUGS = frozenset({"metacritic-users", "opencritic-recommend"})
+# Kotaku does not publish a number. A stored 0/100 is an old yes/no flag, not a grade.
+UNSCORED_SLUGS = frozenset({"kotaku"})
+
+
+def decode_text(value: str | None) -> str | None:
+    """Undo OpenCritic's custom entities (&a; &q; &s;) and a broken &amp;a;."""
+    if value is None:
+        return None
+    text = str(value)
+    for _ in range(4):
+        nxt = (
+            text.replace("&amp;a;", "&")
+            .replace("&amp;", "&")
+            .replace("&a;", "&")
+            .replace("&q;", '"')
+            .replace("&s;", "'")
+        )
+        nxt = unescape(nxt)
+        if nxt == text:
+            break
+        text = nxt
+    return text
+
+
+def fold_name(value: str | None) -> str:
+    """Identity key: same publication, ignoring punctuation, case, and accents."""
+    text = decode_text(value) or ""
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 
 def canonicalize_outlet_slug(slug: str) -> str:
@@ -468,6 +453,41 @@ def canonicalize_outlet_slug(slug: str) -> str:
     return OUTLET_ALIASES.get(key, key)
 
 
+# MC often appends "(Country)" to the same outlet OC lists without it.
+_OUTLET_COUNTRY_SUFFIX = re.compile(
+    r"\s*\((?:Turkey|Russia|Spain|Italy|France|Germany|Brazil|Poland|Japan|UK|US|USA|"
+    r"Netherlands|Sweden|Norway|Denmark|Finland|Portugal|Mexico|Argentina|China|"
+    r"Korea|Australia|Canada|Belgium|Austria|Switzerland|Greece|"
+    r"Czech(?:ia| Republic)?|Hungary|Romania|Ukraine|Israel|India|Taiwan|"
+    r"Hong Kong|Singapore|New Zealand|Ireland|Scotland|Wales|England)\)\s*$",
+    re.I,
+)
+
+# Only strip country when the bare name is a known alias target (avoids
+# collapsing unrelated "Play (Poland)" into catalog outlet "play").
+_OUTLET_STRIP_COUNTRY_BASES = frozenset(
+    {
+        "merlin-in-kazan",
+        "pc-games",
+    }
+)
+
+
+def publication_merge_name(name: str) -> str:
+    """Display-oriented name; strip MC regional suffix for known shared brands."""
+    bare = _OUTLET_COUNTRY_SUFFIX.sub("", name).strip() or name.strip()
+    if bare == name.strip():
+        return name.strip()
+    bare_key = canonicalize_outlet_slug(slugify(bare))
+    full_key = canonicalize_outlet_slug(slugify(name))
+    if bare_key in _OUTLET_STRIP_COUNTRY_BASES or full_key in _OUTLET_STRIP_COUNTRY_BASES:
+        return bare
+    # Also strip when alias map already folds the country slug into the bare one.
+    if full_key == bare_key or OUTLET_ALIASES.get(slugify(name)) == bare_key:
+        return bare
+    return name.strip()
+
+
 def outlet_merge_key(review: dict) -> str:
     """Stable outlet identity across Metacritic / OpenCritic / outlet scrapes.
 
@@ -477,7 +497,7 @@ def outlet_merge_key(review: dict) -> str:
     """
     name = (review.get("publication") or review.get("outlet") or "").strip()
     if name:
-        return canonicalize_outlet_slug(slugify(name))
+        return canonicalize_outlet_slug(slugify(publication_merge_name(name)))
     return canonicalize_outlet_slug(review.get("slug") or "item")
 
 
@@ -503,21 +523,75 @@ def merge_reviews(existing: list[dict], new_reviews: list[dict]) -> list[dict]:
         prev_rank = _source_rank(prev.get("source"))
         new_rank = _source_rank(review.get("source"))
         if new_rank > prev_rank:
-            return review
-        if new_rank < prev_rank:
-            return prev
-        if not prev.get("excerpt") and review.get("excerpt"):
-            return review
-        if prev.get("excerpt") and not review.get("excerpt"):
-            return prev
-        # Same rank: prefer the one with a cleaner URL / keep existing.
-        return prev
+            chosen = dict(review)
+        elif new_rank < prev_rank:
+            chosen = dict(prev)
+        elif not prev.get("excerpt") and review.get("excerpt"):
+            chosen = dict(review)
+        elif prev.get("excerpt") and not review.get("excerpt"):
+            chosen = dict(prev)
+        else:
+            # Same rank: prefer the one with a cleaner URL / keep existing.
+            chosen = dict(prev)
+        # Prefer display name without MC regional "(Country)" suffix.
+        prev_pub = (prev.get("publication") or "").strip()
+        new_pub = (review.get("publication") or "").strip()
+        if prev_pub and new_pub:
+            prev_bare = publication_merge_name(prev_pub)
+            new_bare = publication_merge_name(new_pub)
+            if prev_bare == new_bare or outlet_merge_key(prev) == outlet_merge_key(review):
+                if "(" in chosen.get("publication", "") and "(" not in prev_bare:
+                    chosen["publication"] = prev_bare
+                elif "(" in chosen.get("publication", "") and "(" not in new_bare:
+                    chosen["publication"] = new_bare
+        # Union platforms so per-port UI keeps every SKU an outlet covered.
+        plats: list[str] = []
+        for src in (prev, review, chosen):
+            for p in src.get("platforms") or []:
+                if isinstance(p, str) and p.strip() and p not in plats:
+                    plats.append(p.strip())
+        if plats:
+            chosen["platforms"] = plats
+        # Prefer a sanitized URL over a junk/missing one.
+        prev_url = sanitize_review_url(prev.get("url"))
+        new_url = sanitize_review_url(review.get("url"))
+        if new_url and (not prev_url or "savethechildren" in (chosen.get("url") or "")):
+            chosen["url"] = new_url
+        elif prev_url:
+            chosen["url"] = prev_url
+        else:
+            chosen.pop("url", None)
+        return chosen
 
     for review in existing + new_reviews:
+        review = dict(review)
+        raw_slug = (review.get("slug") or "").lower().strip()
+        if raw_slug in PSEUDO_OUTLET_SLUGS:
+            continue
+        if review.get("excerpt"):
+            review["excerpt"] = decode_text(review.get("excerpt"))
+        if review.get("publication"):
+            review["publication"] = decode_text(review.get("publication"))
         key = outlet_merge_key(review)
-        url_key = _norm_url(review.get("url"))
-        # Same review URL from MC+OC → collapse even if outlet names differ slightly.
-        if url_key and url_key in url_to_key:
+        if key in PSEUDO_OUTLET_SLUGS:
+            continue
+        if key in UNSCORED_SLUGS or canonicalize_outlet_slug(raw_slug) in UNSCORED_SLUGS:
+            # Keep the excerpt and the link. The number is not a grade.
+            review["score"] = None
+        else:
+            # Drop non-scores (null/missing). Keep a real 0.0 only when present.
+            if review.get("score") is None:
+                continue
+            try:
+                float(review["score"])
+            except (TypeError, ValueError):
+                continue
+        url_key = _norm_url(sanitize_review_url(review.get("url")))
+        # Same clean URL + same outlet key → collapse. Never merge distinct
+        # outlets that share a broken/redirect URL.
+        if url_key and url_key in url_to_key and url_to_key[url_key] != key:
+            url_key = ""
+        elif url_key and url_key in url_to_key:
             key = url_to_key[url_key]
         prev = by_key.get(key)
         if prev is None:
@@ -528,11 +602,23 @@ def merge_reviews(existing: list[dict], new_reviews: list[dict]) -> list[dict]:
             url_to_key[url_key] = key
         chosen = by_key[key]
         chosen["slug"] = key
+        pub = (chosen.get("publication") or "").strip()
+        if pub:
+            chosen["publication"] = publication_merge_name(pub)
+        clean = sanitize_review_url(chosen.get("url"))
+        if clean:
+            chosen["url"] = clean
+        else:
+            chosen.pop("url", None)
     return list(by_key.values())
 
 
 def dedupe_seed_reviews(seed: dict) -> tuple[dict, int]:
     """Collapse MC/OC/outlet duplicates in-place across the whole seed.
+
+    Rewrites every review to the canonical outlet slug / display name so
+    seed_examples and the live DB never see split rows like
+    merlin-in-kazan vs merlin-in-kazan-turkey.
 
     Returns (seed, total_rows_removed).
     """
@@ -542,7 +628,15 @@ def dedupe_seed_reviews(seed: dict) -> tuple[dict, int]:
         if not isinstance(reviews, list) or not reviews:
             continue
         before = len(reviews)
-        entry["reviews"] = merge_reviews(reviews, [])
+        normalized: list[dict] = []
+        for review in reviews:
+            row = dict(review)
+            pub = (row.get("publication") or row.get("outlet") or "").strip()
+            if pub:
+                row["publication"] = publication_merge_name(pub)
+            row["slug"] = outlet_merge_key(row)
+            normalized.append(row)
+        entry["reviews"] = merge_reviews(normalized, [])
         removed += max(0, before - len(entry["reviews"]))
     return seed, removed
 

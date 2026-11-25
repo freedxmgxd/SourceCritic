@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-shot integrity repair for the committed catalog.
 
-Drops blocked sources, nulls missing scores, keeps yes/no verdicts as 100/0, merges duplicate
+Drops blocked sources, nulls missing scores, leaves Kotaku unscored, merges duplicate
 outlet spellings, normalizes review URLs, clips excerpts, and restores
 original release years. Safe to run again.
 """
@@ -12,15 +12,17 @@ import argparse
 import json
 import re
 import sqlite3
+import sys
 from collections import Counter, defaultdict
 from html import unescape
 from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from adapters import UNSCORED_SLUGS, decode_text, fold_name  # noqa: E402
+
 BLOCKED_SLUGS = {"metacritic-users", "opencritic-recommend"}
-# Yes/no outlets. 0 and 100 are the verdict and stay in the score.
-VERDICT_SLUGS = {"kotaku"}
 BAD_HOSTS = {
     "savethechildren.org",
     "metacritic.com",
@@ -193,18 +195,42 @@ def clip_excerpt(text: str | None) -> str | None:
 
 
 def numeric_score(score, slug: str):
+    if slug in UNSCORED_SLUGS:
+        return None
     if score is None:
         return None
     try:
         value = float(score)
     except (TypeError, ValueError):
         return None
-    if slug in VERDICT_SLUGS:
-        return value
     # A stored 0 on a numeric outlet is a missing score, not a real zero.
     if value == 0.0:
         return None
     return value
+
+
+def review_identity(review: dict) -> str:
+    name = review.get("publication") or review.get("outlet") or review.get("slug") or ""
+    folded = fold_name(name)
+    return folded or fold_name(review.get("slug"))
+
+
+def absorb_review(prev: dict, review: dict) -> None:
+    """Keep one row. A cited review (it has a URL) wins over an uncited duplicate."""
+    prev_url = prev.get("url")
+    new_url = review.get("url")
+    prev_score = prev.get("score")
+    new_score = review.get("score")
+    if new_url and not prev_url:
+        if new_score is not None:
+            prev["score"] = new_score
+        prev["url"] = new_url
+    elif prev_score is None and new_score is not None and not (prev_url and not new_url):
+        prev["score"] = new_score
+    if not prev.get("excerpt") and review.get("excerpt"):
+        prev["excerpt"] = review["excerpt"]
+    if not prev.get("url") and new_url:
+        prev["url"] = new_url
 
 
 def repair_seed(path: Path) -> None:
@@ -216,6 +242,10 @@ def repair_seed(path: Path) -> None:
             game["platforms"] = platforms
         elif slug in MISSING_YEARS and not game.get("release_year"):
             game["release_year"] = MISSING_YEARS[slug]
+        if game.get("title"):
+            game["title"] = decode_text(game.get("title"))
+        if game.get("synopsis"):
+            game["synopsis"] = decode_text(game.get("synopsis"))
         seen_url: set[str] = set()
         seen_outlet: dict[str, dict] = {}
         kept = []
@@ -224,26 +254,23 @@ def repair_seed(path: Path) -> None:
             if outlet in BLOCKED_SLUGS:
                 continue
             review["slug"] = outlet
+            if review.get("publication"):
+                review["publication"] = decode_text(review.get("publication"))
+            if review.get("outlet"):
+                review["outlet"] = decode_text(review.get("outlet"))
             score = numeric_score(review.get("score"), outlet)
             review["score"] = score
-            review["excerpt"] = clip_excerpt(review.get("excerpt"))
+            review["excerpt"] = clip_excerpt(decode_text(review.get("excerpt")))
             review["url"] = normalize_url(review.get("url"))
             if review["url"]:
                 if review["url"] in seen_url:
                     continue
                 seen_url.add(review["url"])
-            if outlet in seen_outlet:
-                prev = seen_outlet[outlet]
-                if score is not None and prev.get("score") is not None:
-                    prev["score"] = (float(prev["score"]) + score) / 2
-                elif prev.get("score") is None and score is not None:
-                    prev["score"] = score
-                if not prev.get("excerpt") and review.get("excerpt"):
-                    prev["excerpt"] = review["excerpt"]
-                if not prev.get("url") and review.get("url"):
-                    prev["url"] = review["url"]
+            identity = review_identity(review)
+            if identity in seen_outlet:
+                absorb_review(seen_outlet[identity], review)
                 continue
-            seen_outlet[outlet] = review
+            seen_outlet[identity] = review
             kept.append(review)
         game["reviews"] = kept
     # Drop links whose domain is not that outlet's own domain.
@@ -274,6 +301,68 @@ def outlet_domains(data: dict) -> dict[str, str]:
                 continue
             counts[review.get("slug") or "" ][registrable(host)] += 1
     return {slug: counter.most_common(1)[0][0] for slug, counter in counts.items() if counter}
+
+
+def merge_same_name_outlets(con: sqlite3.Connection) -> int:
+    """Collapse Gamer.no / gamer-no style twins. The cited row keeps its score."""
+    rows = con.execute("SELECT id, slug, name FROM outlets").fetchall()
+    groups: dict[str, list[tuple[int, str, str]]] = defaultdict(list)
+    for oid, slug, name in rows:
+        cleaned = decode_text(name) or name
+        if cleaned != name:
+            con.execute("UPDATE outlets SET name=? WHERE id=?", (cleaned, oid))
+        groups[fold_name(cleaned)].append((oid, slug, cleaned))
+    removed = 0
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        ranked = []
+        for oid, slug, name in members:
+            count, urls = con.execute(
+                """SELECT COUNT(*),
+                          SUM(CASE WHEN review_url IS NOT NULL AND review_url != '' THEN 1 ELSE 0 END)
+                   FROM reviews WHERE outlet_id=?""",
+                (oid,),
+            ).fetchone()
+            ranked.append((count or 0, urls or 0, len(slug), oid, slug, name))
+        ranked.sort(reverse=True)
+        keep_id = ranked[0][3]
+        keep_name = ranked[0][5]
+        con.execute("UPDATE outlets SET name=? WHERE id=?", (keep_name, keep_id))
+        for _count, _urls, _length, loser_id, _slug, _name in ranked[1:]:
+            reviews = con.execute(
+                """SELECT id, game_id, raw_score, raw_score_norm, excerpt, review_url
+                   FROM reviews WHERE outlet_id=?""",
+                (loser_id,),
+            ).fetchall()
+            for rid, game_id, raw, norm, excerpt, url in reviews:
+                existing = con.execute(
+                    """SELECT id, raw_score, raw_score_norm, excerpt, review_url
+                       FROM reviews WHERE outlet_id=? AND game_id=?""",
+                    (keep_id, game_id),
+                ).fetchone()
+                if existing is None:
+                    con.execute("UPDATE reviews SET outlet_id=? WHERE id=?", (keep_id, rid))
+                    continue
+                eid, eraw, enorm, eexcerpt, eurl = existing
+                # A review with a URL is the cited one. Don't average it with a twin.
+                if url and not eurl:
+                    eraw, enorm = raw, norm
+                    eurl = url
+                if not eexcerpt and excerpt:
+                    eexcerpt = excerpt
+                if not eurl and url:
+                    eurl = url
+                con.execute(
+                    """UPDATE reviews
+                       SET raw_score=?, raw_score_norm=?, excerpt=?, review_url=?
+                       WHERE id=?""",
+                    (eraw, enorm, eexcerpt, eurl, eid),
+                )
+                con.execute("DELETE FROM reviews WHERE id=?", (rid,))
+                removed += 1
+            con.execute("DELETE FROM outlets WHERE id=?", (loser_id,))
+    return removed
 
 
 def repair_db(path: Path, seed_path: Path) -> None:
@@ -332,6 +421,15 @@ def repair_db(path: Path, seed_path: Path) -> None:
             con.execute("DELETE FROM outlets WHERE id=?", (oid,))
             del outlets[slug]
     con.commit()
+    name_dupes = merge_same_name_outlets(con)
+    for gid, title, synopsis in con.execute("SELECT id, title, synopsis FROM games"):
+        new_title = decode_text(title) or title
+        new_synopsis = decode_text(synopsis) if synopsis else synopsis
+        if new_title != title or new_synopsis != synopsis:
+            con.execute(
+                "UPDATE games SET title=?, synopsis=? WHERE id=?",
+                (new_title, new_synopsis, gid),
+            )
 
     # Reload ids after merges.
     outlets = {slug: oid for oid, slug in con.execute("SELECT id, slug FROM outlets")}
@@ -347,10 +445,8 @@ def repair_db(path: Path, seed_path: Path) -> None:
             con.execute("DELETE FROM reviews WHERE id=?", (rid,))
             removed += 1
             continue
-        if slug in VERDICT_SLUGS and raw is None and norm is not None:
-            raw = norm
         score = numeric_score(raw, slug)
-        new_excerpt = clip_excerpt(excerpt)
+        new_excerpt = clip_excerpt(decode_text(excerpt))
         new_url = normalize_url(url)
         domain = domains.get(slug)
         if new_url and domain:
@@ -365,9 +461,10 @@ def repair_db(path: Path, seed_path: Path) -> None:
             clipped += 1
         if score is None and raw is not None:
             nulled += 1
+        stored_norm = 0.0 if slug in UNSCORED_SLUGS else norm
         con.execute(
-            "UPDATE reviews SET raw_score=?, excerpt=?, review_url=? WHERE id=?",
-            (score, new_excerpt, new_url, rid),
+            "UPDATE reviews SET raw_score=?, raw_score_norm=?, excerpt=?, review_url=? WHERE id=?",
+            (score, stored_norm, new_excerpt, new_url, rid),
         )
     # Drop duplicate normalized URLs inside one game, keeping the first row.
     seen: dict[tuple[int, str], int] = {}
@@ -394,7 +491,7 @@ def repair_db(path: Path, seed_path: Path) -> None:
         )
     con.commit()
     print(
-        f"db removed={removed} nulled={nulled} unlinked={unlinked} clipped={clipped} dup_urls={dupes}"
+        f"db removed={removed} nulled={nulled} unlinked={unlinked} clipped={clipped} dup_urls={dupes} name_dupes={name_dupes}"
     )
     con.close()
 

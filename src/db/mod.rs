@@ -310,7 +310,7 @@ fn recompute(conn: &Connection) -> Result<(), DbError> {
          JOIN outlets o ON o.id = r.outlet_id
          JOIN games g ON g.id = r.game_id
          WHERE r.raw_score IS NOT NULL
-           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend')",
+           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend', 'kotaku')",
     )?;
     let inputs = stmt
         .query_map([], |row| {
@@ -325,6 +325,18 @@ fn recompute(conn: &Connection) -> Result<(), DbError> {
 
     let scored = score_corpus(&inputs)?;
 
+    // Savepoint so a killed process rolls the old totals back, and so this
+    // still works when the caller (insert) already opened a transaction.
+    conn.execute("SAVEPOINT sourcecritic_recompute", [])?;
+    let written = apply_scores(conn, &scored);
+    if written.is_err() {
+        let _ = conn.execute("ROLLBACK TO sourcecritic_recompute", []);
+    }
+    conn.execute("RELEASE sourcecritic_recompute", [])?;
+    written
+}
+
+fn apply_scores(conn: &Connection, scored: &crate::engine::ScoringResult) -> Result<(), DbError> {
     // Scores above were computed only from numeric critic reviews. Clear the
     // rest so a blocked or unscored row cannot keep an old total.
     conn.execute(
@@ -435,12 +447,12 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
             index.insert(row.game_slug.clone(), position);
             games.push(GameView {
                 slug: row.game_slug.clone(),
-                title: row.title,
+                title: decode_entities(&row.title),
                 cover_path: row.cover_path,
                 release_year: row.release_year,
                 platforms: parse_platforms(row.platforms.as_deref()),
                 platform_years: parse_platform_years(row.platform_years.as_deref()),
-                synopsis: row.synopsis,
+                synopsis: row.synopsis.as_deref().map(decode_entities),
                 agg_score: row.agg_score,
                 simple_mean: row.simple_mean,
                 review_count: row.review_count,
@@ -452,12 +464,12 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
         };
         games[position].reviews.push(ReviewView {
             outlet_slug: row.outlet_slug,
-            outlet_name: row.outlet_name,
+            outlet_name: decode_entities(&row.outlet_name),
             raw_score: row.raw_score,
             scale_max: row.scale_max,
             raw_score_norm: row.raw_score_norm,
             z_score: row.z_score,
-            excerpt: row.excerpt,
+            excerpt: row.excerpt.as_deref().map(decode_entities),
             review_url: row.review_url,
             platforms: parse_platforms(row.review_platforms.as_deref()),
             outlet_n: row.outlet_n,
@@ -495,7 +507,14 @@ fn ensure_column(
 }
 
 fn global_moments(conn: &Connection) -> Result<(f64, f64), DbError> {
-    let mut stmt = conn.prepare("SELECT raw_score_norm FROM reviews")?;
+    // Same population the scorer uses. An unscored row must not move the baseline.
+    let mut stmt = conn.prepare(
+        "SELECT r.raw_score_norm
+         FROM reviews r
+         JOIN outlets o ON o.id = r.outlet_id
+         WHERE r.raw_score IS NOT NULL
+           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend', 'kotaku')",
+    )?;
     let values = stmt
         .query_map([], |row| row.get(0))?
         .collect::<Result<Vec<f64>, _>>()?;
@@ -524,12 +543,12 @@ fn load_outlets(conn: &Connection, slug: Option<&str>) -> Result<Vec<OutletView>
             row.get::<_, f64>(6)?,
             OutletReviewView {
                 game_slug: row.get(7)?,
-                game_title: row.get(8)?,
+                game_title: decode_entities(&row.get::<_, String>(8)?),
                 raw_score: row.get(9)?,
                 scale_max: row.get(10)?,
                 raw_score_norm: row.get(11)?,
                 z_score: row.get(12)?,
-                excerpt: row.get(13)?,
+                excerpt: row.get::<_, Option<String>>(13)?.as_deref().map(decode_entities),
                 review_url: row.get(14)?,
             },
         ))
@@ -539,6 +558,7 @@ fn load_outlets(conn: &Connection, slug: Option<&str>) -> Result<Vec<OutletView>
     let mut index: HashMap<String, usize> = HashMap::new();
     for row in rows {
         let (outlet_slug, name, n, mu, sigma, mu_prime, sigma_prime, review) = row?;
+        let name = decode_entities(&name);
         let position = if let Some(position) = index.get(&outlet_slug) {
             *position
         } else {
@@ -605,6 +625,24 @@ fn parse_platform_years(raw: Option<&str>) -> Vec<(String, i32)> {
     }
     years.sort();
     years
+}
+
+/// OpenCritic stored `&` as the custom entity `&a;`, which HTML-escapes to `&amp;a;`.
+pub(crate) fn decode_entities(value: &str) -> String {
+    let mut text = value.to_string();
+    for _ in 0..4 {
+        let next = text
+            .replace("&amp;a;", "&")
+            .replace("&amp;", "&")
+            .replace("&a;", "&")
+            .replace("&q;", "\"")
+            .replace("&s;", "'");
+        if next == text {
+            break;
+        }
+        text = next;
+    }
+    text
 }
 
 fn parse_platforms(raw: Option<&str>) -> Vec<String> {

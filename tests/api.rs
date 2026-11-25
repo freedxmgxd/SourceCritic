@@ -121,6 +121,112 @@ async fn post_single_review_and_read_game() {
 }
 
 #[tokio::test]
+async fn kotaku_is_listed_without_a_score() {
+    let app = app(Database::open_in_memory().unwrap());
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/reviews")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "reviews": [
+                            {
+                                "outlet_slug": "ign",
+                                "outlet_name": "IGN",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score": 8.0,
+                                "scale_max": 10.0,
+                                "raw_score_norm": 80.0
+                            },
+                            {
+                                "outlet_slug": "kotaku",
+                                "outlet_name": "Kotaku",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score": 100.0,
+                                "scale_max": 100.0,
+                                "raw_score_norm": 100.0,
+                                "excerpt": "It isn't amazing.",
+                                "review_url": "https://kotaku.com/hades-ii-review"
+                            }
+                        ]
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let created = body_json(response).await;
+    let game = &created["games"][0];
+    assert_eq!(game["review_count"], json!(1));
+    assert_eq!(game["agg_score"], json!(80.0));
+    let kotaku = game["reviews"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|review| review["outlet_slug"] == "kotaku")
+        .unwrap();
+    assert!(kotaku["raw_score"].is_null());
+    assert_eq!(kotaku["excerpt"], json!("It isn't amazing."));
+
+    let page = app
+        .oneshot(
+            Request::builder()
+                .uri("/game/hades-2/")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(page.status(), StatusCode::OK);
+    let bytes = page.into_body().collect().await.unwrap().to_bytes();
+    let html = String::from_utf8(bytes.to_vec()).unwrap();
+    assert!(html.contains("Reviews without a score"));
+    assert!(html.contains("It isn&#x27;t amazing.") || html.contains("It isn't amazing."));
+    assert!(html.contains("https://kotaku.com/hades-ii-review"));
+    assert!(!html.contains("id=\"port-filter\""));
+    assert_eq!(html.matches("<div class=\"review\"").count(), 1);
+}
+
+#[tokio::test]
+async fn ampersand_entity_is_decoded() {
+    let app = app(Database::open_in_memory().unwrap());
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/reviews")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "outlet_slug": "geeks-a-com",
+                        "outlet_name": "Geeks &a; Com",
+                        "game_slug": "silksong",
+                        "game_title": "Hollow Knight: Silksong",
+                        "raw_score_norm": 90.0,
+                        "excerpt": "Lost &a; Found is a delight."
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let created = body_json(response).await;
+    let review = &created["games"][0]["reviews"][0];
+    assert_eq!(review["outlet_name"], json!("Geeks & Com"));
+    assert_eq!(review["excerpt"], json!("Lost & Found is a delight."));
+}
+
+#[tokio::test]
 async fn batch_is_idempotent_and_global_update_moves_other_games() {
     let app = app(Database::open_in_memory().unwrap());
 
