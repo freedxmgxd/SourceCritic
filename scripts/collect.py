@@ -135,6 +135,40 @@ def robots_allows(url: str) -> bool:
     return not any(prefix and target.startswith(prefix) for prefix in disallows)
 
 
+def domain_of(url: str | None) -> str | None:
+    if not url:
+        return None
+    from repair_integrity import registrable
+
+    host = urllib.parse.urlparse(url).hostname or ""
+    return registrable(host) or None
+
+
+def article_url(declared: str | None, fetched: str | None) -> str | None:
+    """Keep the article address. A JSON-LD homepage must not replace the feed link."""
+
+    def usable(url: str | None) -> str | None:
+        if not url or not str(url).startswith("http"):
+            return None
+        parsed = urllib.parse.urlparse(str(url).strip())
+        if parsed.path in ("", "/"):
+            return None
+        return str(url).strip().split("#", 1)[0]
+
+    declared_ok = usable(declared)
+    fetched_ok = usable(fetched)
+    if declared_ok and fetched_ok:
+        same_site = domain_of(declared_ok) == domain_of(fetched_ok)
+        same_path = (
+            urllib.parse.urlparse(declared_ok).path.rstrip("/")
+            == urllib.parse.urlparse(fetched_ok).path.rstrip("/")
+        )
+        if same_site and same_path:
+            return declared_ok
+        return fetched_ok
+    return fetched_ok or declared_ok
+
+
 def build_outlets() -> None:
     catalog = json.loads(CATALOG_OUTLETS.read_text(encoding="utf-8")) if CATALOG_OUTLETS.exists() else {"outlets": {}}
     outlets = []
@@ -142,14 +176,21 @@ def build_outlets() -> None:
         if slug in {"metacritic-users", "opencritic-recommend", "metacritic", "opencritic"}:
             continue
         known = KNOWN_FEEDS.get(slug, {})
+        homepage = known.get("homepage") or entry.get("homepage")
+        domain = known.get("domain") or domain_of(homepage)
+        sitemap = known.get("sitemap")
+        for item in entry.get("review_index_urls") or []:
+            if item and "sitemap" in str(item):
+                sitemap = item
+                break
         outlets.append(
             {
                 "slug": slug,
                 "name": entry.get("name") or slug,
-                "domain": known.get("domain"),
-                "homepage": known.get("homepage") or entry.get("homepage"),
+                "domain": domain,
+                "homepage": homepage,
                 "feed": known.get("feed"),
-                "sitemap": known.get("sitemap"),
+                "sitemap": sitemap,
                 "scale_max": float(known.get("scale_max", "100")),
                 "language": known.get("language", "en"),
             }
@@ -280,6 +321,15 @@ def collect_feed(outlet: dict, index: dict[str, list[dict]], queue: list[dict], 
             title = item.get("name") or node.get("name") or ""
             # Kotaku pages do not carry a grade. A yes/no flag must not become 100.
             unscored = outlet.get("slug") == "kotaku"
+            rating = node.get("reviewRating") if isinstance(node.get("reviewRating"), dict) else {}
+            scale = float(outlet.get("scale_max") or 100)
+            best = rating.get("bestRating")
+            try:
+                if best is not None:
+                    scale = float(best)
+            except (TypeError, ValueError):
+                pass
+            raw_value = rating.get("ratingValue")
             score = None if unscored else rating_to_100(node, float(outlet.get("scale_max") or 100))
             if not title or (score is None and not unscored):
                 continue
@@ -289,11 +339,17 @@ def collect_feed(outlet: dict, index: dict[str, list[dict]], queue: list[dict], 
                 "outlet_name": outlet.get("name"),
                 "title": title,
                 "score": None if score is None else round(score, 2),
+                "scale_max": scale,
                 "excerpt": excerpt_of(str(node.get("reviewBody") or node.get("description") or "")),
                 "author": (node.get("author") or {}).get("name") if isinstance(node.get("author"), dict) else node.get("author"),
                 "date": node.get("datePublished"),
-                "url": node.get("url") or link,
+                "url": article_url(node.get("url") if isinstance(node.get("url"), str) else None, link),
             }
+            try:
+                if raw_value is not None and not unscored:
+                    record["raw_score"] = float(raw_value)
+            except (TypeError, ValueError):
+                pass
             if game is None:
                 record["reason"] = reason
                 queue.append(record)
@@ -393,6 +449,8 @@ def main() -> None:
             raise SystemExit("blocklist failed")
         assert norm_title("Pokémon") == "pokemon"
         assert excerpt_of("One. Two. Three.") == "One. Two."
+        assert article_url("https://kotaku.com/", "https://kotaku.com/hades-review") == "https://kotaku.com/hades-review"
+        assert article_url("https://www.eurogamer.net/hades-review", "https://eurogamer.net/hades-review") == "https://www.eurogamer.net/hades-review"
         print("collect self-check ok")
         return
     if args.init_outlets or not OUTLETS_PATH.exists():

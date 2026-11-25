@@ -239,6 +239,14 @@ def sanitize_review_url(url: str | None) -> str | None:
     if not url:
         return None
     link = unescape(str(url)).strip().replace("&a;", "&").replace("&amp;", "&")
+    link = urllib.parse.unquote(link)
+    link = link.split()[0]
+    starts = [match.start() for match in re.finditer(r"https?://", link)]
+    if len(starts) >= 2:
+        candidates = [link[start:].strip(">/\"'") for start in starts]
+        complete = [item for item in candidates if urllib.parse.urlparse(item).path not in ("", "/")]
+        link = complete[-1] if complete else candidates[-1]
+    link = link.split(">")[0].strip()
     if not (link.startswith("http://") or link.startswith("https://")):
         return None
     host = urllib.parse.urlparse(link).hostname or ""
@@ -439,6 +447,7 @@ def decode_text(value: str | None) -> str | None:
 def fold_name(value: str | None) -> str:
     """Identity key: same publication, ignoring punctuation, case, and accents."""
     text = decode_text(value) or ""
+    text = re.sub(r"^\s*the\s+", "", text, flags=re.IGNORECASE)
     text = unicodedata.normalize("NFKD", text)
     text = "".join(ch for ch in text if not unicodedata.combining(ch))
     return re.sub(r"[^a-z0-9]+", "", text.lower())

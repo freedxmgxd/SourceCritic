@@ -16,7 +16,7 @@ import sys
 from collections import Counter, defaultdict
 from html import unescape
 from pathlib import Path
-from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+from urllib.parse import parse_qsl, unquote, urlencode, urlparse, urlunparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -141,10 +141,23 @@ def unwrap_proofpoint(url: str) -> str:
     return url
 
 
+def unwrap_glued_url(link: str) -> str:
+    """A scrape sometimes concatenates two URLs, or glues the excerpt onto the link."""
+    text = unescape(link).strip().replace("&a;", "&").replace("&amp;", "&")
+    text = unquote(text)
+    text = text.split()[0]
+    starts = [match.start() for match in re.finditer(r"https?://", text)]
+    if len(starts) >= 2:
+        candidates = [text[start:].strip(">/\"'") for start in starts]
+        complete = [item for item in candidates if urlparse(item).path not in ("", "/")]
+        text = complete[-1] if complete else candidates[-1]
+    return text.split(">")[0].strip()
+
+
 def normalize_url(url: str | None) -> str | None:
     if not url:
         return None
-    link = unescape(str(url)).strip().replace("&a;", "&").replace("&amp;", "&")
+    link = unwrap_glued_url(url)
     link = unwrap_proofpoint(link)
     if not (link.startswith("http://") or link.startswith("https://")):
         return None
@@ -279,8 +292,11 @@ def repair_seed(path: Path) -> None:
         for review in game.get("reviews") or []:
             url = review.get("url")
             domain = domains.get(review.get("slug") or "")
-            if not url or not domain:
-                review["url"] = None
+            if not url:
+                continue
+            # No majority domain yet: keep the link. Only drop one that points
+            # at a different site than the one this outlet publishes on.
+            if not domain:
                 continue
             host = urlparse(url).hostname or ""
             if registrable(host) != domain:
@@ -449,14 +465,13 @@ def repair_db(path: Path, seed_path: Path) -> None:
         new_excerpt = clip_excerpt(decode_text(excerpt))
         new_url = normalize_url(url)
         domain = domains.get(slug)
+        # Keep a real link when this outlet has no majority domain yet.
+        # Only drop a link that points at a different site than the one it publishes on.
         if new_url and domain:
             host = urlparse(new_url).hostname or ""
             if registrable(host) != domain:
                 new_url = None
                 unlinked += 1
-        elif new_url and not domain:
-            new_url = None
-            unlinked += 1
         if new_excerpt and excerpt and new_excerpt != excerpt:
             clipped += 1
         if score is None and raw is not None:

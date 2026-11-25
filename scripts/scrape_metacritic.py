@@ -177,6 +177,7 @@ def download_cover(game_slug: str, cover_url: str | None) -> str | None:
 
 
 def main() -> None:
+    raise SystemExit("Metacritic scraping is disabled (compliance).")
     parser = argparse.ArgumentParser()
     parser.add_argument("--pages", type=int, default=6, help="browse pages per list")
     parser.add_argument("--limit", type=int, default=80, help="max new games to scrape")

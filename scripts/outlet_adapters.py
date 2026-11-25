@@ -247,9 +247,11 @@ def fetch_review_url(url: str) -> dict | None:
             (r for r in ratings if str(r.get("type")).lower() == "rating"),
             ratings[0],
         )
+    raw_value = rating.get("ratingValue")
+    best_value = rating.get("bestRating")
     score = normalize_score(
-        rating.get("ratingValue"),
-        rating.get("bestRating"),
+        raw_value,
+        best_value,
         rating.get("worstRating"),
         outlet_slug=slug,
     )
@@ -262,6 +264,17 @@ def fetch_review_url(url: str) -> dict | None:
         "source": "outlet",
         "url": final,
     }
+    try:
+        row["raw_score"] = float(raw_value)
+    except (TypeError, ValueError):
+        pass
+    try:
+        if best_value is not None:
+            row["scale_max"] = float(best_value)
+        elif slug in DEFAULT_BEST:
+            row["scale_max"] = DEFAULT_BEST[slug]
+    except (TypeError, ValueError):
+        pass
     excerpt = excerpt_from_html(html)
     if excerpt:
         row["excerpt"] = excerpt

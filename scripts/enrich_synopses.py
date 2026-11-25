@@ -52,6 +52,7 @@ def mc_synopsis(slug: str) -> str | None:
 
 
 def main() -> None:
+    raise SystemExit("Metacritic synopsis scraping is disabled (compliance).")
     parser = argparse.ArgumentParser()
     parser.add_argument("--merge-seed", action="store_true")
     parser.add_argument("--update-db", action="store_true")

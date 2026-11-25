@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-11-21T17:50:35Z",
+  "updated_at": "2026-11-21T21:19:23Z",
   "games": {
     "grand-theft-auto-vi": {
       "slug": "grand-theft-auto-vi",
@@ -17,7 +17,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:39:16Z"
+      "last_scraped_at": "2026-11-21T18:43:36Z"
     },
     "the-legend-of-zelda-ocarina-of-time": {
       "slug": "the-legend-of-zelda-ocarina-of-time",
@@ -77,7 +77,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:38:46Z"
+      "last_scraped_at": "2026-11-21T18:43:18Z"
     },
     "super-mario-galaxy": {
       "slug": "super-mario-galaxy",
@@ -126,7 +126,8 @@
       },
       "discovered_via": [
         "seed",
-        "mc-must-play"
+        "mc-must-play",
+        "manual-mc-browse"
       ],
       "status": "active",
       "last_scraped_at": "2026-11-21T13:12:17Z"
@@ -256,7 +257,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:34:40Z"
+      "last_scraped_at": "2026-11-21T18:40:52Z"
     },
     "castlevania-belmonts-curse": {
       "slug": "castlevania-belmonts-curse",
@@ -273,7 +274,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:00:13Z"
+      "last_scraped_at": "2026-11-21T18:18:23Z"
     },
     "clive-barkers-hellraiser-revival": {
       "slug": "clive-barkers-hellraiser-revival",
@@ -288,7 +289,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:03:58Z"
+      "last_scraped_at": "2026-11-21T18:20:57Z"
     },
     "red-dead-redemption-2": {
       "slug": "red-dead-redemption-2",
@@ -320,10 +321,11 @@
       },
       "discovered_via": [
         "seed",
-        "mc-must-play"
+        "mc-must-play",
+        "manual-mc-browse"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:05:46Z"
+      "last_scraped_at": "2026-11-21T19:01:19Z"
     },
     "grand-theft-auto-iii": {
       "slug": "grand-theft-auto-iii",
@@ -337,7 +339,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:38:30Z"
+      "last_scraped_at": "2026-11-21T18:43:12Z"
     },
     "super-mario-odyssey": {
       "slug": "super-mario-odyssey",
@@ -366,7 +368,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:43:20Z"
+      "last_scraped_at": "2026-11-21T18:45:45Z"
     },
     "nfl-2k1": {
       "slug": "nfl-2k1",
@@ -398,7 +400,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:42:01Z"
+      "last_scraped_at": "2026-11-21T18:45:14Z"
     },
     "bioshock": {
       "slug": "bioshock",
@@ -419,7 +421,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:54:09Z"
+      "last_scraped_at": "2026-11-21T18:13:54Z"
     },
     "goldeneye-007": {
       "slug": "goldeneye-007",
@@ -433,7 +435,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:36:46Z"
+      "last_scraped_at": "2026-11-21T18:42:05Z"
     },
     "uncharted-2-among-thieves": {
       "slug": "uncharted-2-among-thieves",
@@ -484,7 +486,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:51:51Z"
+      "last_scraped_at": "2026-11-21T18:12:01Z"
     },
     "the-orange-box": {
       "slug": "the-orange-box",
@@ -512,7 +514,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:01:04Z"
+      "last_scraped_at": "2026-11-21T18:58:41Z"
     },
     "elden-ring": {
       "slug": "elden-ring",
@@ -536,7 +538,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:25:02Z"
+      "last_scraped_at": "2026-11-21T18:34:48Z"
     },
     "the-elder-scrolls-v-skyrim": {
       "slug": "the-elder-scrolls-v-skyrim",
@@ -572,7 +574,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:41:41Z"
+      "last_scraped_at": "2026-11-21T18:45:14Z"
     },
     "the-legend-of-zelda-tears-of-the-kingdom": {
       "slug": "the-legend-of-zelda-tears-of-the-kingdom",
@@ -586,7 +588,8 @@
       },
       "discovered_via": [
         "seed",
-        "mc-must-play"
+        "mc-must-play",
+        "manual-mc-browse"
       ],
       "status": "active",
       "last_scraped_at": "2026-11-21T13:13:12Z"
@@ -617,7 +620,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:03:46Z"
+      "last_scraped_at": "2026-11-21T19:00:39Z"
     },
     "grand-theft-auto-double-pack": {
       "slug": "grand-theft-auto-double-pack",
@@ -631,7 +634,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:38:16Z"
+      "last_scraped_at": "2026-11-21T18:43:03Z"
     },
     "baldurs-gate-ii-shadows-of-amn": {
       "slug": "baldurs-gate-ii-shadows-of-amn",
@@ -645,7 +648,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:52:05Z"
+      "last_scraped_at": "2026-11-21T18:12:10Z"
     },
     "grand-theft-auto-san-andreas": {
       "slug": "grand-theft-auto-san-andreas",
@@ -659,7 +662,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:38:57Z"
+      "last_scraped_at": "2026-11-21T18:43:28Z"
     },
     "grand-theft-auto-vice-city": {
       "slug": "grand-theft-auto-vice-city",
@@ -673,7 +676,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:39:34Z"
+      "last_scraped_at": "2026-11-21T18:43:43Z"
     },
     "littlebigplanet": {
       "slug": "littlebigplanet",
@@ -687,7 +690,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:57:10Z"
+      "last_scraped_at": "2026-11-21T18:56:20Z"
     },
     "halo-2": {
       "slug": "halo-2",
@@ -701,7 +704,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:42:53Z"
+      "last_scraped_at": "2026-11-21T18:45:41Z"
     },
     "gran-turismo-3-a-spec": {
       "slug": "gran-turismo-3-a-spec",
@@ -715,7 +718,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:37:36Z"
+      "last_scraped_at": "2026-11-21T18:42:33Z"
     },
     "the-legend-of-zelda-a-link-to-the-past-four-swords": {
       "slug": "the-legend-of-zelda-a-link-to-the-past-four-swords",
@@ -756,7 +759,8 @@
       },
       "discovered_via": [
         "seed",
-        "mc-must-play"
+        "mc-must-play",
+        "manual-mc-browse"
       ],
       "status": "active",
       "last_scraped_at": "2026-11-21T13:11:55Z"
@@ -787,7 +791,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:58:55Z"
+      "last_scraped_at": "2026-11-21T18:57:34Z"
     },
     "hades-ii": {
       "slug": "hades-ii",
@@ -873,7 +877,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:50:51Z"
+      "last_scraped_at": "2026-11-21T18:11:26Z"
     },
     "final-fantasy-ix": {
       "slug": "final-fantasy-ix",
@@ -888,7 +892,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:29:36Z"
+      "last_scraped_at": "2026-11-21T18:38:12Z"
     },
     "god-of-war": {
       "slug": "god-of-war",
@@ -947,7 +951,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:14:07Z"
+      "last_scraped_at": "2026-11-21T18:27:08Z"
     },
     "madden-nfl-2002": {
       "slug": "madden-nfl-2002",
@@ -961,7 +965,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:58:35Z"
+      "last_scraped_at": "2026-11-21T18:57:18Z"
     },
     "batman-arkham-city": {
       "slug": "batman-arkham-city",
@@ -975,7 +979,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:52:22Z"
+      "last_scraped_at": "2026-11-21T18:12:11Z"
     },
     "the-legend-of-zelda-ocarina-of-time-3d": {
       "slug": "the-legend-of-zelda-ocarina-of-time-3d",
@@ -1003,7 +1007,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:59:10Z"
+      "last_scraped_at": "2026-11-21T18:57:51Z"
     },
     "gears-of-war": {
       "slug": "gears-of-war",
@@ -1017,7 +1021,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:34:11Z"
+      "last_scraped_at": "2026-11-21T18:40:42Z"
     },
     "the-elder-scrolls-iv-oblivion": {
       "slug": "the-elder-scrolls-iv-oblivion",
@@ -1064,7 +1068,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:59:03Z"
+      "last_scraped_at": "2026-11-21T18:17:29Z"
     },
     "bioshock-infinite": {
       "slug": "bioshock-infinite",
@@ -1082,7 +1086,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:54:30Z"
+      "last_scraped_at": "2026-11-21T18:14:03Z"
     },
     "halo-3": {
       "slug": "halo-3",
@@ -1096,7 +1100,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:43:01Z"
+      "last_scraped_at": "2026-11-21T18:45:45Z"
     },
     "ninja-gaiden-black": {
       "slug": "ninja-gaiden-black",
@@ -1124,7 +1128,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:03:32Z"
+      "last_scraped_at": "2026-11-21T19:00:30Z"
     },
     "jet-set-radio-2000": {
       "slug": "jet-set-radio-2000",
@@ -1138,7 +1142,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:49:14Z"
+      "last_scraped_at": "2026-11-21T18:50:54Z"
     },
     "super-mario-advance-4-super-mario-bros-3": {
       "slug": "super-mario-advance-4-super-mario-bros-3",
@@ -1180,7 +1184,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:36:16Z"
+      "last_scraped_at": "2026-11-21T18:41:43Z"
     },
     "burnout-3-takedown": {
       "slug": "burnout-3-takedown",
@@ -1194,7 +1198,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:58:23Z"
+      "last_scraped_at": "2026-11-21T18:17:13Z"
     },
     "metal-gear-solid-3-subsistence": {
       "slug": "metal-gear-solid-3-subsistence",
@@ -1208,7 +1212,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:03:58Z"
+      "last_scraped_at": "2026-11-21T19:00:42Z"
     },
     "call-of-duty-modern-warfare-2": {
       "slug": "call-of-duty-modern-warfare-2",
@@ -1222,7 +1226,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:59:14Z"
+      "last_scraped_at": "2026-11-21T18:17:33Z"
     },
     "metal-gear-solid-4-guns-of-the-patriots": {
       "slug": "metal-gear-solid-4-guns-of-the-patriots",
@@ -1236,7 +1240,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:04:18Z"
+      "last_scraped_at": "2026-11-21T19:00:51Z"
     },
     "god-of-war-2005": {
       "slug": "god-of-war-2005",
@@ -1248,7 +1252,8 @@
       "discovered_via": [
         "seed"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:41:25Z"
     },
     "star-wars-knights-of-the-old-republic": {
       "slug": "star-wars-knights-of-the-old-republic",
@@ -1339,7 +1344,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:10:21Z"
+      "last_scraped_at": "2026-11-21T18:24:45Z"
     },
     "mina-the-hollower": {
       "slug": "mina-the-hollower",
@@ -1387,7 +1392,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:57:24Z"
+      "last_scraped_at": "2026-11-21T18:56:25Z"
     },
     "valheim": {
       "slug": "valheim",
@@ -1421,7 +1426,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:19:28Z"
+      "last_scraped_at": "2026-11-21T18:30:26Z"
     },
     "village-in-the-shade": {
       "slug": "village-in-the-shade",
@@ -1468,7 +1473,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:53:30Z"
+      "last_scraped_at": "2026-11-21T18:13:20Z"
     },
     "mewgenics": {
       "slug": "mewgenics",
@@ -1514,7 +1519,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:26:28Z"
+      "last_scraped_at": "2026-11-21T18:36:15Z"
     },
     "pok-mon-pokopia-expansion-pass-part-1-bubbly-basin": {
       "slug": "pok-mon-pokopia-expansion-pass-part-1-bubbly-basin",
@@ -1576,7 +1581,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:13:12Z"
+      "last_scraped_at": "2026-11-21T18:27:01Z"
     },
     "well-dweller": {
       "slug": "well-dweller",
@@ -1694,7 +1699,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:08:02Z"
+      "last_scraped_at": "2026-11-21T18:23:37Z"
     },
     "pragmata": {
       "slug": "pragmata",
@@ -1731,7 +1736,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:12:50Z"
+      "last_scraped_at": "2026-11-21T18:26:36Z"
     },
     "tenebris-somnia": {
       "slug": "tenebris-somnia",
@@ -1819,7 +1824,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:45:48Z"
+      "last_scraped_at": "2026-11-21T18:07:59Z"
     },
     "1348-ex-voto": {
       "slug": "1348-ex-voto",
@@ -1834,7 +1839,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:44:16Z"
+      "last_scraped_at": "2026-11-21T18:06:59Z"
     },
     "tokyo-scramble": {
       "slug": "tokyo-scramble",
@@ -1864,7 +1869,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:53:58Z"
+      "last_scraped_at": "2026-11-21T18:54:45Z"
     },
     "samson": {
       "slug": "samson",
@@ -1894,7 +1899,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:29:24Z"
+      "last_scraped_at": "2026-11-21T18:38:08Z"
     },
     "the-relic-first-guardian": {
       "slug": "the-relic-first-guardian",
@@ -1939,7 +1944,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:49:51Z"
+      "last_scraped_at": "2026-11-21T18:51:32Z"
     },
     "copa-city": {
       "slug": "copa-city",
@@ -1954,7 +1959,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:06:49Z"
+      "last_scraped_at": "2026-11-21T18:22:33Z"
     },
     "r-type-dimensions-iii": {
       "slug": "r-type-dimensions-iii",
@@ -1984,7 +1989,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:03:36Z"
+      "last_scraped_at": "2026-11-21T18:20:56Z"
     },
     "serious-sam-shatterverse": {
       "slug": "serious-sam-shatterverse",
@@ -2014,7 +2019,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:17:24Z"
+      "last_scraped_at": "2026-11-21T18:29:14Z"
     },
     "outbound": {
       "slug": "outbound",
@@ -2044,7 +2049,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:58:38Z"
+      "last_scraped_at": "2026-11-21T18:17:29Z"
     },
     "dark-scrolls": {
       "slug": "dark-scrolls",
@@ -2059,7 +2064,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:09:04Z"
+      "last_scraped_at": "2026-11-21T18:24:03Z"
     },
     "halloween": {
       "slug": "halloween",
@@ -2074,7 +2079,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:42:35Z"
+      "last_scraped_at": "2026-11-21T18:45:40Z"
     },
     "aliens-fireteam-elite-2": {
       "slug": "aliens-fireteam-elite-2",
@@ -2089,7 +2094,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:47:06Z"
+      "last_scraped_at": "2026-11-21T18:08:54Z"
     },
     "gear-club-unlimited-3": {
       "slug": "gear-club-unlimited-3",
@@ -2104,7 +2109,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:33:58Z"
+      "last_scraped_at": "2026-11-21T18:40:39Z"
     },
     "echoes-of-aincrad": {
       "slug": "echoes-of-aincrad",
@@ -2119,7 +2124,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:24:42Z"
+      "last_scraped_at": "2026-11-21T18:34:34Z"
     },
     "highguard": {
       "slug": "highguard",
@@ -2134,7 +2139,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:45:21Z"
+      "last_scraped_at": "2026-11-21T18:47:40Z"
     },
     "will-follow-the-light": {
       "slug": "will-follow-the-light",
@@ -2179,7 +2184,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:11:23Z"
+      "last_scraped_at": "2026-11-21T18:25:37Z"
     },
     "god-of-war-sons-of-sparta": {
       "slug": "god-of-war-sons-of-sparta",
@@ -2194,7 +2199,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:36:28Z"
+      "last_scraped_at": "2026-11-21T18:41:49Z"
     },
     "the-alighieri-circle-dante-s-bloodline": {
       "slug": "the-alighieri-circle-dante-s-bloodline",
@@ -2239,7 +2244,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:53:22Z"
+      "last_scraped_at": "2026-11-21T18:54:20Z"
     },
     "bluey-s-happy-snaps": {
       "slug": "bluey-s-happy-snaps",
@@ -2254,7 +2259,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:56:56Z"
+      "last_scraped_at": "2026-11-21T18:15:45Z"
     },
     "marvel-tokon-fighting-souls": {
       "slug": "marvel-tokon-fighting-souls",
@@ -2301,7 +2306,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:21:49Z"
+      "last_scraped_at": "2026-11-21T18:32:24Z"
     },
     "disciples-domination": {
       "slug": "disciples-domination",
@@ -2316,7 +2321,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:17:00Z"
+      "last_scraped_at": "2026-11-21T18:28:50Z"
     },
     "nitro-gen-omega": {
       "slug": "nitro-gen-omega",
@@ -2346,7 +2351,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:59:54Z"
+      "last_scraped_at": "2026-11-21T18:58:08Z"
     },
     "wild-blue-skies": {
       "slug": "wild-blue-skies",
@@ -2376,7 +2381,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:07:46Z"
+      "last_scraped_at": "2026-11-21T18:23:20Z"
     },
     "the-mound-omen-of-cthulhu": {
       "slug": "the-mound-omen-of-cthulhu",
@@ -2406,7 +2411,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:48:41Z"
+      "last_scraped_at": "2026-11-21T18:09:47Z"
     },
     "and-roger": {
       "slug": "and-roger",
@@ -2421,7 +2426,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:47:59Z"
+      "last_scraped_at": "2026-11-21T18:09:25Z"
     },
     "final-fantasy-vii-remake-intergrade": {
       "slug": "final-fantasy-vii-remake-intergrade",
@@ -2436,7 +2441,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:30:07Z"
+      "last_scraped_at": "2026-11-21T18:38:18Z"
     },
     "fire-emblem-fortunes-weave": {
       "slug": "fire-emblem-fortunes-weave",
@@ -2452,7 +2457,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:30:53Z"
+      "last_scraped_at": "2026-11-21T18:38:28Z"
     },
     "kingdom-hearts-collection-i-iii": {
       "slug": "kingdom-hearts-collection-i-iii",
@@ -2466,7 +2471,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:52:01Z"
+      "last_scraped_at": "2026-11-21T18:53:05Z"
     },
     "enshrouded": {
       "slug": "enshrouded",
@@ -2485,7 +2490,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:26:07Z"
+      "last_scraped_at": "2026-11-21T18:35:57Z"
     },
     "queens-domain": {
       "slug": "queens-domain",
@@ -2552,7 +2557,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:04:58Z"
+      "last_scraped_at": "2026-11-21T19:01:17Z"
     },
     "onimusha-way-of-the-sword": {
       "slug": "onimusha-way-of-the-sword",
@@ -2581,7 +2586,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:22:14Z"
+      "last_scraped_at": "2026-11-21T18:32:44Z"
     },
     "control-resonant": {
       "slug": "control-resonant",
@@ -2661,7 +2666,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:50:26Z"
+      "last_scraped_at": "2026-11-21T18:11:05Z"
     },
     "splatoon-raiders": {
       "slug": "splatoon-raiders",
@@ -2691,7 +2696,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:37:48Z"
+      "last_scraped_at": "2026-11-21T18:42:48Z"
     },
     "rhythm-heaven-groove": {
       "slug": "rhythm-heaven-groove",
@@ -2780,7 +2785,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:24:54Z"
+      "last_scraped_at": "2026-11-21T18:34:47Z"
     },
     "gothic-1-remake": {
       "slug": "gothic-1-remake",
@@ -2874,7 +2879,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:35:04Z"
+      "last_scraped_at": "2026-11-21T18:41:03Z"
     },
     "stellar-blade": {
       "slug": "stellar-blade",
@@ -2883,7 +2888,7 @@
         "Stellar Blade: Complete Edition"
       ],
       "external": {
-        "metacritic": "stellar-blade-complete-edition",
+        "metacritic": "stellar-blade",
         "opencritic": 16510
       },
       "discovered_via": [
@@ -2891,19 +2896,21 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:08:36Z"
+      "last_scraped_at": "2026-11-21T21:12:55Z"
     },
     "resident-evil-4": {
       "slug": "resident-evil-4",
       "title": "Resident Evil 4 (2023)",
       "aliases": [],
       "external": {
-        "metacritic": "resident-evil-4-gold-edition"
+        "metacritic": "resident-evil-4",
+        "opencritic": 3227
       },
       "discovered_via": [
         "seed"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:11:51Z"
     },
     "devil-may-cry-5": {
       "slug": "devil-may-cry-5",
@@ -2924,7 +2931,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:14:34Z"
+      "last_scraped_at": "2026-11-21T18:27:14Z"
     },
     "pokemon-pokopia": {
       "slug": "pokemon-pokopia",
@@ -2980,7 +2987,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:28:15Z"
+      "last_scraped_at": "2026-11-21T18:37:15Z"
     },
     "dragon-age-origins-awakening": {
       "slug": "dragon-age-origins-awakening",
@@ -2999,7 +3006,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:20:46Z"
+      "last_scraped_at": "2026-11-21T18:31:53Z"
     },
     "borderlands-2": {
       "slug": "borderlands-2",
@@ -3053,7 +3060,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:49:39Z"
+      "last_scraped_at": "2026-11-21T18:10:34Z"
     },
     "xcom-enemy-unknown": {
       "slug": "xcom-enemy-unknown",
@@ -3087,7 +3094,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:17:37Z"
+      "last_scraped_at": "2026-11-21T18:29:14Z"
     },
     "sanctum-2": {
       "slug": "sanctum-2",
@@ -3138,7 +3145,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:19:16Z"
+      "last_scraped_at": "2026-11-21T18:30:15Z"
     },
     "kerbal-space-program": {
       "slug": "kerbal-space-program",
@@ -3156,7 +3163,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:50:46Z"
+      "last_scraped_at": "2026-11-21T18:52:24Z"
     },
     "dmc-devil-may-cry": {
       "slug": "dmc-devil-may-cry",
@@ -3173,7 +3180,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:18:13Z"
+      "last_scraped_at": "2026-11-21T18:29:23Z"
     },
     "remember-me-2013": {
       "slug": "remember-me-2013",
@@ -3211,7 +3218,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:01:13Z"
+      "last_scraped_at": "2026-11-21T18:18:59Z"
     },
     "metal-gear-rising-revengeance": {
       "slug": "metal-gear-rising-revengeance",
@@ -3286,7 +3293,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:54:50Z"
+      "last_scraped_at": "2026-11-21T18:55:27Z"
     },
     "mount-and-blade-ii-bannerlord": {
       "slug": "mount-and-blade-ii-bannerlord",
@@ -3324,7 +3331,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:10:12Z"
+      "last_scraped_at": "2026-11-21T18:24:36Z"
     },
     "xcom-2": {
       "slug": "xcom-2",
@@ -3362,7 +3369,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:48:54Z"
+      "last_scraped_at": "2026-11-21T18:10:01Z"
     },
     "stellaris": {
       "slug": "stellaris",
@@ -3417,7 +3424,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:00:50Z"
+      "last_scraped_at": "2026-11-21T18:18:44Z"
     },
     "armello": {
       "slug": "armello",
@@ -3435,7 +3442,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:49:54Z"
+      "last_scraped_at": "2026-11-21T18:10:48Z"
     },
     "we-happy-few": {
       "slug": "we-happy-few",
@@ -3471,7 +3478,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:33:29Z"
+      "last_scraped_at": "2026-11-21T18:40:14Z"
     },
     "devil-may-cry-4-special-edition": {
       "slug": "devil-may-cry-4-special-edition",
@@ -3491,7 +3498,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:14:20Z"
+      "last_scraped_at": "2026-11-21T18:27:14Z"
     },
     "one-piece-pirate-warriors-3": {
       "slug": "one-piece-pirate-warriors-3",
@@ -3529,7 +3536,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:51:09Z"
+      "last_scraped_at": "2026-11-21T18:11:42Z"
     },
     "black-mesa": {
       "slug": "black-mesa",
@@ -3582,7 +3589,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:22:24Z"
+      "last_scraped_at": "2026-11-21T18:32:55Z"
     },
     "marvels-midnight-suns": {
       "slug": "marvels-midnight-suns",
@@ -3599,7 +3606,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:00:53Z"
+      "last_scraped_at": "2026-11-21T18:58:34Z"
     },
     "dark-souls-iii": {
       "slug": "dark-souls-iii",
@@ -3657,7 +3664,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:25:57Z"
+      "last_scraped_at": "2026-11-21T18:35:48Z"
     },
     "dishonored-2": {
       "slug": "dishonored-2",
@@ -3692,7 +3699,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:44:13Z"
+      "last_scraped_at": "2026-11-21T18:46:47Z"
     },
     "furi": {
       "slug": "furi",
@@ -3710,7 +3717,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:33:45Z"
+      "last_scraped_at": "2026-11-21T18:40:22Z"
     },
     "one-piece-burning-blood": {
       "slug": "one-piece-burning-blood",
@@ -3766,7 +3773,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:12:25Z"
+      "last_scraped_at": "2026-11-21T18:26:21Z"
     },
     "watch-dogs-2": {
       "slug": "watch-dogs-2",
@@ -3806,7 +3813,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:21:37Z"
+      "last_scraped_at": "2026-11-21T18:32:07Z"
     },
     "tom-clancys-ghost-recon-wildlands": {
       "slug": "tom-clancys-ghost-recon-wildlands",
@@ -3843,7 +3850,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:50:15Z"
+      "last_scraped_at": "2026-11-21T18:51:48Z"
     },
     "quantum-break": {
       "slug": "quantum-break",
@@ -3898,7 +3905,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:53:18Z"
+      "last_scraped_at": "2026-11-21T18:13:10Z"
     },
     "railway-empire": {
       "slug": "railway-empire",
@@ -3936,7 +3943,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:40:15Z"
+      "last_scraped_at": "2026-11-21T18:44:13Z"
     },
     "nier-automata": {
       "slug": "nier-automata",
@@ -4053,7 +4060,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:44:24Z"
+      "last_scraped_at": "2026-11-21T18:46:55Z"
     },
     "life-is-strange-before-the-storm": {
       "slug": "life-is-strange-before-the-storm",
@@ -4125,7 +4132,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:11:01Z"
+      "last_scraped_at": "2026-11-21T18:25:21Z"
     },
     "the-red-strings-club": {
       "slug": "the-red-strings-club",
@@ -4180,7 +4187,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:03:02Z"
+      "last_scraped_at": "2026-11-21T18:20:47Z"
     },
     "mordhau": {
       "slug": "mordhau",
@@ -4216,7 +4223,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:14:49Z"
+      "last_scraped_at": "2026-11-21T18:27:21Z"
     },
     "final-fantasy-xv-royal-edition": {
       "slug": "final-fantasy-xv-royal-edition",
@@ -4230,7 +4237,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:30:28Z"
+      "last_scraped_at": "2026-11-21T18:38:21Z"
     },
     "journey": {
       "slug": "journey",
@@ -4248,7 +4255,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:49:38Z"
+      "last_scraped_at": "2026-11-21T18:51:15Z"
     },
     "yakuza-0": {
       "slug": "yakuza-0",
@@ -4362,7 +4369,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:04:25Z"
+      "last_scraped_at": "2026-11-21T18:21:13Z"
     },
     "bloodstained-ritual-of-the-night": {
       "slug": "bloodstained-ritual-of-the-night",
@@ -4380,7 +4387,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:56:02Z"
+      "last_scraped_at": "2026-11-21T18:15:05Z"
     },
     "black-clover-quartet-knights": {
       "slug": "black-clover-quartet-knights",
@@ -4400,7 +4407,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:54:44Z"
+      "last_scraped_at": "2026-11-21T18:14:18Z"
     },
     "wasteland-3": {
       "slug": "wasteland-3",
@@ -4602,7 +4609,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:06:35Z"
+      "last_scraped_at": "2026-11-21T18:22:19Z"
     },
     "digimon-survive": {
       "slug": "digimon-survive",
@@ -4620,7 +4627,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:16:15Z"
+      "last_scraped_at": "2026-11-21T18:28:04Z"
     },
     "total-war-rome": {
       "slug": "total-war-rome",
@@ -4669,7 +4676,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:04:46Z"
+      "last_scraped_at": "2026-11-21T18:21:29Z"
     },
     "century-age-of-ashes": {
       "slug": "century-age-of-ashes",
@@ -4687,7 +4694,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:01:36Z"
+      "last_scraped_at": "2026-11-21T18:19:25Z"
     },
     "life-is-strange-true-colors": {
       "slug": "life-is-strange-true-colors",
@@ -4723,7 +4730,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:47:38Z"
+      "last_scraped_at": "2026-11-21T18:09:10Z"
     },
     "final-fantasy-tactics-the-ivalice-chronicles": {
       "slug": "final-fantasy-tactics-the-ivalice-chronicles",
@@ -4777,7 +4784,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:22:37Z"
+      "last_scraped_at": "2026-11-21T18:33:09Z"
     },
     "digimon-story-cyber-sleuth-complete-edition": {
       "slug": "digimon-story-cyber-sleuth-complete-edition",
@@ -4795,7 +4802,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:15:45Z"
+      "last_scraped_at": "2026-11-21T18:27:52Z"
     },
     "farthest-frontier": {
       "slug": "farthest-frontier",
@@ -4813,7 +4820,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:28:54Z"
+      "last_scraped_at": "2026-11-21T18:37:40Z"
     },
     "ori-and-the-will-of-the-wisps": {
       "slug": "ori-and-the-will-of-the-wisps",
@@ -4849,7 +4856,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:45:11Z"
+      "last_scraped_at": "2026-11-21T18:07:27Z"
     },
     "one-piece-pirate-warriors-4": {
       "slug": "one-piece-pirate-warriors-4",
@@ -4904,7 +4911,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:28:01Z"
+      "last_scraped_at": "2026-11-21T18:36:59Z"
     },
     "florence": {
       "slug": "florence",
@@ -4922,7 +4929,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:31:48Z"
+      "last_scraped_at": "2026-11-21T18:39:16Z"
     },
     "persona-4-golden": {
       "slug": "persona-4-golden",
@@ -4959,7 +4966,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:08:24Z"
+      "last_scraped_at": "2026-11-21T18:23:52Z"
     },
     "everspace-2": {
       "slug": "everspace-2",
@@ -4979,7 +4986,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:26:59Z"
+      "last_scraped_at": "2026-11-21T18:36:32Z"
     },
     "sherlock-holmes-chapter-one": {
       "slug": "sherlock-holmes-chapter-one",
@@ -5039,7 +5046,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:46:22Z"
+      "last_scraped_at": "2026-11-21T18:48:38Z"
     },
     "crusader-kings-iii": {
       "slug": "crusader-kings-iii",
@@ -5057,7 +5064,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:07:33Z"
+      "last_scraped_at": "2026-11-21T18:23:14Z"
     },
     "the-great-ace-attorney-chronicles": {
       "slug": "the-great-ace-attorney-chronicles",
@@ -5151,7 +5158,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:40:28Z"
+      "last_scraped_at": "2026-11-21T18:44:23Z"
     },
     "detroit-become-human": {
       "slug": "detroit-become-human",
@@ -5225,7 +5232,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:11:58Z"
+      "last_scraped_at": "2026-11-21T18:25:52Z"
     },
     "steelrising": {
       "slug": "steelrising",
@@ -5262,7 +5269,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:39:58Z"
+      "last_scraped_at": "2026-11-21T18:44:03Z"
     },
     "tiny-tinas-wonderlands": {
       "slug": "tiny-tinas-wonderlands",
@@ -5299,7 +5306,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:22:01Z"
+      "last_scraped_at": "2026-11-21T18:32:29Z"
     },
     "sid-meiers-civilization-vii": {
       "slug": "sid-meiers-civilization-vii",
@@ -5354,7 +5361,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:31:19Z"
+      "last_scraped_at": "2026-11-21T18:38:54Z"
     },
     "stray": {
       "slug": "stray",
@@ -5427,7 +5434,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:49:27Z"
+      "last_scraped_at": "2026-11-21T18:51:10Z"
     },
     "karma-the-dark-world": {
       "slug": "karma-the-dark-world",
@@ -5445,7 +5452,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:50:04Z"
+      "last_scraped_at": "2026-11-21T18:51:46Z"
     },
     "persona-5-strikers": {
       "slug": "persona-5-strikers",
@@ -5483,7 +5490,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:48:52Z"
+      "last_scraped_at": "2026-11-21T18:50:35Z"
     },
     "monster-hunter-rise": {
       "slug": "monster-hunter-rise",
@@ -5521,7 +5528,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:19:54Z"
+      "last_scraped_at": "2026-11-21T18:30:56Z"
     },
     "eternal-strands": {
       "slug": "eternal-strands",
@@ -5613,7 +5620,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:16:27Z"
+      "last_scraped_at": "2026-11-21T18:28:18Z"
     },
     "shadow-gambit-the-cursed-crew": {
       "slug": "shadow-gambit-the-cursed-crew",
@@ -5649,7 +5656,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:59:47Z"
+      "last_scraped_at": "2026-11-21T18:18:03Z"
     },
     "dark-souls": {
       "slug": "dark-souls",
@@ -5668,7 +5675,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:09:33Z"
+      "last_scraped_at": "2026-11-21T18:24:22Z"
     },
     "dark-souls-ii": {
       "slug": "dark-souls-ii",
@@ -5685,14 +5692,15 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:09:40Z"
+      "last_scraped_at": "2026-11-21T18:24:22Z"
     },
     "divinity-original-sin-ii": {
       "slug": "divinity-original-sin-ii",
       "title": "Divinity: Original Sin II",
       "aliases": [
         "Divinity: Original Sin 2",
-        "Divinity: Original Sin 2 - Definitive Edition"
+        "Divinity: Original Sin 2 - Definitive Edition",
+        "Divinity: Original Sin II - Definitive Edition"
       ],
       "external": {
         "metacritic": "divinity-original-sin-ii",
@@ -5704,10 +5712,11 @@
       "discovered_via": [
         "seed",
         "mc-must-play",
-        "steam-wishlist"
+        "steam-wishlist",
+        "manual-mc-browse"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:18:00Z"
+      "last_scraped_at": "2026-11-21T18:29:23Z"
     },
     "okami": {
       "slug": "okami",
@@ -5746,7 +5755,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:27:34Z"
+      "last_scraped_at": "2026-11-21T18:36:48Z"
     },
     "sonic-adventure": {
       "slug": "sonic-adventure",
@@ -5787,7 +5796,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:51:41Z"
+      "last_scraped_at": "2026-11-21T18:52:48Z"
     },
     "dota-2": {
       "slug": "dota-2",
@@ -5805,7 +5814,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:20:06Z"
+      "last_scraped_at": "2026-11-21T18:31:07Z"
     },
     "the-elder-scrolls-online": {
       "slug": "the-elder-scrolls-online",
@@ -5864,7 +5873,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:05:18Z"
+      "last_scraped_at": "2026-11-21T19:01:19Z"
     },
     "fallout-3-game-of-the-year-edition": {
       "slug": "fallout-3-game-of-the-year-edition",
@@ -6012,7 +6021,7 @@
         "restore-separate"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:09:50Z"
+      "last_scraped_at": "2026-11-21T18:24:28Z"
     },
     "dragon-s-dogma-dark-arisen": {
       "slug": "dragon-s-dogma-dark-arisen",
@@ -6121,7 +6130,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:30:34Z"
+      "last_scraped_at": "2026-11-21T18:38:22Z"
     },
     "scarf": {
       "slug": "scarf",
@@ -6226,7 +6235,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:51:23Z"
+      "last_scraped_at": "2026-11-21T18:52:36Z"
     },
     "dredge": {
       "slug": "dredge",
@@ -6353,7 +6362,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:23:30Z"
+      "last_scraped_at": "2026-11-21T18:33:38Z"
     },
     "hell-is-us": {
       "slug": "hell-is-us",
@@ -6388,7 +6397,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:06:07Z"
+      "last_scraped_at": "2026-11-21T19:01:28Z"
     },
     "mio-memories-in-orbit": {
       "slug": "mio-memories-in-orbit",
@@ -6442,7 +6451,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:27:21Z"
+      "last_scraped_at": "2026-11-21T18:36:42Z"
     },
     "asterigos-curse-of-the-stars": {
       "slug": "asterigos-curse-of-the-stars",
@@ -6460,7 +6469,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:50:39Z"
+      "last_scraped_at": "2026-11-21T18:11:19Z"
     },
     "kingdom-come-deliverance-ii": {
       "slug": "kingdom-come-deliverance-ii",
@@ -6530,7 +6539,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:02:03Z"
+      "last_scraped_at": "2026-11-21T18:19:58Z"
     },
     "symphonia": {
       "slug": "symphonia",
@@ -6582,7 +6591,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:48:20Z"
+      "last_scraped_at": "2026-11-21T18:09:40Z"
     },
     "another-crab-s-treasure": {
       "slug": "another-crab-s-treasure",
@@ -6599,7 +6608,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:48:07Z"
+      "last_scraped_at": "2026-11-21T18:09:34Z"
     },
     "armored-core-vi-fires-of-rubicon": {
       "slug": "armored-core-vi-fires-of-rubicon",
@@ -6636,7 +6645,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:58:16Z"
+      "last_scraped_at": "2026-11-21T18:57:02Z"
     },
     "stray-gods-the-roleplaying-musical": {
       "slug": "stray-gods-the-roleplaying-musical",
@@ -6688,7 +6697,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:53:56Z"
+      "last_scraped_at": "2026-11-21T18:13:46Z"
     },
     "age-of-mythology-retold": {
       "slug": "age-of-mythology-retold",
@@ -6706,7 +6715,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:45:35Z"
+      "last_scraped_at": "2026-11-21T18:07:45Z"
     },
     "wwe-2k23": {
       "slug": "wwe-2k23",
@@ -6741,7 +6750,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:15:58Z"
+      "last_scraped_at": "2026-11-21T18:27:58Z"
     },
     "split-fiction": {
       "slug": "split-fiction",
@@ -6792,7 +6801,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:03:09Z"
+      "last_scraped_at": "2026-11-21T19:00:20Z"
     },
     "warhammer-40-000-space-marine-2": {
       "slug": "warhammer-40-000-space-marine-2",
@@ -6846,7 +6855,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:34:53Z"
+      "last_scraped_at": "2026-11-21T18:40:57Z"
     },
     "ghost-of-tsushima-director-s-cut": {
       "slug": "ghost-of-tsushima-director-s-cut",
@@ -6889,7 +6898,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:04:45Z"
+      "last_scraped_at": "2026-11-21T19:01:08Z"
     },
     "knights-in-tight-spaces": {
       "slug": "knights-in-tight-spaces",
@@ -6906,7 +6915,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:53:03Z"
+      "last_scraped_at": "2026-11-21T18:54:06Z"
     },
     "diablo-iv": {
       "slug": "diablo-iv",
@@ -6979,7 +6988,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:00:28Z"
+      "last_scraped_at": "2026-11-21T18:18:38Z"
     },
     "balatro": {
       "slug": "balatro",
@@ -6997,7 +7006,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:51:44Z"
+      "last_scraped_at": "2026-11-21T18:12:01Z"
     },
     "dynasty-warriors-origins": {
       "slug": "dynasty-warriors-origins",
@@ -7035,7 +7044,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:46:08Z"
+      "last_scraped_at": "2026-11-21T18:08:10Z"
     },
     "mouse-p-i-for-hire": {
       "slug": "mouse-p-i-for-hire",
@@ -7072,7 +7081,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:46:14Z"
+      "last_scraped_at": "2026-11-21T18:48:29Z"
     },
     "megaton-musashi-w-wired": {
       "slug": "megaton-musashi-w-wired",
@@ -7089,7 +7098,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:02:43Z"
+      "last_scraped_at": "2026-11-21T19:00:01Z"
     },
     "hello-kitty-island-adventure": {
       "slug": "hello-kitty-island-adventure",
@@ -7107,7 +7116,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:44:39Z"
+      "last_scraped_at": "2026-11-21T18:47:08Z"
     },
     "sonic-x-shadow-generations": {
       "slug": "sonic-x-shadow-generations",
@@ -7160,7 +7169,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:52:16Z"
+      "last_scraped_at": "2026-11-21T18:53:21Z"
     },
     "kingdom-hearts-hd-2-8-final-chapter-prologue": {
       "slug": "kingdom-hearts-hd-2-8-final-chapter-prologue",
@@ -7177,7 +7186,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:52:27Z"
+      "last_scraped_at": "2026-11-21T18:53:27Z"
     },
     "kingdom-hearts-iii-re-mind-dlc": {
       "slug": "kingdom-hearts-iii-re-mind-dlc",
@@ -7193,7 +7202,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:52:42Z"
+      "last_scraped_at": "2026-11-21T18:53:41Z"
     },
     "horizon-zero-dawn-remastered": {
       "slug": "horizon-zero-dawn-remastered",
@@ -7313,7 +7322,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:47:19Z"
+      "last_scraped_at": "2026-11-21T18:49:42Z"
     },
     "battlefield-6": {
       "slug": "battlefield-6",
@@ -7564,7 +7573,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:54:21Z"
+      "last_scraped_at": "2026-11-21T18:14:03Z"
     },
     "bioshock-2-remastered": {
       "slug": "bioshock-2-remastered",
@@ -7594,7 +7603,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:41:21Z"
+      "last_scraped_at": "2026-11-21T18:45:04Z"
     },
     "hollow-knight": {
       "slug": "hollow-knight",
@@ -7712,13 +7721,15 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T12:09:36Z"
+      "last_scraped_at": "2026-11-21T21:13:20Z"
     },
     "ori-and-the-blind-forest-definitive-edition": {
       "slug": "ori-and-the-blind-forest-definitive-edition",
       "title": "Ori and the Blind Forest: Definitive Edition",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "ori-and-the-blind-forest-definitive-edition"
+      },
       "discovered_via": [
         "steam-owned"
       ],
@@ -7803,7 +7814,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:55:20Z"
+      "last_scraped_at": "2026-11-21T18:55:43Z"
     },
     "final-fantasy-xiv-online": {
       "slug": "final-fantasy-xiv-online",
@@ -7822,7 +7833,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:30:14Z"
+      "last_scraped_at": "2026-11-21T18:38:21Z"
     },
     "eve-online": {
       "slug": "eve-online",
@@ -7839,7 +7850,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:26:49Z"
+      "last_scraped_at": "2026-11-21T18:36:24Z"
     },
     "surviving-mars": {
       "slug": "surviving-mars",
@@ -7890,7 +7901,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:01:47Z"
+      "last_scraped_at": "2026-11-21T18:19:34Z"
     },
     "lost-ark": {
       "slug": "lost-ark",
@@ -7907,7 +7918,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:57:34Z"
+      "last_scraped_at": "2026-11-21T18:56:34Z"
     },
     "magic-the-gathering-arena": {
       "slug": "magic-the-gathering-arena",
@@ -7924,7 +7935,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:00:05Z"
+      "last_scraped_at": "2026-11-21T18:58:17Z"
     },
     "cuphead": {
       "slug": "cuphead",
@@ -7960,7 +7971,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:00:00Z"
+      "last_scraped_at": "2026-11-21T18:18:18Z"
     },
     "neverwinter": {
       "slug": "neverwinter",
@@ -7994,7 +8005,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:06:17Z"
+      "last_scraped_at": "2026-11-21T19:01:30Z"
     },
     "left-4-dead-2": {
       "slug": "left-4-dead-2",
@@ -8010,12 +8021,14 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:53:49Z"
+      "last_scraped_at": "2026-11-21T18:54:35Z"
     },
     "overwatch": {
       "slug": "overwatch",
       "title": "Overwatch®",
-      "aliases": [],
+      "aliases": [
+        "Overwatch (2016)"
+      ],
       "external": {
         "steam_appids": [
           2357570
@@ -8024,7 +8037,8 @@
         "opencritic": 1673
       },
       "discovered_via": [
-        "steam-owned"
+        "steam-owned",
+        "manual-mc-browse"
       ],
       "status": "active",
       "last_scraped_at": "2026-11-21T12:09:54Z"
@@ -8095,7 +8109,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:48:30Z"
+      "last_scraped_at": "2026-11-21T18:09:41Z"
     },
     "speedrunners": {
       "slug": "speedrunners",
@@ -8150,7 +8164,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:10:28Z"
+      "last_scraped_at": "2026-11-21T18:24:49Z"
     },
     "portal": {
       "slug": "portal",
@@ -8184,7 +8198,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:43:41Z"
+      "last_scraped_at": "2026-11-21T18:46:20Z"
     },
     "absolver": {
       "slug": "absolver",
@@ -8220,7 +8234,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:12:11Z"
+      "last_scraped_at": "2026-11-21T18:26:07Z"
     },
     "dead-by-daylight": {
       "slug": "dead-by-daylight",
@@ -8238,7 +8252,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:10:50Z"
+      "last_scraped_at": "2026-11-21T18:25:13Z"
     },
     "metal-gear-solid-v-ground-zeroes": {
       "slug": "metal-gear-solid-v-ground-zeroes",
@@ -8290,7 +8304,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:08:48Z"
+      "last_scraped_at": "2026-11-21T18:23:54Z"
     },
     "limbo": {
       "slug": "limbo",
@@ -8306,7 +8320,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:56:37Z"
+      "last_scraped_at": "2026-11-21T18:56:01Z"
     },
     "company-of-heroes-2": {
       "slug": "company-of-heroes-2",
@@ -8323,7 +8337,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:05:24Z"
+      "last_scraped_at": "2026-11-21T18:21:47Z"
     },
     "children-of-morta": {
       "slug": "children-of-morta",
@@ -8341,7 +8355,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:01:56Z"
+      "last_scraped_at": "2026-11-21T18:19:44Z"
     },
     "for-honor": {
       "slug": "for-honor",
@@ -8361,7 +8375,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:31:56Z"
+      "last_scraped_at": "2026-11-21T18:39:19Z"
     },
     "warframe": {
       "slug": "warframe",
@@ -8396,7 +8410,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:17:11Z"
+      "last_scraped_at": "2026-11-21T18:28:58Z"
     },
     "path-of-exile": {
       "slug": "path-of-exile",
@@ -8516,7 +8530,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:47:54Z"
+      "last_scraped_at": "2026-11-21T18:49:54Z"
     },
     "chivalry-medieval-warfare": {
       "slug": "chivalry-medieval-warfare",
@@ -8533,7 +8547,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:02:19Z"
+      "last_scraped_at": "2026-11-21T18:20:12Z"
     },
     "satisfactory": {
       "slug": "satisfactory",
@@ -8616,7 +8630,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:57:55Z"
+      "last_scraped_at": "2026-11-21T18:16:44Z"
     },
     "naruto-to-boruto-shinobi-striker": {
       "slug": "naruto-to-boruto-shinobi-striker",
@@ -8737,7 +8751,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:49:28Z"
+      "last_scraped_at": "2026-11-21T18:10:25Z"
     },
     "pirates-of-black-cove-gold": {
       "slug": "pirates-of-black-cove-gold",
@@ -8772,7 +8786,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:24:16Z"
+      "last_scraped_at": "2026-11-21T18:34:04Z"
     },
     "castle-crashers": {
       "slug": "castle-crashers",
@@ -8789,7 +8803,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:59:33Z"
+      "last_scraped_at": "2026-11-21T18:17:47Z"
     },
     "syberia": {
       "slug": "syberia",
@@ -8822,7 +8836,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:59:35Z"
+      "last_scraped_at": "2026-11-21T18:58:02Z"
     },
     "dark-sector": {
       "slug": "dark-sector",
@@ -8839,7 +8853,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:09:18Z"
+      "last_scraped_at": "2026-11-21T18:24:12Z"
     },
     "freedom-force-vs-the-3rd-reich": {
       "slug": "freedom-force-vs-the-3rd-reich",
@@ -8858,7 +8872,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:33:18Z"
+      "last_scraped_at": "2026-11-21T18:40:05Z"
     },
     "freedom-force": {
       "slug": "freedom-force",
@@ -8875,7 +8889,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:33:05Z"
+      "last_scraped_at": "2026-11-21T18:39:50Z"
     },
     "half-life-2-deathmatch": {
       "slug": "half-life-2-deathmatch",
@@ -9034,7 +9048,9 @@
       "slug": "stellar-blade-complete-edition",
       "title": "Stellar Blade: Complete Edition",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "stellar-blade-complete-edition"
+      },
       "discovered_via": [
         "mc-year-2026-topbottom"
       ],
@@ -9108,7 +9124,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:05:16Z"
+      "last_scraped_at": "2026-11-21T18:21:47Z"
     },
     "gran-turismo-2": {
       "slug": "gran-turismo-2",
@@ -9122,7 +9138,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:37:23Z"
+      "last_scraped_at": "2026-11-21T18:42:18Z"
     },
     "the-last-of-us-part-ii": {
       "slug": "the-last-of-us-part-ii",
@@ -9163,7 +9179,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:38:00Z"
+      "last_scraped_at": "2026-11-21T18:42:56Z"
     },
     "pac-man-championship-edition-dx": {
       "slug": "pac-man-championship-edition-dx",
@@ -9218,7 +9234,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:57:17Z"
+      "last_scraped_at": "2026-11-21T18:15:59Z"
     },
     "god-of-war-ii": {
       "slug": "god-of-war-ii",
@@ -9232,7 +9248,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:35:54Z"
+      "last_scraped_at": "2026-11-21T18:41:28Z"
     },
     "super-mario-3d-world": {
       "slug": "super-mario-3d-world",
@@ -9299,7 +9315,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:07:18Z"
+      "last_scraped_at": "2026-11-21T19:02:16Z"
     },
     "persona-5": {
       "slug": "persona-5",
@@ -9353,7 +9369,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:46:05Z"
+      "last_scraped_at": "2026-11-21T18:48:20Z"
     },
     "quake-iii-arena-1999": {
       "slug": "quake-iii-arena-1999",
@@ -9380,7 +9396,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:34:28Z"
+      "last_scraped_at": "2026-11-21T18:40:43Z"
     },
     "soulcalibur-ii": {
       "slug": "soulcalibur-ii",
@@ -9419,7 +9435,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:01:16Z"
+      "last_scraped_at": "2026-11-21T18:58:42Z"
     },
     "skies-of-arcadia": {
       "slug": "skies-of-arcadia",
@@ -9458,7 +9474,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:00:39Z"
+      "last_scraped_at": "2026-11-21T18:58:34Z"
     },
     "rock-band-3": {
       "slug": "rock-band-3",
@@ -9594,7 +9610,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:36:04Z"
+      "last_scraped_at": "2026-11-21T18:41:37Z"
     },
     "nfl-2k3": {
       "slug": "nfl-2k3",
@@ -9719,7 +9735,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:56:18Z"
+      "last_scraped_at": "2026-11-21T18:55:59Z"
     },
     "truckful": {
       "slug": "truckful",
@@ -9753,7 +9769,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:28:37Z"
+      "last_scraped_at": "2026-11-21T18:37:31Z"
     },
     "field-of-glory-ii-medieval": {
       "slug": "field-of-glory-ii-medieval",
@@ -9770,7 +9786,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:29:03Z"
+      "last_scraped_at": "2026-11-21T18:37:44Z"
     },
     "first-class-trouble": {
       "slug": "first-class-trouble",
@@ -9787,7 +9803,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:31:06Z"
+      "last_scraped_at": "2026-11-21T18:38:45Z"
     },
     "flipnote-studio": {
       "slug": "flipnote-studio",
@@ -9801,7 +9817,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:31:33Z"
+      "last_scraped_at": "2026-11-21T18:39:03Z"
     },
     "foundation": {
       "slug": "foundation",
@@ -9818,7 +9834,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:32:42Z"
+      "last_scraped_at": "2026-11-21T18:39:33Z"
     },
     "foxhole": {
       "slug": "foxhole",
@@ -9835,7 +9851,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:32:55Z"
+      "last_scraped_at": "2026-11-21T18:39:48Z"
     },
     "goat-of-duty": {
       "slug": "goat-of-duty",
@@ -9854,7 +9870,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:35:34Z"
+      "last_scraped_at": "2026-11-21T18:41:09Z"
     },
     "gran-turismo": {
       "slug": "gran-turismo",
@@ -9868,7 +9884,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:37:10Z"
+      "last_scraped_at": "2026-11-21T18:42:12Z"
     },
     "grim-fandango": {
       "slug": "grim-fandango",
@@ -9882,7 +9898,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:39:50Z"
+      "last_scraped_at": "2026-11-21T18:44:01Z"
     },
     "guns-of-icarus-online": {
       "slug": "guns-of-icarus-online",
@@ -9899,7 +9915,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:40:42Z"
+      "last_scraped_at": "2026-11-21T18:44:38Z"
     },
     "gwent-the-witcher-card-game": {
       "slug": "gwent-the-witcher-card-game",
@@ -9918,7 +9934,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:41:00Z"
+      "last_scraped_at": "2026-11-21T18:44:40Z"
     },
     "hacker-evolution-duality": {
       "slug": "hacker-evolution-duality",
@@ -9935,7 +9951,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:41:13Z"
+      "last_scraped_at": "2026-11-21T18:44:56Z"
     },
     "heart-of-the-machine": {
       "slug": "heart-of-the-machine",
@@ -9952,7 +9968,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:43:53Z"
+      "last_scraped_at": "2026-11-21T18:46:32Z"
     },
     "helltaker": {
       "slug": "helltaker",
@@ -9969,7 +9985,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:44:54Z"
+      "last_scraped_at": "2026-11-21T18:47:24Z"
     },
     "hitman-world-of-assassination": {
       "slug": "hitman-world-of-assassination",
@@ -9988,7 +10004,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:45:34Z"
+      "last_scraped_at": "2026-11-21T18:48:05Z"
     },
     "huniepop": {
       "slug": "huniepop",
@@ -10005,7 +10021,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:46:34Z"
+      "last_scraped_at": "2026-11-21T18:48:53Z"
     },
     "i-have-no-mouth-and-i-must-scream": {
       "slug": "i-have-no-mouth-and-i-must-scream",
@@ -10022,7 +10038,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:47:06Z"
+      "last_scraped_at": "2026-11-21T18:49:28Z"
     },
     "industria-2": {
       "slug": "industria-2",
@@ -10036,7 +10052,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:47:32Z"
+      "last_scraped_at": "2026-11-21T18:49:53Z"
     },
     "kenshi": {
       "slug": "kenshi",
@@ -10053,7 +10069,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:50:37Z"
+      "last_scraped_at": "2026-11-21T18:52:15Z"
     },
     "kill-the-shadow": {
       "slug": "kill-the-shadow",
@@ -10070,7 +10086,7 @@
         "seed"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:51:08Z"
+      "last_scraped_at": "2026-11-21T18:52:25Z"
     },
     "life-is-strange-2": {
       "slug": "life-is-strange-2",
@@ -10086,7 +10102,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:55:34Z"
+      "last_scraped_at": "2026-11-21T18:55:44Z"
     },
     "little-kitty-big-city": {
       "slug": "little-kitty-big-city",
@@ -10104,7 +10120,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:56:47Z"
+      "last_scraped_at": "2026-11-21T18:56:06Z"
     },
     "lost-ember": {
       "slug": "lost-ember",
@@ -10124,7 +10140,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:58:01Z"
+      "last_scraped_at": "2026-11-21T18:57:01Z"
     },
     "manifold-garden": {
       "slug": "manifold-garden",
@@ -10158,7 +10174,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:01:28Z"
+      "last_scraped_at": "2026-11-21T18:58:57Z"
     },
     "meccha-chameleon": {
       "slug": "meccha-chameleon",
@@ -10174,7 +10190,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:01:35Z"
+      "last_scraped_at": "2026-11-21T18:59:01Z"
     },
     "meet-your-maker": {
       "slug": "meet-your-maker",
@@ -10192,7 +10208,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:01:56Z"
+      "last_scraped_at": "2026-11-21T18:59:17Z"
     },
     "mega-man-battle-network-legacy-collection-vol-1": {
       "slug": "mega-man-battle-network-legacy-collection-vol-1",
@@ -10208,7 +10224,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:02:09Z"
+      "last_scraped_at": "2026-11-21T18:59:32Z"
     },
     "megabonk": {
       "slug": "megabonk",
@@ -10224,7 +10240,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:02:23Z"
+      "last_scraped_at": "2026-11-21T18:59:44Z"
     },
     "metal-bringer": {
       "slug": "metal-bringer",
@@ -10240,7 +10256,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:02:55Z"
+      "last_scraped_at": "2026-11-21T19:00:10Z"
     },
     "midnight-ghost-hunt": {
       "slug": "midnight-ghost-hunt",
@@ -10258,7 +10274,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:06:40Z"
+      "last_scraped_at": "2026-11-21T19:01:46Z"
     },
     "mind-over-magic": {
       "slug": "mind-over-magic",
@@ -10275,7 +10291,7 @@
         "steam-wishlist"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:07:13Z"
+      "last_scraped_at": "2026-11-21T19:02:14Z"
     },
     "minion-masters": {
       "slug": "minion-masters",
@@ -10291,7 +10307,7 @@
         "steam-owned"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:07:32Z"
+      "last_scraped_at": "2026-11-21T19:02:23Z"
     },
     "mission-its-complicated": {
       "slug": "mission-its-complicated",
@@ -10761,7 +10777,7 @@
         "Resident Evil 2: Deluxe Edition"
       ],
       "external": {
-        "metacritic": "resident-evil-2-deluxe-edition",
+        "metacritic": "resident-evil-2",
         "opencritic": 6848
       },
       "discovered_via": [
@@ -10770,7 +10786,7 @@
         "mc-must-play"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:02:33Z"
+      "last_scraped_at": "2026-11-21T21:12:21Z"
     },
     "resident-evil-7": {
       "slug": "resident-evil-7",
@@ -11918,7 +11934,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:50:14Z"
+      "last_scraped_at": "2026-11-21T18:11:05Z"
     },
     "backyard-baseball": {
       "slug": "backyard-baseball",
@@ -11933,7 +11949,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:51:33Z"
+      "last_scraped_at": "2026-11-21T18:11:52Z"
     },
     "bellwright": {
       "slug": "bellwright",
@@ -11952,7 +11968,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:53:06Z"
+      "last_scraped_at": "2026-11-21T18:12:54Z"
     },
     "clue-murder-by-death": {
       "slug": "clue-murder-by-death",
@@ -11967,7 +11983,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:04:11Z"
+      "last_scraped_at": "2026-11-21T18:21:12Z"
     },
     "demons-night-fever": {
       "slug": "demons-night-fever",
@@ -11982,7 +11998,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:13:02Z"
+      "last_scraped_at": "2026-11-21T18:26:51Z"
     },
     "desktop-explorer": {
       "slug": "desktop-explorer",
@@ -11998,7 +12014,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:13:31Z"
+      "last_scraped_at": "2026-11-21T18:27:02Z"
     },
     "doloc-town": {
       "slug": "doloc-town",
@@ -12013,7 +12029,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:18:47Z"
+      "last_scraped_at": "2026-11-21T18:29:50Z"
     },
     "dracamar": {
       "slug": "dracamar",
@@ -12028,7 +12044,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:20:32Z"
+      "last_scraped_at": "2026-11-21T18:31:38Z"
     },
     "dressmaker": {
       "slug": "dressmaker",
@@ -12044,7 +12060,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:23:12Z"
+      "last_scraped_at": "2026-11-21T18:33:30Z"
     },
     "go-go-town": {
       "slug": "go-go-town",
@@ -12059,7 +12075,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:35:16Z"
+      "last_scraped_at": "2026-11-21T18:41:08Z"
     },
     "hermit-and-pig": {
       "slug": "hermit-and-pig",
@@ -12075,7 +12091,7 @@
         "mc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:45:06Z"
+      "last_scraped_at": "2026-11-21T18:47:39Z"
     },
     "jay-and-silent-bob-chronic-blunt-punch": {
       "slug": "jay-and-silent-bob-chronic-blunt-punch",
@@ -12090,7 +12106,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:49:04Z"
+      "last_scraped_at": "2026-11-21T18:50:46Z"
     },
     "kejora": {
       "slug": "kejora",
@@ -12105,7 +12121,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:50:28Z"
+      "last_scraped_at": "2026-11-21T18:52:04Z"
     },
     "last-man-sitting": {
       "slug": "last-man-sitting",
@@ -12120,7 +12136,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:53:35Z"
+      "last_scraped_at": "2026-11-21T18:54:34Z"
     },
     "milki-delivery": {
       "slug": "milki-delivery",
@@ -12135,7 +12151,7 @@
         "oc-year-2026-topbottom"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:06:54Z"
+      "last_scraped_at": "2026-11-21T19:01:58Z"
     },
     "mythmatch": {
       "slug": "mythmatch",
@@ -12363,7 +12379,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:02:49Z"
+      "last_scraped_at": "2026-11-21T18:20:38Z"
     },
     "diablo": {
       "slug": "diablo",
@@ -12376,7 +12392,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:15:06Z"
+      "last_scraped_at": "2026-11-21T18:27:30Z"
     },
     "tombwater": {
       "slug": "tombwater",
@@ -12420,7 +12436,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:52:55Z"
+      "last_scraped_at": "2026-11-21T18:53:56Z"
     },
     "wheelmates": {
       "slug": "wheelmates",
@@ -12479,7 +12495,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:54:19Z"
+      "last_scraped_at": "2026-11-21T18:55:01Z"
     },
     "fields-of-mistria": {
       "slug": "fields-of-mistria",
@@ -12493,7 +12509,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:29:10Z"
+      "last_scraped_at": "2026-11-21T18:37:52Z"
     },
     "dying-light-the-beast-restored-land-definitive": {
       "slug": "dying-light-the-beast-restored-land-definitive",
@@ -12509,7 +12525,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:23:55Z"
+      "last_scraped_at": "2026-11-21T18:33:50Z"
     },
     "dreamworks-shrek-2": {
       "slug": "dreamworks-shrek-2",
@@ -12523,7 +12539,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:22:53Z"
+      "last_scraped_at": "2026-11-21T18:33:16Z"
     },
     "empyrion-galactic-survival-dark-faction": {
       "slug": "empyrion-galactic-survival-dark-faction",
@@ -12536,7 +12552,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:25:48Z"
+      "last_scraped_at": "2026-11-21T18:35:38Z"
     },
     "factorio": {
       "slug": "factorio",
@@ -12550,7 +12566,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:27:46Z"
+      "last_scraped_at": "2026-11-21T18:36:59Z"
     },
     "empires-of-the-undergrowth": {
       "slug": "empires-of-the-undergrowth",
@@ -12563,7 +12579,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:25:31Z"
+      "last_scraped_at": "2026-11-21T18:35:04Z"
     },
     "lethal-league-blaze": {
       "slug": "lethal-league-blaze",
@@ -12577,7 +12593,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:55:02Z"
+      "last_scraped_at": "2026-11-21T18:55:42Z"
     },
     "ai-war-2": {
       "slug": "ai-war-2",
@@ -12590,7 +12606,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:46:28Z"
+      "last_scraped_at": "2026-11-21T18:08:21Z"
     },
     "contraband-police": {
       "slug": "contraband-police",
@@ -12604,7 +12620,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:06:11Z"
+      "last_scraped_at": "2026-11-21T18:22:18Z"
     },
     "cosmoteer-starship-architect-and-commander": {
       "slug": "cosmoteer-starship-architect-and-commander",
@@ -12617,7 +12633,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:07:03Z"
+      "last_scraped_at": "2026-11-21T18:22:48Z"
     },
     "system-shock-2-25th-anniversary-remaster": {
       "slug": "system-shock-2-25th-anniversary-remaster",
@@ -12648,7 +12664,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:49:18Z"
+      "last_scraped_at": "2026-11-21T18:10:16Z"
     },
     "amazing-cultivation-simulator": {
       "slug": "amazing-cultivation-simulator",
@@ -12661,7 +12677,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:47:18Z"
+      "last_scraped_at": "2026-11-21T18:09:09Z"
     },
     "inkbound": {
       "slug": "inkbound",
@@ -12675,7 +12691,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:48:03Z"
+      "last_scraped_at": "2026-11-21T18:50:03Z"
     },
     "door-kickers-2-task-force-north": {
       "slug": "door-kickers-2-task-force-north",
@@ -12688,7 +12704,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:19:41Z"
+      "last_scraped_at": "2026-11-21T18:30:42Z"
     },
     "diplomacy-is-not-an-option": {
       "slug": "diplomacy-is-not-an-option",
@@ -12701,7 +12717,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:16:45Z"
+      "last_scraped_at": "2026-11-21T18:28:34Z"
     },
     "democracy-4": {
       "slug": "democracy-4",
@@ -12714,7 +12730,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:12:38Z"
+      "last_scraped_at": "2026-11-21T18:26:35Z"
     },
     "cataclismo": {
       "slug": "cataclismo",
@@ -12727,7 +12743,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:01:22Z"
+      "last_scraped_at": "2026-11-21T18:19:10Z"
     },
     "escape-simulator": {
       "slug": "escape-simulator",
@@ -12740,7 +12756,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:26:20Z"
+      "last_scraped_at": "2026-11-21T18:36:07Z"
     },
     "age-of-empires-iv-anniversary-edition": {
       "slug": "age-of-empires-iv-anniversary-edition",
@@ -12753,7 +12769,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:45:27Z"
+      "last_scraped_at": "2026-11-21T18:07:37Z"
     },
     "conquerors-blade": {
       "slug": "conquerors-blade",
@@ -12766,7 +12782,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:05:44Z"
+      "last_scraped_at": "2026-11-21T18:21:49Z"
     },
     "100-orange-juice": {
       "slug": "100-orange-juice",
@@ -12779,7 +12795,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:44:05Z"
+      "last_scraped_at": "2026-11-21T18:06:52Z"
     },
     "5d-chess-with-multiverse-time-travel": {
       "slug": "5d-chess-with-multiverse-time-travel",
@@ -12792,7 +12808,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:44:30Z"
+      "last_scraped_at": "2026-11-21T18:07:15Z"
     },
     "aimlabs": {
       "slug": "aimlabs",
@@ -12805,7 +12821,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:46:41Z"
+      "last_scraped_at": "2026-11-21T18:08:32Z"
     },
     "albion-online": {
       "slug": "albion-online",
@@ -12819,7 +12835,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:46:54Z"
+      "last_scraped_at": "2026-11-21T18:08:47Z"
     },
     "battlestar-galactica-deadlock": {
       "slug": "battlestar-galactica-deadlock",
@@ -12833,7 +12849,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:52:41Z"
+      "last_scraped_at": "2026-11-21T18:12:21Z"
     },
     "beholder-conductor": {
       "slug": "beholder-conductor",
@@ -12846,7 +12862,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:52:54Z"
+      "last_scraped_at": "2026-11-21T18:12:38Z"
     },
     "biology-battle": {
       "slug": "biology-battle",
@@ -12859,7 +12875,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:53:45Z"
+      "last_scraped_at": "2026-11-21T18:13:31Z"
     },
     "black-desert": {
       "slug": "black-desert",
@@ -12872,7 +12888,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:55:05Z"
+      "last_scraped_at": "2026-11-21T18:14:29Z"
     },
     "blazblue-entropy-effect": {
       "slug": "blazblue-entropy-effect",
@@ -12886,7 +12902,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:55:39Z"
+      "last_scraped_at": "2026-11-21T18:14:41Z"
     },
     "blood-bar-tycoon": {
       "slug": "blood-bar-tycoon",
@@ -12899,7 +12915,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:55:53Z"
+      "last_scraped_at": "2026-11-21T18:14:56Z"
     },
     "bloons-td-6": {
       "slug": "bloons-td-6",
@@ -12912,7 +12928,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:56:18Z"
+      "last_scraped_at": "2026-11-21T18:15:11Z"
     },
     "blue-protocol": {
       "slug": "blue-protocol",
@@ -12925,7 +12941,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:56:43Z"
+      "last_scraped_at": "2026-11-21T18:15:30Z"
     },
     "brawlhalla": {
       "slug": "brawlhalla",
@@ -12939,7 +12955,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:57:30Z"
+      "last_scraped_at": "2026-11-21T18:16:16Z"
     },
     "bread-fred": {
       "slug": "bread-fred",
@@ -12953,7 +12969,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:57:43Z"
+      "last_scraped_at": "2026-11-21T18:16:31Z"
     },
     "buckshot-roulette": {
       "slug": "buckshot-roulette",
@@ -12967,7 +12983,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T13:58:09Z"
+      "last_scraped_at": "2026-11-21T18:16:59Z"
     },
     "commander-conquest-of-the-americas-gold": {
       "slug": "commander-conquest-of-the-americas-gold",
@@ -12980,7 +12996,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:05:00Z"
+      "last_scraped_at": "2026-11-21T18:21:44Z"
     },
     "content-warning": {
       "slug": "content-warning",
@@ -12994,7 +13010,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:05:56Z"
+      "last_scraped_at": "2026-11-21T18:22:03Z"
     },
     "counter-strike-2": {
       "slug": "counter-strike-2",
@@ -13008,7 +13024,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:07:16Z"
+      "last_scraped_at": "2026-11-21T18:23:04Z"
     },
     "dead-as-disco": {
       "slug": "dead-as-disco",
@@ -13022,7 +13038,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:10:42Z"
+      "last_scraped_at": "2026-11-21T18:25:03Z"
     },
     "digimon-masters-online": {
       "slug": "digimon-masters-online",
@@ -13035,7 +13051,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:15:28Z"
+      "last_scraped_at": "2026-11-21T18:27:46Z"
     },
     "doki-doki-literature-club": {
       "slug": "doki-doki-literature-club",
@@ -13049,7 +13065,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:18:34Z"
+      "last_scraped_at": "2026-11-21T18:29:35Z"
     },
     "don-t-starve-together": {
       "slug": "don-t-starve-together",
@@ -13062,7 +13078,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:19:01Z"
+      "last_scraped_at": "2026-11-21T18:30:06Z"
     },
     "dota-underlords": {
       "slug": "dota-underlords",
@@ -13075,7 +13091,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:20:18Z"
+      "last_scraped_at": "2026-11-21T18:31:22Z"
     },
     "dragon-ball-gekishin-squadra": {
       "slug": "dragon-ball-gekishin-squadra",
@@ -13089,7 +13105,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:21:09Z"
+      "last_scraped_at": "2026-11-21T18:32:02Z"
     },
     "ebaseball-pro-spirit": {
       "slug": "ebaseball-pro-spirit",
@@ -13102,7 +13118,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:24:29Z"
+      "last_scraped_at": "2026-11-21T18:34:20Z"
     },
     "chop-chop-inc": {
       "slug": "chop-chop-inc",
@@ -13116,7 +13132,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:02:32Z"
+      "last_scraped_at": "2026-11-21T18:20:24Z"
     },
     "dying-light-the-beast-restored-land": {
       "slug": "dying-light-the-beast-restored-land",
@@ -13138,12 +13154,14 @@
       "slug": "empyrion-galactic-survival",
       "title": "Empyrion - Galactic Survival",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "empyrion-galactic-survival-dark-faction"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:25:44Z"
+      "last_scraped_at": "2026-11-21T18:35:23Z"
     },
     "haste": {
       "slug": "haste",
@@ -13157,7 +13175,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:43:32Z"
+      "last_scraped_at": "2026-11-21T18:46:03Z"
     },
     "i-am-future-cozy-apocalypse-survival": {
       "slug": "i-am-future-cozy-apocalypse-survival",
@@ -13171,7 +13189,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:46:48Z"
+      "last_scraped_at": "2026-11-21T18:49:11Z"
     },
     "inzoi": {
       "slug": "inzoi",
@@ -13185,7 +13203,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:48:30Z"
+      "last_scraped_at": "2026-11-21T18:50:19Z"
     },
     "isekai-villain": {
       "slug": "isekai-villain",
@@ -13199,7 +13217,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:48:43Z"
+      "last_scraped_at": "2026-11-21T18:50:33Z"
     },
     "lethal-company": {
       "slug": "lethal-company",
@@ -13213,7 +13231,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:54:36Z"
+      "last_scraped_at": "2026-11-21T18:55:13Z"
     },
     "lost-eidolons-veil-of-the-witch": {
       "slug": "lost-eidolons-veil-of-the-witch",
@@ -13227,7 +13245,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T14:57:50Z"
+      "last_scraped_at": "2026-11-21T18:56:50Z"
     },
     "manor-lords": {
       "slug": "manor-lords",
@@ -13241,7 +13259,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:00:31Z"
+      "last_scraped_at": "2026-11-21T18:58:26Z"
     },
     "mecha-break": {
       "slug": "mecha-break",
@@ -13255,7 +13273,7 @@
         "restore-user-request"
       ],
       "status": "active",
-      "last_scraped_at": "2026-11-21T15:01:42Z"
+      "last_scraped_at": "2026-11-21T18:59:02Z"
     },
     "monster-prom-2-monster-camp": {
       "slug": "monster-prom-2-monster-camp",
@@ -14212,17 +14230,21 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:53:18Z"
     },
     "pax-autocratica": {
       "slug": "pax-autocratica",
       "title": "Pax Autocratica",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "pax-autocratica"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:53:37Z"
     },
     "perfect-heist-2": {
       "slug": "perfect-heist-2",
@@ -14248,11 +14270,14 @@
       "slug": "pit-of-goblin",
       "title": "Pit Of Goblin",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "pit-of-goblin"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:54:34Z"
     },
     "pressure": {
       "slug": "pressure",
@@ -14262,7 +14287,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:54:53Z"
     },
     "pressured": {
       "slug": "pressured",
@@ -14348,11 +14374,14 @@
       "slug": "slay-the-spire-2",
       "title": "Slay the Spire 2",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "slay-the-spire-2"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:57:23Z"
     },
     "sleight-of-hand": {
       "slug": "sleight-of-hand",
@@ -14428,11 +14457,14 @@
       "slug": "tabletop-simulator",
       "title": "Tabletop Simulator",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "tabletop-game-shop-simulator"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T17:59:36Z"
     },
     "tailquest-defense": {
       "slug": "tailquest-defense",
@@ -14448,11 +14480,14 @@
       "slug": "tale-of-immortal",
       "title": "Tale Of Immortal",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "tale-of-immortal-ring"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:00:20Z"
     },
     "that-s-not-my-neighbor": {
       "slug": "that-s-not-my-neighbor",
@@ -14488,21 +14523,27 @@
       "slug": "the-last-caretaker",
       "title": "The Last Caretaker",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "the-last-caretaker"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:01:28Z"
     },
     "the-troma-project": {
       "slug": "the-troma-project",
       "title": "The Troma Project",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "the-troma-project"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:01:48Z"
     },
     "titan-quest": {
       "slug": "titan-quest",
@@ -14528,11 +14569,14 @@
       "slug": "tribal-wars",
       "title": "Tribal Wars",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "great-tribal-wars"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:02:41Z"
     },
     "tropicalia-a-brazilian-game": {
       "slug": "tropicalia-a-brazilian-game",
@@ -14548,11 +14592,14 @@
       "slug": "undercroft-warriors",
       "title": "Undercroft Warriors",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "undercroft-warriors"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:03:17Z"
     },
     "v-a-proxy": {
       "slug": "v-a-proxy",
@@ -14572,7 +14619,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:03:55Z"
     },
     "vaultbreakers": {
       "slug": "vaultbreakers",
@@ -14622,7 +14670,8 @@
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:05:31Z"
     },
     "west-hunt": {
       "slug": "west-hunt",
@@ -14648,11 +14697,14 @@
       "slug": "windrose",
       "title": "Windrose",
       "aliases": [],
-      "external": {},
+      "external": {
+        "metacritic": "windrose"
+      },
       "discovered_via": [
         "restore-user-request"
       ],
-      "status": "active"
+      "status": "active",
+      "last_scraped_at": "2026-11-21T18:06:19Z"
     },
     "zerospace": {
       "slug": "zerospace",
@@ -14674,6 +14726,1517 @@
       ],
       "status": "merged_into",
       "merged_into": "sonic-adventure"
+    },
+    "final-fantasy-vii-rebirth": {
+      "slug": "final-fantasy-vii-rebirth",
+      "title": "Final Fantasy VII Rebirth",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-vii-rebirth",
+        "opencritic": 15136
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:53:20Z"
+    },
+    "rock-band": {
+      "slug": "rock-band",
+      "title": "Rock Band",
+      "aliases": [],
+      "external": {
+        "metacritic": "rock-band"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:17:13Z"
+    },
+    "bloodborne": {
+      "slug": "bloodborne",
+      "title": "Bloodborne",
+      "aliases": [],
+      "external": {
+        "metacritic": "bloodborne",
+        "opencritic": 76
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:47:34Z"
+    },
+    "eternal-darkness-sanitys-requiem": {
+      "slug": "eternal-darkness-sanitys-requiem",
+      "title": "Eternal Darkness: Sanity's Requiem",
+      "aliases": [],
+      "external": {
+        "metacritic": "eternal-darkness-sanitys-requiem"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:51:59Z"
+    },
+    "warcraft-iii-reign-of-chaos": {
+      "slug": "warcraft-iii-reign-of-chaos",
+      "title": "Warcraft III: Reign of Chaos",
+      "aliases": [],
+      "external": {
+        "metacritic": "warcraft-iii-reign-of-chaos"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "the-sims": {
+      "slug": "the-sims",
+      "title": "The Sims",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-sims"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "banjo-kazooie": {
+      "slug": "banjo-kazooie",
+      "title": "Banjo-Kazooie",
+      "aliases": [],
+      "external": {
+        "metacritic": "banjo-kazooie"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:45:46Z"
+    },
+    "celeste": {
+      "slug": "celeste",
+      "title": "Celeste",
+      "aliases": [],
+      "external": {
+        "metacritic": "celeste",
+        "opencritic": 5403
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:48:47Z"
+    },
+    "forza-motorsport-2005": {
+      "slug": "forza-motorsport-2005",
+      "title": "Forza Motorsport (2005)",
+      "aliases": [],
+      "external": {
+        "metacritic": "forza-motorsport-2005",
+        "opencritic": 15504
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:57:01Z"
+    },
+    "forza-horizon-5": {
+      "slug": "forza-horizon-5",
+      "title": "Forza Horizon 5",
+      "aliases": [],
+      "external": {
+        "metacritic": "forza-horizon-5",
+        "opencritic": 11624
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:56:35Z"
+    },
+    "advance-wars": {
+      "slug": "advance-wars",
+      "title": "Advance Wars",
+      "aliases": [],
+      "external": {
+        "metacritic": "advance-wars"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:43:31Z"
+    },
+    "vagrant-story": {
+      "slug": "vagrant-story",
+      "title": "Vagrant Story",
+      "aliases": [],
+      "external": {
+        "metacritic": "vagrant-story"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "team-fortress-2": {
+      "slug": "team-fortress-2",
+      "title": "Team Fortress 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "team-fortress-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "final-fantasy-xii": {
+      "slug": "final-fantasy-xii",
+      "title": "Final Fantasy XII",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-xii"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:54:05Z"
+    },
+    "super-mario-world-super-mario-advance-2": {
+      "slug": "super-mario-world-super-mario-advance-2",
+      "title": "Super Mario World: Super Mario Advance 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "super-mario-world-super-mario-advance-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "espn-nfl-2k5": {
+      "slug": "espn-nfl-2k5",
+      "title": "ESPN NFL 2K5",
+      "aliases": [],
+      "external": {
+        "metacritic": "espn-nfl-2k5"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:51:20Z"
+    },
+    "super-smash-bros-melee": {
+      "slug": "super-smash-bros-melee",
+      "title": "Super Smash Bros. Melee",
+      "aliases": [],
+      "external": {
+        "metacritic": "super-smash-bros-melee"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "street-fighter-6": {
+      "slug": "street-fighter-6",
+      "title": "Street Fighter 6",
+      "aliases": [],
+      "external": {
+        "metacritic": "street-fighter-6"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "virtua-tennis": {
+      "slug": "virtua-tennis",
+      "title": "Virtua Tennis",
+      "aliases": [],
+      "external": {
+        "metacritic": "virtua-tennis"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "forza-motorsport-3": {
+      "slug": "forza-motorsport-3",
+      "title": "Forza Motorsport 3",
+      "aliases": [],
+      "external": {
+        "metacritic": "forza-motorsport-3"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:57:26Z"
+    },
+    "demons-souls": {
+      "slug": "demons-souls",
+      "title": "Demon's Souls",
+      "aliases": [],
+      "external": {
+        "metacritic": "demons-souls"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:49:49Z"
+    },
+    "undertale": {
+      "slug": "undertale",
+      "title": "Undertale",
+      "aliases": [],
+      "external": {
+        "metacritic": "undertale"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "batman-arkham-asylum": {
+      "slug": "batman-arkham-asylum",
+      "title": "Batman: Arkham Asylum",
+      "aliases": [],
+      "external": {
+        "metacritic": "batman-arkham-asylum"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:46:07Z"
+    },
+    "super-mario-sunshine": {
+      "slug": "super-mario-sunshine",
+      "title": "Super Mario Sunshine",
+      "aliases": [],
+      "external": {
+        "metacritic": "super-mario-sunshine"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "tony-hawks-pro-skater": {
+      "slug": "tony-hawks-pro-skater",
+      "title": "Tony Hawk's Pro Skater",
+      "aliases": [],
+      "external": {
+        "metacritic": "tony-hawks-pro-skater"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "thief-the-dark-project": {
+      "slug": "thief-the-dark-project",
+      "title": "Thief: The Dark Project",
+      "aliases": [],
+      "external": {
+        "metacritic": "thief-the-dark-project"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "fire-emblem-awakening": {
+      "slug": "fire-emblem-awakening",
+      "title": "Fire Emblem: Awakening",
+      "aliases": [],
+      "external": {
+        "metacritic": "fire-emblem-awakening"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:55:29Z"
+    },
+    "age-of-empires-ii-the-age-of-kings": {
+      "slug": "age-of-empires-ii-the-age-of-kings",
+      "title": "Age of Empires II: The Age of Kings",
+      "aliases": [],
+      "external": {
+        "metacritic": "age-of-empires-ii-the-age-of-kings"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:44:07Z"
+    },
+    "final-fantasy-x": {
+      "slug": "final-fantasy-x",
+      "title": "Final Fantasy X",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-x"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:53:41Z"
+    },
+    "sid-meiers-alpha-centauri": {
+      "slug": "sid-meiers-alpha-centauri",
+      "title": "Sid Meier's Alpha Centauri",
+      "aliases": [],
+      "external": {
+        "metacritic": "sid-meiers-alpha-centauri"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:18:46Z"
+    },
+    "divinity-original-sin-ii-definitive-edition": {
+      "slug": "divinity-original-sin-ii-definitive-edition",
+      "title": "Divinity: Original Sin II - Definitive Edition",
+      "aliases": [],
+      "external": {},
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "merged_into",
+      "merged_into": "divinity-original-sin-ii"
+    },
+    "galactic-civilizations-ii-twilight-of-the-arnor": {
+      "slug": "galactic-civilizations-ii-twilight-of-the-arnor",
+      "title": "Galactic Civilizations II: Twilight of the Arnor",
+      "aliases": [],
+      "external": {
+        "metacritic": "galactic-civilizations-ii-twilight-of-the-arnor"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:58:39Z"
+    },
+    "super-smash-bros-for-nintendo-3ds-wii-u": {
+      "slug": "super-smash-bros-for-nintendo-3ds-wii-u",
+      "title": "Super Smash Bros. for Nintendo 3DS / Wii U",
+      "aliases": [],
+      "external": {
+        "metacritic": "super-smash-bros-for-nintendo-3ds-wii-u"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "guitar-hero-ii": {
+      "slug": "guitar-hero-ii",
+      "title": "Guitar Hero II",
+      "aliases": [],
+      "external": {
+        "metacritic": "guitar-hero-ii"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:00:50Z"
+    },
+    "final-fantasy-vii": {
+      "slug": "final-fantasy-vii",
+      "title": "Final Fantasy VII",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-vii",
+        "opencritic": 1566
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:52:44Z"
+    },
+    "final-fantasy-xiv-endwalker": {
+      "slug": "final-fantasy-xiv-endwalker",
+      "title": "Final Fantasy XIV: Endwalker",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-xiv-endwalker",
+        "opencritic": 11626
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:54:30Z"
+    },
+    "medal-of-honor-1999": {
+      "slug": "medal-of-honor-1999",
+      "title": "Medal of Honor (1999)",
+      "aliases": [],
+      "external": {
+        "metacritic": "medal-of-honor-1999"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:05:52Z"
+    },
+    "conkers-bad-fur-day": {
+      "slug": "conkers-bad-fur-day",
+      "title": "Conker's Bad Fur Day",
+      "aliases": [],
+      "external": {
+        "metacritic": "conkers-bad-fur-day"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:49:05Z"
+    },
+    "rock-band-2": {
+      "slug": "rock-band-2",
+      "title": "Rock Band 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "rock-band-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:17:35Z"
+    },
+    "mario-kart-8-deluxe": {
+      "slug": "mario-kart-8-deluxe",
+      "title": "Mario Kart 8 Deluxe",
+      "aliases": [],
+      "external": {
+        "metacritic": "mario-kart-8-deluxe",
+        "opencritic": 4061
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:04:31Z"
+    },
+    "the-ico-and-shadow-of-the-colossus-collection": {
+      "slug": "the-ico-and-shadow-of-the-colossus-collection",
+      "title": "The ICO & Shadow of the Colossus Collection",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-ico-and-shadow-of-the-colossus-collection"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "metroid-prime-2-echoes": {
+      "slug": "metroid-prime-2-echoes",
+      "title": "Metroid Prime 2: Echoes",
+      "aliases": [],
+      "external": {
+        "metacritic": "metroid-prime-2-echoes"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:06:57Z"
+    },
+    "metroid-fusion": {
+      "slug": "metroid-fusion",
+      "title": "Metroid Fusion",
+      "aliases": [],
+      "external": {
+        "metacritic": "metroid-fusion",
+        "opencritic": 14422
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:06:35Z"
+    },
+    "the-witcher-3-wild-hunt-blood-and-wine": {
+      "slug": "the-witcher-3-wild-hunt-blood-and-wine",
+      "title": "The Witcher 3: Wild Hunt - Blood and Wine",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-witcher-3-wild-hunt-blood-and-wine"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "final-fantasy-vi": {
+      "slug": "final-fantasy-vi",
+      "title": "Final Fantasy VI",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-vi"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:52:21Z"
+    },
+    "rayman-legends": {
+      "slug": "rayman-legends",
+      "title": "Rayman Legends",
+      "aliases": [],
+      "external": {
+        "metacritic": "rayman-legends",
+        "opencritic": 288
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:16:07Z"
+    },
+    "ufo-50": {
+      "slug": "ufo-50",
+      "title": "UFO 50",
+      "aliases": [],
+      "external": {
+        "metacritic": "ufo-50"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "madden-nfl-2005": {
+      "slug": "madden-nfl-2005",
+      "title": "Madden NFL 2005",
+      "aliases": [],
+      "external": {
+        "metacritic": "madden-nfl-2005"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:03:34Z"
+    },
+    "against-the-storm": {
+      "slug": "against-the-storm",
+      "title": "Against the Storm",
+      "aliases": [],
+      "external": {
+        "metacritic": "against-the-storm",
+        "opencritic": 13940
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:43:49Z"
+    },
+    "medal-of-honor-allied-assault": {
+      "slug": "medal-of-honor-allied-assault",
+      "title": "Medal of Honor: Allied Assault",
+      "aliases": [],
+      "external": {
+        "metacritic": "medal-of-honor-allied-assault"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:06:11Z"
+    },
+    "littlebigplanet-2": {
+      "slug": "littlebigplanet-2",
+      "title": "LittleBigPlanet 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "littlebigplanet-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:02:52Z"
+    },
+    "microsoft-flight-simulator": {
+      "slug": "microsoft-flight-simulator",
+      "title": "Microsoft Flight Simulator",
+      "aliases": [],
+      "external": {
+        "metacritic": "microsoft-flight-simulator",
+        "opencritic": 9793
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:07:45Z"
+    },
+    "guitar-hero": {
+      "slug": "guitar-hero",
+      "title": "Guitar Hero",
+      "aliases": [],
+      "external": {
+        "metacritic": "guitar-hero"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:00:29Z"
+    },
+    "world-of-warcraft-wrath-of-the-lich-king": {
+      "slug": "world-of-warcraft-wrath-of-the-lich-king",
+      "title": "World of Warcraft: Wrath of the Lich King",
+      "aliases": [],
+      "external": {
+        "metacritic": "world-of-warcraft-wrath-of-the-lich-king"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "metroid-prime-trilogy": {
+      "slug": "metroid-prime-trilogy",
+      "title": "Metroid Prime Trilogy",
+      "aliases": [],
+      "external": {
+        "metacritic": "metroid-prime-trilogy"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:07:21Z"
+    },
+    "overwatch-2016": {
+      "slug": "overwatch-2016",
+      "title": "Overwatch (2016)",
+      "aliases": [],
+      "external": {},
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "merged_into",
+      "merged_into": "overwatch"
+    },
+    "baldurs-gate": {
+      "slug": "baldurs-gate",
+      "title": "Baldur's Gate",
+      "aliases": [],
+      "external": {
+        "metacritic": "baldurs-gate"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:45:31Z"
+    },
+    "madden-nfl-2001": {
+      "slug": "madden-nfl-2001",
+      "title": "Madden NFL 2001",
+      "aliases": [],
+      "external": {
+        "metacritic": "madden-nfl-2001"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:03:12Z"
+    },
+    "bayonetta-2": {
+      "slug": "bayonetta-2",
+      "title": "Bayonetta 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "bayonetta-2",
+        "opencritic": 1462
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:47:07Z"
+    },
+    "klonoa-2-lunateas-veil": {
+      "slug": "klonoa-2-lunateas-veil",
+      "title": "Klonoa 2: Lunatea's Veil",
+      "aliases": [],
+      "external": {
+        "metacritic": "klonoa-2-lunateas-veil"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:02:10Z"
+    },
+    "freespace-2": {
+      "slug": "freespace-2",
+      "title": "FreeSpace 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "freespace-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:58:05Z"
+    },
+    "mario-tennis": {
+      "slug": "mario-tennis",
+      "title": "Mario Tennis",
+      "aliases": [],
+      "external": {
+        "metacritic": "mario-tennis"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:05:13Z"
+    },
+    "ratchet-and-clank-up-your-arsenal": {
+      "slug": "ratchet-and-clank-up-your-arsenal",
+      "title": "Ratchet & Clank: Up Your Arsenal",
+      "aliases": [],
+      "external": {
+        "metacritic": "ratchet-and-clank-up-your-arsenal"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:15:48Z"
+    },
+    "resident-evil-remake": {
+      "slug": "resident-evil-remake",
+      "title": "Resident Evil (Remake)",
+      "aliases": [],
+      "external": {
+        "metacritic": "resident-evil-remake"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:16:49Z"
+    },
+    "spyro-year-of-the-dragon": {
+      "slug": "spyro-year-of-the-dragon",
+      "title": "Spyro: Year of the Dragon",
+      "aliases": [],
+      "external": {
+        "metacritic": "spyro-year-of-the-dragon"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:19:22Z"
+    },
+    "twisted-metal-black": {
+      "slug": "twisted-metal-black",
+      "title": "Twisted Metal: Black",
+      "aliases": [],
+      "external": {
+        "metacritic": "twisted-metal-black"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "forza-horizon-3": {
+      "slug": "forza-horizon-3",
+      "title": "Forza Horizon 3",
+      "aliases": [],
+      "external": {
+        "metacritic": "forza-horizon-3",
+        "opencritic": 2842
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:55:59Z"
+    },
+    "ncaa-football-2003": {
+      "slug": "ncaa-football-2003",
+      "title": "NCAA Football 2003",
+      "aliases": [],
+      "external": {
+        "metacritic": "ncaa-football-2003"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:08:27Z"
+    },
+    "crysis": {
+      "slug": "crysis",
+      "title": "Crysis",
+      "aliases": [],
+      "external": {
+        "metacritic": "crysis"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:49:26Z"
+    },
+    "ninja-gaiden-2004": {
+      "slug": "ninja-gaiden-2004",
+      "title": "Ninja Gaiden (2004)",
+      "aliases": [],
+      "external": {
+        "metacritic": "ninja-gaiden-2004"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:14:38Z"
+    },
+    "god-of-war-chains-of-olympus": {
+      "slug": "god-of-war-chains-of-olympus",
+      "title": "God of War: Chains of Olympus",
+      "aliases": [],
+      "external": {
+        "metacritic": "god-of-war-chains-of-olympus"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:59:22Z"
+    },
+    "doa2-hardcore": {
+      "slug": "doa2-hardcore",
+      "title": "DOA2: Hardcore",
+      "aliases": [],
+      "external": {
+        "metacritic": "doa2-hardcore"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:50:37Z"
+    },
+    "world-of-warcraft-the-burning-crusade": {
+      "slug": "world-of-warcraft-the-burning-crusade",
+      "title": "World of Warcraft: The Burning Crusade",
+      "aliases": [],
+      "external": {
+        "metacritic": "world-of-warcraft-the-burning-crusade"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "mlb-10-the-show": {
+      "slug": "mlb-10-the-show",
+      "title": "MLB 10: The Show",
+      "aliases": [],
+      "external": {
+        "metacritic": "mlb-10-the-show"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:08:07Z"
+    },
+    "shadow-of-the-colossus": {
+      "slug": "shadow-of-the-colossus",
+      "title": "Shadow of the Colossus",
+      "aliases": [],
+      "external": {
+        "metacritic": "shadow-of-the-colossus",
+        "opencritic": 5118
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:18:07Z"
+    },
+    "yoshis-island-super-mario-advance-3": {
+      "slug": "yoshis-island-super-mario-advance-3",
+      "title": "Yoshi's Island: Super Mario Advance 3",
+      "aliases": [],
+      "external": {
+        "metacritic": "yoshis-island-super-mario-advance-3"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "espn-nfl-football": {
+      "slug": "espn-nfl-football",
+      "title": "ESPN NFL Football",
+      "aliases": [],
+      "external": {
+        "metacritic": "espn-nfl-football"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:51:40Z"
+    },
+    "the-longest-journey": {
+      "slug": "the-longest-journey",
+      "title": "The Longest Journey",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-longest-journey"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "tony-hawks-pro-skater-2": {
+      "slug": "tony-hawks-pro-skater-2",
+      "title": "Tony Hawk's Pro Skater 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "tony-hawks-pro-skater-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "killzone-2": {
+      "slug": "killzone-2",
+      "title": "Killzone 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "killzone-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:01:56Z"
+    },
+    "halo-reach": {
+      "slug": "halo-reach",
+      "title": "Halo: Reach",
+      "aliases": [],
+      "external": {
+        "metacritic": "halo-reach"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:01:11Z"
+    },
+    "galactic-civilizations-ii-dark-avatar": {
+      "slug": "galactic-civilizations-ii-dark-avatar",
+      "title": "Galactic Civilizations II: Dark Avatar",
+      "aliases": [],
+      "external": {
+        "metacritic": "galactic-civilizations-ii-dark-avatar"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:58:25Z"
+    },
+    "mass-effect": {
+      "slug": "mass-effect",
+      "title": "Mass Effect",
+      "aliases": [],
+      "external": {
+        "metacritic": "mass-effect"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:05:33Z"
+    },
+    "the-operative-no-one-lives-forever": {
+      "slug": "the-operative-no-one-lives-forever",
+      "title": "The Operative: No One Lives Forever",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-operative-no-one-lives-forever"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "resident-evil-3-nemesis": {
+      "slug": "resident-evil-3-nemesis",
+      "title": "Resident Evil 3: Nemesis",
+      "aliases": [],
+      "external": {
+        "metacritic": "resident-evil-3-nemesis"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:16:28Z"
+    },
+    "forza-motorsport-4": {
+      "slug": "forza-motorsport-4",
+      "title": "Forza Motorsport 4",
+      "aliases": [],
+      "external": {
+        "metacritic": "forza-motorsport-4"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:57:48Z"
+    },
+    "battlefield-2": {
+      "slug": "battlefield-2",
+      "title": "Battlefield 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "battlefield-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:46:25Z"
+    },
+    "god-of-war-collection": {
+      "slug": "god-of-war-collection",
+      "title": "God of War Collection",
+      "aliases": [],
+      "external": {
+        "metacritic": "god-of-war-collection"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:59:43Z"
+    },
+    "planescape-torment": {
+      "slug": "planescape-torment",
+      "title": "Planescape: Torment",
+      "aliases": [],
+      "external": {
+        "metacritic": "planescape-torment"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:15:07Z"
+    },
+    "gears-of-war-3": {
+      "slug": "gears-of-war-3",
+      "title": "Gears of War 3",
+      "aliases": [],
+      "external": {
+        "metacritic": "gears-of-war-3"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:58:59Z"
+    },
+    "neverwinter-nights": {
+      "slug": "neverwinter-nights",
+      "title": "Neverwinter Nights",
+      "aliases": [],
+      "external": {
+        "metacritic": "neverwinter-nights"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:08:51Z"
+    },
+    "no-one-lives-forever-2-a-spy-in-h-a-r-m-s-way": {
+      "slug": "no-one-lives-forever-2-a-spy-in-h-a-r-m-s-way",
+      "title": "No One Lives Forever 2: A Spy in H.A.R.M.'s Way",
+      "aliases": [],
+      "external": {
+        "metacritic": "no-one-lives-forever-2-a-spy-in-h-a-r-m-s-way"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:14:57Z"
+    },
+    "castlevania-aria-of-sorrow": {
+      "slug": "castlevania-aria-of-sorrow",
+      "title": "Castlevania: Aria of Sorrow",
+      "aliases": [],
+      "external": {
+        "metacritic": "castlevania-aria-of-sorrow"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:48:15Z"
+    },
+    "legacy-of-kain-soul-reaver": {
+      "slug": "legacy-of-kain-soul-reaver",
+      "title": "Legacy of Kain: Soul Reaver",
+      "aliases": [],
+      "external": {
+        "metacritic": "legacy-of-kain-soul-reaver"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:02:26Z"
+    },
+    "golden-sun": {
+      "slug": "golden-sun",
+      "title": "Golden Sun",
+      "aliases": [],
+      "external": {
+        "metacritic": "golden-sun"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:00:04Z"
+    },
+    "world-soccer-winning-eleven-8-international": {
+      "slug": "world-soccer-winning-eleven-8-international",
+      "title": "World Soccer Winning Eleven 8 International",
+      "aliases": [],
+      "external": {
+        "metacritic": "world-soccer-winning-eleven-8-international"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "the-legend-of-zelda-a-link-between-worlds": {
+      "slug": "the-legend-of-zelda-a-link-between-worlds",
+      "title": "The Legend of Zelda: A Link Between Worlds",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-legend-of-zelda-a-link-between-worlds"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "castlevania-circle-of-the-moon": {
+      "slug": "castlevania-circle-of-the-moon",
+      "title": "Castlevania: Circle of the Moon",
+      "aliases": [],
+      "external": {
+        "metacritic": "castlevania-circle-of-the-moon"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:48:27Z"
+    },
+    "donkey-kong-bananza": {
+      "slug": "donkey-kong-bananza",
+      "title": "Donkey Kong Bananza",
+      "aliases": [],
+      "external": {
+        "metacritic": "donkey-kong-bananza",
+        "opencritic": 18340
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:51:07Z"
+    },
+    "shovel-knight-treasure-trove": {
+      "slug": "shovel-knight-treasure-trove",
+      "title": "Shovel Knight: Treasure Trove",
+      "aliases": [],
+      "external": {
+        "metacritic": "shovel-knight-treasure-trove",
+        "opencritic": 4034
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:18:30Z"
+    },
+    "mario-kart-ds": {
+      "slug": "mario-kart-ds",
+      "title": "Mario Kart DS",
+      "aliases": [],
+      "external": {
+        "metacritic": "mario-kart-ds"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:04:51Z"
+    },
+    "call-of-duty": {
+      "slug": "call-of-duty",
+      "title": "Call of Duty",
+      "aliases": [],
+      "external": {
+        "metacritic": "call-of-duty"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:47:56Z"
+    },
+    "assassins-creed-ii": {
+      "slug": "assassins-creed-ii",
+      "title": "Assassin's Creed II",
+      "aliases": [],
+      "external": {
+        "metacritic": "assassins-creed-ii"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:45:12Z"
+    },
+    "animal-well": {
+      "slug": "animal-well",
+      "title": "Animal Well",
+      "aliases": [],
+      "external": {
+        "metacritic": "animal-well",
+        "opencritic": 16663
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:44:53Z"
+    },
+    "project-gotham-racing-2": {
+      "slug": "project-gotham-racing-2",
+      "title": "Project Gotham Racing 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "project-gotham-racing-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:15:27Z"
+    },
+    "animal-crossing-new-horizons": {
+      "slug": "animal-crossing-new-horizons",
+      "title": "Animal Crossing: New Horizons",
+      "aliases": [],
+      "external": {
+        "metacritic": "animal-crossing-new-horizons",
+        "opencritic": 7409
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:44:32Z"
+    },
+    "the-sims-2": {
+      "slug": "the-sims-2",
+      "title": "The Sims 2",
+      "aliases": [],
+      "external": {
+        "metacritic": "the-sims-2"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "final-fantasy-xiv-shadowbringers": {
+      "slug": "final-fantasy-xiv-shadowbringers",
+      "title": "Final Fantasy XIV: Shadowbringers",
+      "aliases": [],
+      "external": {
+        "metacritic": "final-fantasy-xiv-shadowbringers",
+        "opencritic": 7836
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:54:56Z"
+    },
+    "world-of-warcraft-cataclysm": {
+      "slug": "world-of-warcraft-cataclysm",
+      "title": "World of Warcraft: Cataclysm",
+      "aliases": [],
+      "external": {
+        "metacritic": "world-of-warcraft-cataclysm"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "bayonetta": {
+      "slug": "bayonetta",
+      "title": "Bayonetta",
+      "aliases": [],
+      "external": {
+        "metacritic": "bayonetta",
+        "opencritic": 731
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:46:45Z"
+    },
+    "diablo-iii-ultimate-evil-edition": {
+      "slug": "diablo-iii-ultimate-evil-edition",
+      "title": "Diablo III: Ultimate Evil Edition",
+      "aliases": [],
+      "external": {
+        "metacritic": "diablo-iii-ultimate-evil-edition",
+        "opencritic": 224
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T20:50:19Z"
+    },
+    "ico": {
+      "slug": "ico",
+      "title": "ICO",
+      "aliases": [],
+      "external": {
+        "metacritic": "ico"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:01:34Z"
+    },
+    "tom-clancys-ghost-recon-advanced-warfighter": {
+      "slug": "tom-clancys-ghost-recon-advanced-warfighter",
+      "title": "Tom Clancy's Ghost Recon Advanced Warfighter",
+      "aliases": [],
+      "external": {
+        "metacritic": "tom-clancys-ghost-recon-advanced-warfighter"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "world-of-goo": {
+      "slug": "world-of-goo",
+      "title": "World of Goo",
+      "aliases": [],
+      "external": {
+        "metacritic": "world-of-goo"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active"
+    },
+    "mario-and-luigi-superstar-saga": {
+      "slug": "mario-and-luigi-superstar-saga",
+      "title": "Mario & Luigi: Superstar Saga",
+      "aliases": [],
+      "external": {
+        "metacritic": "mario-and-luigi-superstar-saga"
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:03:56Z"
+    },
+    "slay-the-princess": {
+      "slug": "slay-the-princess",
+      "title": "Slay the Princess",
+      "aliases": [],
+      "external": {
+        "metacritic": "slay-the-princess",
+        "opencritic": 15687
+      },
+      "discovered_via": [
+        "manual-mc-browse"
+      ],
+      "status": "active",
+      "last_scraped_at": "2026-11-21T21:19:04Z"
+    },
+    "resident-evil-2-deluxe-edition": {
+      "slug": "resident-evil-2-deluxe-edition",
+      "title": "Resident Evil 2: Deluxe Edition",
+      "aliases": [],
+      "external": {
+        "metacritic": "resident-evil-2-deluxe-edition"
+      },
+      "discovered_via": [
+        "manual-port-stub"
+      ],
+      "status": "merged_into",
+      "merged_into": "resident-evil-2"
     }
   }
 }

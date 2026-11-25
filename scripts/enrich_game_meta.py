@@ -132,6 +132,7 @@ def from_opencritic(game_id: int, title: str = "") -> tuple[int | None, list[str
 
 
 def main() -> None:
+    raise SystemExit("Metacritic and OpenCritic metadata scraping is disabled (compliance).")
     seed = json.loads(SEED.read_text())
     updated = 0
     for slug, game in seed.items():

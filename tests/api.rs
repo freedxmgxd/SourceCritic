@@ -195,6 +195,75 @@ async fn kotaku_is_listed_without_a_score() {
 }
 
 #[tokio::test]
+async fn port_filter_uses_the_platform_each_review_names() {
+    let app = app(Database::open_in_memory().unwrap());
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/reviews")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "reviews": [
+                            {
+                                "outlet_slug": "ign",
+                                "outlet_name": "IGN",
+                                "game_slug": "resident-evil-4",
+                                "game_title": "Resident Evil 4",
+                                "platforms": ["ps5", "nintendo switch"],
+                                "raw_score_norm": 90.0,
+                                "excerpt": "The PS5 version is the one to play."
+                            },
+                            {
+                                "outlet_slug": "nintendo-life",
+                                "outlet_name": "Nintendo Life",
+                                "game_slug": "resident-evil-4",
+                                "game_title": "Resident Evil 4",
+                                "raw_score_norm": 80.0,
+                                "excerpt": "This Switch 2 port holds up."
+                            },
+                            {
+                                "outlet_slug": "ztgd",
+                                "outlet_name": "ZTGD",
+                                "game_slug": "resident-evil-4",
+                                "game_title": "Resident Evil 4",
+                                "raw_score_norm": 85.0,
+                                "excerpt": "A landmark remake."
+                            }
+                        ]
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let page = app
+        .oneshot(
+            Request::builder()
+                .uri("/game/resident-evil-4/")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(page.status(), StatusCode::OK);
+    let bytes = page.into_body().collect().await.unwrap().to_bytes();
+    let html = String::from_utf8(bytes.to_vec()).unwrap();
+    assert!(html.contains("id=\"port-filter\""));
+    assert!(html.contains("data-port=\"ps5\""));
+    assert!(html.contains("data-port=\"switch\""));
+    assert!(!html.contains("data-port=\"switch-2\""));
+    assert!(html.contains("data-platforms=\"ps5\""));
+    assert!(html.contains("data-platforms=\"\""));
+    assert!(html.contains("data-platforms=\"ps5 switch\""));
+    assert!(!html.contains("data-platforms=\"ps5 switch switch-2\""));
+}
+
+#[tokio::test]
 async fn ampersand_entity_is_decoded() {
     let app = app(Database::open_in_memory().unwrap());
     let response = app

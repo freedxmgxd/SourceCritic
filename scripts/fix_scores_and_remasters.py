@@ -30,6 +30,7 @@ OC_UA = {
     "Referer": "https://opencritic.com/",
 }
 
+# Legacy pseudo-outlets (stripped from seed; never treat as critics if reintroduced).
 USER_SLUGS = {"metacritic-users", "opencritic-recommend"}
 
 # Explicit remaster / enhanced-edition → base seed slug (when known).
@@ -322,6 +323,7 @@ def merge_game_into(seed: dict, source_slug: str, target_slug: str) -> None:
 
 
 def main() -> None:
+    raise SystemExit("Metacritic and OpenCritic re-fetch is disabled (compliance).")
     seed = json.loads(SEED.read_text())
     print(f"games before: {len(seed)}")
 

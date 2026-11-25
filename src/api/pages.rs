@@ -276,6 +276,11 @@ header .site-nav a[aria-current="page"] {
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
 }
+/* `display: grid` above would otherwise override the hidden attribute. */
+.review[hidden],
+.unscored[hidden] {
+  display: none !important;
+}
 .review:first-of-type, .unscored:first-of-type { border-top: 1px solid var(--line); }
 .review strong, .unscored strong { display: block; font-size: 1.02rem; }
 .review small, .unscored small {
@@ -358,7 +363,8 @@ header .site-nav a[aria-current="page"] {
 .score-compact:hover .frac,
 .score-compact:focus-visible .frac,
 .score-hero:hover .frac,
-.score-hero:focus-within .frac {
+.score-hero:focus-within .frac,
+.score-compact.score-open .frac {
   max-width: 5ch;
   opacity: 1;
 }
@@ -700,6 +706,46 @@ nav.sort button[data-sort][aria-current="true"] {
 nav.sort button[data-sort]:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 45%, white);
   outline-offset: 2px;
+}
+
+nav.sort button[data-sort][aria-current="true"][data-dir="asc"]::after { content: " ↑"; }
+nav.sort button[data-sort][aria-current="true"][data-dir="desc"]::after { content: " ↓"; }
+
+.port-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 12px;
+}
+.port-filter button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 10px 4px 12px;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.port-filter .port-score {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.port-filter button[aria-pressed="true"] {
+  border-color: var(--text);
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.port-filter-meta {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .filter-reset {
@@ -1123,29 +1169,42 @@ const SITE_JS: &str = r#"
   function text(el, key) {
     return (el.getAttribute(key) || "").toLowerCase();
   }
-  function setCurrent(nav, key) {
+  function defaultDir(key) {
+    return key === "title" || key === "name" ? "asc" : "desc";
+  }
+  function setCurrent(nav, key, dir) {
     if (!nav) return;
     nav.querySelectorAll("[data-sort]").forEach(function (btn) {
-      if (btn.getAttribute("data-sort") === key) btn.setAttribute("aria-current", "true");
-      else btn.removeAttribute("aria-current");
+      if (btn.getAttribute("data-sort") === key) {
+        btn.setAttribute("aria-current", "true");
+        btn.setAttribute("data-dir", dir || defaultDir(key));
+      } else {
+        btn.removeAttribute("aria-current");
+        btn.removeAttribute("data-dir");
+      }
     });
   }
-  function sortChildren(list, key, mode) {
+  function compareRows(a, b, mode, dir) {
+    var sign = dir === "asc" ? 1 : -1;
+    var cmp = 0;
+    if (mode === "title" || mode === "name") cmp = text(a, "data-title").localeCompare(text(b, "data-title"));
+    else if (mode === "reviews") cmp = num(a, "data-reviews") - num(b, "data-reviews");
+    else if (mode === "mean") cmp = num(a, "data-mean") - num(b, "data-mean");
+    else if (mode === "mu") cmp = num(a, "data-mu") - num(b, "data-mu");
+    else if (mode === "mu_prime") cmp = num(a, "data-mu-prime") - num(b, "data-mu-prime");
+    else if (mode === "z") cmp = num(a, "data-z") - num(b, "data-z");
+    else if (mode === "score") cmp = num(a, "data-score") - num(b, "data-score");
+    if (cmp === 0 && mode !== "title" && mode !== "name") {
+      return text(a, "data-title").localeCompare(text(b, "data-title"));
+    }
+    return sign * cmp;
+  }
+  function sortChildren(list, key, mode, dir) {
+    dir = dir || defaultDir(key);
     var rows = Array.prototype.slice.call(list.children);
-    rows.sort(function (a, b) {
-      if (mode === "title" || mode === "name") {
-        return text(a, "data-title").localeCompare(text(b, "data-title"));
-      }
-      if (mode === "reviews") return num(b, "data-reviews") - num(a, "data-reviews");
-      if (mode === "mean") return num(b, "data-mean") - num(a, "data-mean");
-      if (mode === "mu") return num(b, "data-mu") - num(a, "data-mu");
-      if (mode === "mu_prime") return num(b, "data-mu-prime") - num(a, "data-mu-prime");
-      if (mode === "z") return num(b, "data-z") - num(a, "data-z");
-      if (mode === "score") return num(b, "data-score") - num(a, "data-score");
-      return 0;
-    });
+    rows.sort(function (a, b) { return compareRows(a, b, mode, dir); });
     rows.forEach(function (row) { list.appendChild(row); });
-    setCurrent(list.parentElement.querySelector(".sort"), key);
+    setCurrent(list.parentElement.querySelector(".sort"), key, dir);
     if (list.id === "game-list") {
       list.querySelectorAll(".row").forEach(function (row) {
         var scoreEl = row.querySelector("[data-score-display]");
@@ -1212,11 +1271,12 @@ const SITE_JS: &str = r#"
       year: (form.year && form.year.value) || "all",
       min: String((form.min_reviews && form.min_reviews.value) || "10"),
       q: ((form.q && form.q.value) || "").trim(),
-      sort: (form.getAttribute("data-sort") || "score")
+      sort: (form.getAttribute("data-sort") || "score"),
+      dir: (form.getAttribute("data-dir") || defaultDir(form.getAttribute("data-sort") || "score"))
     };
   }
   function stateIsDefault(state) {
-    return state.platform === "all" && state.year === "all" && state.min === "10" && !state.q && state.sort === "score";
+    return state.platform === "all" && state.year === "all" && state.min === "10" && !state.q && state.sort === "score" && state.dir !== "asc";
   }
   function filtersActive(form) {
     return !stateIsDefault(formState(form));
@@ -1227,6 +1287,7 @@ const SITE_JS: &str = r#"
     if (state.year !== "all") params.set("year", state.year);
     if (state.min !== "10") params.set("min", state.min);
     if (state.sort && state.sort !== "score") params.set("sort", state.sort);
+    if (state.dir && state.dir !== defaultDir(state.sort || "score")) params.set("dir", state.dir);
     if (state.q) params.set("q", state.q);
     var qs = params.toString();
     var path = stateIsDefault(state) ? (location.pathname || "/") : "/";
@@ -1241,6 +1302,8 @@ const SITE_JS: &str = r#"
     if (params.get("q") && form.q) form.q.value = params.get("q");
     var sort = params.get("sort");
     if (sort) form.setAttribute("data-sort", sort);
+    var dir = params.get("dir");
+    form.setAttribute("data-dir", dir === "asc" || dir === "desc" ? dir : defaultDir(form.getAttribute("data-sort") || "score"));
   }
   function renderClient(games) {
     var list = document.getElementById("game-list");
@@ -1261,11 +1324,16 @@ const SITE_JS: &str = r#"
       return true;
     });
     var sort = state.sort || "score";
+    var dir = state.dir || defaultDir(sort);
+    var sign = dir === "asc" ? 1 : -1;
     matched.sort(function (a, b) {
-      if (sort === "title") return fold(a.title).localeCompare(fold(b.title));
-      if (sort === "reviews") return Number(b.reviews) - Number(a.reviews);
-      if (sort === "mean") return Number(b.mean) - Number(a.mean);
-      return Number(b.score) - Number(a.score);
+      var cmp = 0;
+      if (sort === "title") cmp = fold(a.title).localeCompare(fold(b.title));
+      else if (sort === "reviews") cmp = Number(a.reviews) - Number(b.reviews);
+      else if (sort === "mean") cmp = Number(a.mean) - Number(b.mean);
+      else cmp = Number(a.score) - Number(b.score);
+      if (cmp === 0) return fold(a.title).localeCompare(fold(b.title));
+      return sign * cmp;
     });
     var pageSize = 50;
     var params = new URLSearchParams(location.search);
@@ -1348,6 +1416,9 @@ const SITE_JS: &str = r#"
     if (form.min_reviews) form.min_reviews.value = "10";
     if (form.q) form.q.value = "";
     form.setAttribute("data-sort", "score");
+    form.setAttribute("data-dir", "desc");
+    var nav = document.querySelector(".browse-toolbar .sort");
+    setCurrent(nav, "score", "desc");
     syncBrowse();
   }
   function bindOutletSearch() {
@@ -1397,16 +1468,84 @@ const SITE_JS: &str = r#"
       var btn = ev.target.closest("[data-sort]");
       if (!btn || !nav.contains(btn)) return;
       ev.preventDefault();
+      var key = btn.getAttribute("data-sort") || defaultKey;
+      var dir = defaultDir(key);
+      if (btn.getAttribute("aria-current") === "true") {
+        dir = btn.getAttribute("data-dir") === "asc" ? "desc" : "asc";
+      }
       if (listId === "game-list") {
         var form = document.getElementById("game-filters");
-        if (form) form.setAttribute("data-sort", btn.getAttribute("data-sort") || "score");
-        setCurrent(nav, btn.getAttribute("data-sort"));
+        if (form) {
+          form.setAttribute("data-sort", key);
+          form.setAttribute("data-dir", dir);
+        }
+        setCurrent(nav, key, dir);
         syncBrowse();
         return;
       }
-      sortChildren(list, btn.getAttribute("data-sort"), btn.getAttribute("data-sort"));
+      sortChildren(list, key, key, dir);
     });
-    if (listId !== "game-list") sortChildren(list, defaultKey, defaultKey);
+    if (listId !== "game-list") {
+      var current = nav.querySelector("[aria-current='true']");
+      var key = current ? current.getAttribute("data-sort") : defaultKey;
+      var dir = current && current.getAttribute("data-dir") || defaultDir(key);
+      sortChildren(list, key, key, dir);
+    }
+  }
+  function bindPortFilter() {
+    var list = document.getElementById("game-reviews");
+    var bar = document.getElementById("port-filter");
+    var meta = document.getElementById("port-filter-meta");
+    if (!list || !bar) return;
+    var hero = document.getElementById("score-hero-value");
+    var heroMeta = document.getElementById("score-hero-meta");
+    if (hero && !hero.getAttribute("data-base-html")) hero.setAttribute("data-base-html", hero.innerHTML);
+    if (heroMeta && !heroMeta.getAttribute("data-base-html")) heroMeta.setAttribute("data-base-html", heroMeta.innerHTML);
+    function apply(port) {
+      var shown = 0;
+      var rawSum = 0;
+      var rawN = 0;
+      var mappedSum = 0;
+      var mappedN = 0;
+      function consider(row) {
+        var plats = (row.getAttribute("data-platforms") || "").split(/\s+/).filter(Boolean);
+        var ok = port === "all" || plats.indexOf(port) !== -1;
+        row.hidden = !ok;
+        if (!ok || !row.classList.contains("review")) return;
+        shown += 1;
+        var raw = num(row, "data-raw-norm");
+        var mapped = num(row, "data-mapped");
+        if (isFinite(raw)) { rawSum += raw; rawN += 1; }
+        if (isFinite(mapped)) { mappedSum += mapped; mappedN += 1; }
+      }
+      Array.prototype.forEach.call(list.querySelectorAll(".review"), consider);
+      var notes = document.getElementById("unscored-reviews");
+      if (notes) Array.prototype.forEach.call(notes.querySelectorAll(".unscored"), consider);
+      Array.prototype.forEach.call(bar.querySelectorAll("[data-port]"), function (btn) {
+        btn.setAttribute("aria-pressed", btn.getAttribute("data-port") === port ? "true" : "false");
+      });
+      var label = port === "all" ? "All platforms" : (bar.querySelector('[data-port="' + port + '"] .port-name') || {}).textContent || port;
+      if (port === "all") {
+        if (hero) hero.innerHTML = hero.getAttribute("data-base-html") || hero.innerHTML;
+        if (heroMeta) heroMeta.innerHTML = heroMeta.getAttribute("data-base-html") || heroMeta.innerHTML;
+      } else {
+        var score = mappedN ? Math.round(mappedSum / mappedN) : 0;
+        var mean = rawN ? Math.round(rawSum / rawN) : 0;
+        if (hero) hero.innerHTML = '<span class="whole">' + score + "</span>";
+        if (heroMeta) {
+          heroMeta.textContent = label + " · simple mean " + mean + " · " + shown + (shown === 1 ? " review" : " reviews");
+        }
+      }
+      if (meta) {
+        meta.textContent = label + " · " + shown + (shown === 1 ? " review" : " reviews");
+      }
+    }
+    bar.addEventListener("click", function (ev) {
+      var btn = ev.target.closest("[data-port]");
+      if (!btn || !bar.contains(btn)) return;
+      apply(btn.getAttribute("data-port") || "all");
+    });
+    apply("all");
   }
   document.addEventListener("DOMContentLoaded", function () {
     var form = document.getElementById("game-filters");
@@ -1423,6 +1562,7 @@ const SITE_JS: &str = r#"
     bindOutletSearch();
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
+    bindPortFilter();
     if (form && !stateIsDefault(formState(form))) syncBrowse();
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -2020,6 +2160,122 @@ fn collect_years(games: &[GameView]) -> Vec<i32> {
     years
 }
 
+/// Platforms named in a review's own text or URL. A bare "PlayStation" does not
+/// survive when the same text also names PlayStation 2, 3, 4, or 5.
+pub fn mentioned_platforms(text: &str) -> Vec<String> {
+    let hay: String = text
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() {
+                ch.to_ascii_lowercase()
+            } else {
+                ' '
+            }
+        })
+        .collect();
+    const PHRASES: &[(&str, &str)] = &[
+        ("nintendo switch 2", "switch-2"),
+        ("switch 2", "switch-2"),
+        ("nintendo switch", "switch"),
+        ("playstation 5", "ps5"),
+        ("playstation 4", "ps4"),
+        ("playstation 3", "ps3"),
+        ("playstation 2", "ps2"),
+        ("playstation vita", "vita"),
+        ("ps vita", "vita"),
+        ("playstation portable", "psp"),
+        ("xbox series x s", "xbox-series"),
+        ("xbox series x", "xbox-series"),
+        ("xbox series s", "xbox-series"),
+        ("xbox series", "xbox-series"),
+        ("series x", "xbox-series"),
+        ("series s", "xbox-series"),
+        ("xbox one", "xbox-one"),
+        ("xbox 360", "xbox-360"),
+        ("nintendo 64", "n64"),
+        ("nintendo 3ds", "3ds"),
+        ("nintendo ds", "ds"),
+        ("game boy advance", "gba"),
+        ("game boy color", "gbc"),
+        ("game boy", "gb"),
+        ("game cube", "gamecube"),
+        ("gamecube", "gamecube"),
+        ("wii u", "wii-u"),
+        ("dreamcast", "dreamcast"),
+        ("meta quest", "meta-quest"),
+        ("iphone", "ios"),
+        ("ipad", "ios"),
+        ("windows", "pc"),
+        ("ps5", "ps5"),
+        ("ps4", "ps4"),
+        ("ps3", "ps3"),
+        ("ps2", "ps2"),
+        ("ps1", "ps1"),
+        ("psvita", "vita"),
+        ("switch", "switch"),
+        ("playstation", "ps1"),
+        ("xbox", "xbox"),
+        ("wii", "wii"),
+        ("3ds", "3ds"),
+        ("n64", "n64"),
+        ("psp", "psp"),
+        ("vita", "vita"),
+        ("pc", "pc"),
+    ];
+    let mut keys: Vec<String> = Vec::new();
+    for (phrase, key) in PHRASES {
+        if has_phrase(&hay, phrase) && !keys.iter().any(|existing| existing == key) {
+            keys.push((*key).to_string());
+        }
+    }
+    let specific_playstation = keys.iter().any(|key| {
+        matches!(key.as_str(), "ps5" | "ps4" | "ps3" | "ps2" | "vita" | "psp")
+    });
+    if specific_playstation {
+        keys.retain(|key| key != "ps1");
+    }
+    if keys.iter().any(|key| key == "switch-2") {
+        keys.retain(|key| key != "switch");
+    }
+    if keys
+        .iter()
+        .any(|key| matches!(key.as_str(), "xbox-series" | "xbox-one" | "xbox-360"))
+    {
+        keys.retain(|key| key != "xbox");
+    }
+    if keys.iter().any(|key| key == "wii-u") {
+        keys.retain(|key| key != "wii");
+    }
+    keys.sort();
+    keys
+}
+
+fn has_phrase(hay: &str, needle: &str) -> bool {
+    let mut start = 0;
+    while let Some(rel) = hay[start..].find(needle) {
+        let index = start + rel;
+        let before_ok = hay[..index]
+            .chars()
+            .next_back()
+            .map(|ch| !ch.is_ascii_alphanumeric())
+            .unwrap_or(true);
+        let after = index + needle.len();
+        let after_ok = hay[after..]
+            .chars()
+            .next()
+            .map(|ch| !ch.is_ascii_alphanumeric())
+            .unwrap_or(true);
+        if before_ok && after_ok {
+            return true;
+        }
+        start = after;
+        if start >= hay.len() {
+            break;
+        }
+    }
+    false
+}
+
 fn platform_key(raw: &str) -> String {
     let lower = raw.trim().to_lowercase();
     match lower.as_str() {
@@ -2113,6 +2369,117 @@ fn platform_label(key: &str) -> String {
             .collect::<Vec<_>>()
             .join(" "),
     }
+}
+
+fn catalog_port_keys(game: &GameView) -> Vec<String> {
+    let mut keys: Vec<String> = game
+        .platforms
+        .iter()
+        .map(|platform| platform_key(platform))
+        .filter(|key| !key.is_empty())
+        .collect();
+    keys.sort();
+    keys.dedup();
+    keys
+}
+
+/// Ports that arrived later, when the original platform is also a release.
+/// An untagged review belongs to the original releases, not to that later port.
+fn later_ports(catalog: &[String]) -> Vec<&'static str> {
+    let mut later = Vec::new();
+    let has = |key: &str| catalog.iter().any(|item| item == key);
+    if has("switch") && has("switch-2") {
+        later.push("switch-2");
+    }
+    if has("wii") && has("wii-u") {
+        later.push("wii-u");
+    }
+    later
+}
+
+fn named_port_keys(review: &ReviewView) -> Vec<String> {
+    let mut keys: Vec<String> = review
+        .platforms
+        .iter()
+        .map(|platform| platform_key(platform))
+        .filter(|key| !key.is_empty())
+        .collect();
+    if keys.is_empty() {
+        let mut text = review.excerpt.clone().unwrap_or_default();
+        if let Some(url) = &review.review_url {
+            text.push(' ');
+            text.push_str(url);
+        }
+        keys = mentioned_platforms(&text);
+    }
+    keys.sort();
+    keys.dedup();
+    keys
+}
+
+/// Chips are the game's own releases. A review that names one of them stays on
+/// those only. A review that names some other machine stays on All. A review
+/// that names nothing stays on the original releases, not on a later port.
+fn review_port_keys(review: &ReviewView, catalog: &[String]) -> Vec<String> {
+    let named = named_port_keys(review);
+    let mut matched: Vec<String> = named
+        .iter()
+        .filter(|key| catalog.iter().any(|item| item == *key))
+        .cloned()
+        .collect();
+    matched.sort();
+    matched.dedup();
+    if !matched.is_empty() {
+        return matched;
+    }
+    if !named.is_empty() {
+        return Vec::new();
+    }
+    let later = later_ports(catalog);
+    catalog
+        .iter()
+        .filter(|key| !later.iter().any(|port| port == key))
+        .cloned()
+        .collect()
+}
+
+fn port_score(
+    tagged: &[(&ReviewView, Vec<String>)],
+    mu_global: f64,
+    port: Option<&str>,
+) -> String {
+    let mut sum = 0.0;
+    let mut n = 0usize;
+    for (review, keys) in tagged {
+        if !counts_for_score(review) {
+            continue;
+        }
+        if let Some(port) = port {
+            if !keys.iter().any(|key| key == port) {
+                continue;
+            }
+        }
+        sum += crate::engine::map_z(review.z_score, mu_global);
+        n += 1;
+    }
+    if n == 0 {
+        "—".to_string()
+    } else {
+        format!("{}", (sum / n as f64).round() as i64)
+    }
+}
+
+fn port_chip(key: &str, label: &str, score: &str, pressed: bool) -> String {
+    format!(
+        "<button type=\"button\" data-port=\"{key}\" aria-pressed=\"{pressed}\" aria-label=\"{label}, score {score}\">\
+           <span class=\"port-name\">{label}</span>\
+           <span class=\"port-score\">{score}</span>\
+         </button>",
+        key = esc(key),
+        label = esc(label),
+        score = esc(score),
+        pressed = if pressed { "true" } else { "false" },
+    )
 }
 
 #[allow(dead_code)]
@@ -2284,15 +2651,28 @@ fn sort_bar(_base: &str, current: &str, _default: &str, options: &[(&str, &str)]
         } else {
             ""
         };
+        let dir_attr = if current == *key {
+            format!(" data-dir=\"{}\"", default_sort_dir(key))
+        } else {
+            String::new()
+        };
         html.push_str(&format!(
-            "<button type=\"button\" data-sort=\"{key}\"{current_attr}>{label}</button>",
+            "<button type=\"button\" data-sort=\"{key}\"{current_attr}{dir_attr}>{label}</button>",
             key = esc(key),
             current_attr = current_attr,
+            dir_attr = dir_attr,
             label = esc(label),
         ));
     }
     html.push_str("</nav>");
     html
+}
+
+fn default_sort_dir(key: &str) -> &'static str {
+    match key {
+        "title" | "name" => "asc",
+        _ => "desc",
+    }
 }
 
 fn page_href(page: usize) -> String {
@@ -2642,8 +3022,9 @@ fn filter_bar(
     sort: &str,
 ) -> String {
     let mut html = format!(
-        "<form class=\"filters\" id=\"game-filters\" data-sort=\"{sort}\" aria-label=\"Filters\" role=\"search\">",
+        "<form class=\"filters\" id=\"game-filters\" data-sort=\"{sort}\" data-dir=\"{dir}\" aria-label=\"Filters\" role=\"search\">",
         sort = esc(sort),
+        dir = default_sort_dir(sort),
     );
 
     html.push_str(
@@ -2714,10 +3095,16 @@ fn game_sort_bar(sort: &str) -> String {
         } else {
             ""
         };
+        let dir_attr = if sort == key {
+            format!(" data-dir=\"{}\"", default_sort_dir(key))
+        } else {
+            String::new()
+        };
         html.push_str(&format!(
-            "<button type=\"button\" data-sort=\"{key}\"{current_attr}>{label}</button>",
+            "<button type=\"button\" data-sort=\"{key}\"{current_attr}{dir_attr}>{label}</button>",
             key = esc(key),
             current_attr = current_attr,
+            dir_attr = dir_attr,
             label = esc(label),
         ));
     }
@@ -2853,10 +3240,12 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
     for review in outlet.reviews.iter().filter(|review| {
         !unscored_outlet && review.raw_score.is_some_and(|score| score.is_finite())
     }) {
-        let raw = match (review.raw_score, review.scale_max) {
-            (Some(score), Some(scale)) => format!("{score}/{scale}"),
-            _ => format!("{}", fmt_score(review.raw_score_norm)),
-        };
+        let raw = presented_raw(
+            &outlet.slug,
+            review.raw_score,
+            review.scale_max,
+            review.raw_score_norm,
+        );
         let mapped = crate::engine::map_z(review.z_score, outlet.mu_global);
         let excerpt = review
             .excerpt
@@ -2916,6 +3305,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
                 ),
                 review.excerpt.as_deref(),
                 review.review_url.as_deref(),
+                "",
             ));
         }
         reviews.push_str(&unscored_section(&notes));
@@ -3025,7 +3415,27 @@ fn game_page(game: &GameView, sort: &str) -> String {
             esc(&meta_bits.join(" · "))
         )
     };
+    let catalog_ports = catalog_port_keys(game);
+    let tagged: Vec<(&ReviewView, Vec<String>)> = game
+        .reviews
+        .iter()
+        .filter(|review| is_public_outlet(&review.outlet_slug))
+        .map(|review| (review, review_port_keys(review, &catalog_ports)))
+        .collect();
     let mut reviews = String::from("<section class=\"reviews\"><h2>Outlet reviews</h2>");
+    if catalog_ports.len() > 1 {
+        reviews.push_str(
+            "<div class=\"port-filter\" id=\"port-filter\" role=\"group\" aria-label=\"Filter by platform\">",
+        );
+        let all_score = port_score(&tagged, game.mu_global, None);
+        reviews.push_str(&port_chip("all", "All", &all_score, true));
+        for key in &catalog_ports {
+            let score = port_score(&tagged, game.mu_global, Some(key));
+            reviews.push_str(&port_chip(key, &platform_label(key), &score, false));
+        }
+        reviews.push_str("</div>");
+        reviews.push_str("<p class=\"port-filter-meta\" id=\"port-filter-meta\"></p>");
+    }
     reviews.push_str(&sort_bar(
         &format!("/game/{}", game.slug),
         sort,
@@ -3033,11 +3443,13 @@ fn game_page(game: &GameView, sort: &str) -> String {
         &[("name", "Outlet"), ("score", "Score"), ("z", "Z")],
     ));
     reviews.push_str("<div id=\"game-reviews\">");
-    for review in game.reviews.iter().filter(|review| counts_for_score(review)) {
-        let raw = match (review.raw_score, review.scale_max) {
-            (Some(score), Some(scale)) => format!("{score}/{scale}"),
-            _ => format!("{}", fmt_score(review.raw_score_norm)),
-        };
+    for (review, keys) in tagged.iter().filter(|(review, _)| counts_for_score(review)) {
+        let raw = presented_raw(
+            &review.outlet_slug,
+            review.raw_score,
+            review.scale_max,
+            review.raw_score_norm,
+        );
         let mapped = crate::engine::map_z(review.z_score, game.mu_global);
         let excerpt = review
             .excerpt
@@ -3057,9 +3469,10 @@ fn game_page(game: &GameView, sort: &str) -> String {
             ),
             None => String::new(),
         };
+        let plats = keys.join(" ");
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{outlet_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\" \
-               data-mapped=\"{mapped_n}\" data-raw-norm=\"{norm_n}\">\
+               data-mapped=\"{mapped_n}\" data-raw-norm=\"{norm_n}\" data-platforms=\"{plats}\">\
                <span><strong><a href=\"/outlet/{outlet_slug}/\">{outlet}</a></strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
@@ -3082,15 +3495,14 @@ fn game_page(game: &GameView, sort: &str) -> String {
             z_n = review.z_score,
             mapped_n = mapped,
             norm_n = review.raw_score_norm,
+            plats = esc(&plats),
             excerpt = excerpt,
             source = source,
         ));
     }
     reviews.push_str("</div></section>");
     let mut notes = String::new();
-    for review in game.reviews.iter().filter(|review| {
-        is_public_outlet(&review.outlet_slug) && !counts_for_score(review)
-    }) {
+    for (review, keys) in tagged.iter().filter(|(review, _)| !counts_for_score(review)) {
         notes.push_str(&unscored_card(
             &format!(
                 "<a href=\"/outlet/{slug}/\">{name}</a>",
@@ -3099,6 +3511,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
             ),
             review.excerpt.as_deref(),
             review.review_url.as_deref(),
+            &keys.join(" "),
         ));
     }
     reviews.push_str(&unscored_section(&notes));
@@ -3311,7 +3724,12 @@ fn about_page() -> String {
     )
 }
 
-fn unscored_card(title_html: &str, excerpt: Option<&str>, url: Option<&str>) -> String {
+fn unscored_card(
+    title_html: &str,
+    excerpt: Option<&str>,
+    url: Option<&str>,
+    platforms: &str,
+) -> String {
     let excerpt = excerpt
         .filter(|text| !text.is_empty())
         .map(clip_excerpt)
@@ -3326,7 +3744,8 @@ fn unscored_card(title_html: &str, excerpt: Option<&str>, url: Option<&str>) -> 
         None => String::new(),
     };
     format!(
-        "<div class=\"unscored\"><span><strong>{title_html}</strong><small>No score</small></span>{excerpt}{source}</div>"
+        "<div class=\"unscored\" data-platforms=\"{platforms}\"><span><strong>{title_html}</strong><small>No score</small></span>{excerpt}{source}</div>",
+        platforms = esc(platforms),
     )
 }
 
@@ -3335,7 +3754,7 @@ fn unscored_section(cards: &str) -> String {
         return String::new();
     }
     format!(
-        "<section class=\"reviews\"><h2>Reviews without a score</h2>\
+        "<section class=\"reviews\" id=\"unscored-reviews\"><h2>Reviews without a score</h2>\
          <p class=\"muted\">No numeric grade is published, so these are not part of the SourceCritic score.</p>\
          {cards}</section>"
     )
@@ -4110,6 +4529,74 @@ fn fmt_score(value: f64) -> String {
     format!("{}", value.round() as i64)
 }
 
+/// Scale the outlet actually publishes on. Aggregator rows were stored as 0–100.
+fn native_scale(slug: &str) -> Option<f64> {
+    if slug == "ign" || slug.starts_with("ign-") {
+        return Some(10.0);
+    }
+    if slug == "eurogamer" || slug.starts_with("eurogamer-") {
+        return Some(5.0);
+    }
+    if slug == "gamespot" || slug.starts_with("gamespot-") {
+        return Some(10.0);
+    }
+    Some(match slug {
+        "gamesradar" | "vg247" | "guardian" | "giant-bomb" | "easy-allies" | "usgamer"
+        | "telegraph" | "gamepro" | "australian-gamepro" => 5.0,
+        "jeuxvideo-com" => 20.0,
+        "weekly-famitsu" => 40.0,
+        "edge-magazine" | "game-informer" | "egm" | "metro-gamecentral" | "thesixthaxis"
+        | "worth-playing" | "cogconnected" | "gamingtrend" | "hardcore-gamer" | "shacknews"
+        | "dualshockers" | "god-is-a-geek" | "gamingbolt" | "game-revolution"
+        | "nintendoworldreport" | "playstation-lifestyle" | "videogamer" | "ztgd"
+        | "gaming-nexus" | "noobfeed" | "gamespew" | "techraptor" | "monstervine"
+        | "noisy-pixel" | "checkpoint-gaming" | "impulsegamer" | "digital-chumps"
+        | "gaming-age" | "cubed3" | "playstation-universe" | "video-chums" | "atomix"
+        | "areajugones" | "hobby-consolas" | "meristation" | "vandal" | "3djuegos"
+        | "multiplayer-it" | "everyeye-it" | "spaziogames" | "gamer-nl" | "xgn"
+        | "the-games-machine" | "gameblast" | "psx-brasil" | "levelup" | "pure-xbox"
+        | "rpg-site" | "attack-of-the-fanboy" | "stevivor" | "vgc" | "polygon" | "destructoid"
+        | "nintendo-life" | "push-square" | "gamekult" => 10.0,
+        _ => return None,
+    })
+}
+
+fn format_on_scale(value: f64, scale: f64) -> String {
+    let number = if scale >= 100.0 {
+        format!("{}", value.round() as i64)
+    } else {
+        let rounded = (value * 10.0).round() / 10.0;
+        if (rounded - rounded.round()).abs() < 0.001 {
+            format!("{}", rounded.round() as i64)
+        } else {
+            format!("{rounded:.1}")
+        }
+    };
+    let ceiling = if (scale - scale.round()).abs() < 0.001 {
+        format!("{}", scale.round() as i64)
+    } else {
+        format!("{scale}")
+    };
+    format!("{number}/{ceiling}")
+}
+
+/// `9/10` or `4/5` when the outlet's scale is known. A row already stored on
+/// that scale is left as written. A flattened aggregator `90/100` is converted.
+fn presented_raw(slug: &str, raw: Option<f64>, scale: Option<f64>, norm: f64) -> String {
+    if let (Some(raw), Some(scale)) = (raw, scale) {
+        let flattened = scale >= 99.5 && (raw - norm).abs() < 0.051;
+        if !flattened {
+            return format_on_scale(raw, scale);
+        }
+    }
+    if let Some(scale) = native_scale(slug) {
+        if scale < 99.5 {
+            return format_on_scale(norm * scale / 100.0, scale);
+        }
+    }
+    format_on_scale(raw.unwrap_or(norm), scale.unwrap_or(100.0))
+}
+
 fn fmt_z(value: f64) -> String {
     format!("{:.2}", value)
 }
@@ -4464,6 +4951,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         "Most divisive",
         &intro,
         &divisive,
+        true,
     ));
 
     let mut gaps: Vec<&GameView> = games
@@ -4494,6 +4982,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         "Biggest gaps",
         &gap_intro,
         &gaps,
+        false,
     ));
 
     let mut generous: Vec<&crate::db::OutletView> = outlets.iter().filter(|outlet| outlet.n >= 20).collect();
@@ -4606,6 +5095,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
                 &format!("Best {label} games of {year}"),
                 &intro,
                 &picked,
+                false,
             ));
             platform_years_linked.push((*year, path.clone()));
             best_index.push_str(&format!(
@@ -4670,6 +5160,7 @@ fn list_page(
     heading: &str,
     intro: &str,
     games: &[&GameView],
+    show_spread: bool,
 ) -> (String, String) {
     let mut body = format!(
         "<h1 class=\"page\">{heading}</h1><p class=\"lead\">{intro}</p><div id=\"game-list\">",
@@ -4677,43 +5168,68 @@ fn list_page(
     );
     for game in games {
         let slug = public_slug(&game.slug, &game.title);
-        let score = game.agg_score.unwrap_or(0.0);
-        let mean = game.simple_mean.unwrap_or(0.0);
-        let gap = score - mean;
-        let tone = if gap > 0.05 {
-            "cmp-low"
-        } else if gap < -0.05 {
-            "cmp-high"
-        } else {
-            ""
-        };
-        let paint = |html: String| -> String {
-            if tone.is_empty() {
-                html
-            } else {
-                format!("<span class=\"{tone}\">{html}</span>")
-            }
-        };
         let reviews = if game.review_count == 1 {
             "1 review".to_string()
         } else {
             format!("{} reviews", game.review_count)
         };
+        // Most divisive is ranked by how far outlets sit from each other, so the
+        // row shows that standard deviation and not the score-versus-mean gap.
+        let (detail, figures) = if show_spread {
+            let spread = population_std(&scored_norms(game));
+            (
+                esc(&reviews),
+                format!(
+                    "<span class=\"score-pair\">\
+                       <span class=\"score-pair-item\">{html}<small>std</small></span>\
+                     </span>",
+                    html = score_figure(spread, "score-compact score-open", ""),
+                ),
+            )
+        } else {
+            let score = game.agg_score.unwrap_or(0.0);
+            let mean = game.simple_mean.unwrap_or(0.0);
+            let gap = score - mean;
+            let tone = if gap > 0.05 {
+                "cmp-low"
+            } else if gap < -0.05 {
+                "cmp-high"
+            } else {
+                ""
+            };
+            let paint = |html: String| -> String {
+                if tone.is_empty() {
+                    html
+                } else {
+                    format!("<span class=\"{tone}\">{html}</span>")
+                }
+            };
+            (
+                format!(
+                    "{reviews} · gap {gap}",
+                    reviews = esc(&reviews),
+                    gap = paint(score_figure(gap, "score-compact score-meta-num", "")),
+                ),
+                format!(
+                    "<span class=\"score-pair\">\
+                       <span class=\"score-pair-item\">{score_html}<small>score</small></span>\
+                       <span class=\"score-pair-item\">{mean_html}<small>mean</small></span>\
+                     </span>",
+                    score_html = paint(score_figure(score, "score-compact", "")),
+                    mean_html = paint(score_figure(mean, "score-compact", "")),
+                ),
+            )
+        };
         body.push_str(&format!(
             "<a class=\"row\" href=\"/game/{slug}/\">\
                <span class=\"title-block\"><strong>{title}</strong>\
-                 <small>{reviews} · gap {gap}</small></span>\
-               <span class=\"score-pair\">\
-                 <span class=\"score-pair-item\">{score_html}<small>score</small></span>\
-                 <span class=\"score-pair-item\">{mean_html}<small>mean</small></span>\
-               </span>\
+                 <small>{detail}</small></span>\
+               {figures}\
              </a>",
             slug = esc(&slug),
             title = esc(&game.title),
-            reviews = esc(&reviews),
-            gap = paint(score_figure(gap, "score-compact score-meta-num", "")),
-            score_html = paint(score_figure(score, "score-compact", "")),
-            mean_html = paint(score_figure(mean, "score-compact", "")),
+            detail = detail,
+            figures = figures,
         ));
     }
     body.push_str("</div>");
@@ -4843,6 +5359,79 @@ mod tests {
         let html = redirect_page("/best/ps2/");
         assert_eq!(refresh_target(&html).as_deref(), Some("/best/ps2/"));
         assert!(refresh_target("<p>no redirect</p>").is_none());
+    }
+
+    #[test]
+    fn a_named_port_does_not_keep_the_shorter_platform() {
+        assert_eq!(
+            mentioned_platforms("This Switch 2 port of Resident Evil 4 holds up."),
+            vec!["switch-2".to_string()]
+        );
+        assert_eq!(
+            mentioned_platforms("The PS5 version is the one to play."),
+            vec!["ps5".to_string()]
+        );
+        assert_eq!(
+            mentioned_platforms("https://example.com/reviews/playstation-5/hades"),
+            vec!["ps5".to_string()]
+        );
+        assert!(mentioned_platforms("A landmark remake.").is_empty());
+    }
+
+    fn bare_review(excerpt: &str, url: &str, platforms: &[&str]) -> ReviewView {
+        ReviewView {
+            outlet_slug: "ign".into(),
+            outlet_name: "IGN".into(),
+            raw_score: Some(90.0),
+            scale_max: Some(100.0),
+            raw_score_norm: 90.0,
+            z_score: 0.0,
+            excerpt: Some(excerpt.into()),
+            review_url: Some(url.into()),
+            platforms: platforms.iter().map(|platform| (*platform).to_string()).collect(),
+            outlet_n: 1,
+            mu: 0.0,
+            sigma: 0.0,
+            mu_prime: 0.0,
+            sigma_prime: 0.0,
+        }
+    }
+
+    #[test]
+    fn a_filtered_review_stays_hidden_despite_the_grid() {
+        assert!(CSS.contains(".review[hidden]"));
+        assert!(CSS.contains(".unscored[hidden]"));
+    }
+
+    #[test]
+    fn breath_of_the_wild_ports_ignore_machines_the_game_never_shipped_on() {
+        let catalog = vec!["switch".into(), "switch-2".into(), "wii-u".into()];
+        let switch_2 = bare_review("The Switch 2 edition is the one to replay.", "", &[]);
+        assert_eq!(review_port_keys(&switch_2, &catalog), vec!["switch-2".to_string()]);
+        let original = bare_review("A landmark adventure.", "https://ign.com/articles/zelda", &[]);
+        assert_eq!(
+            review_port_keys(&original, &catalog),
+            vec!["switch".to_string(), "wii-u".to_string()]
+        );
+        let aside = bare_review(
+            "It doesn't feature eye-popping graphics like games on PC and PS4.",
+            "https://example.com/beyond-playstation/zelda-review",
+            &[],
+        );
+        assert!(review_port_keys(&aside, &catalog).is_empty());
+        let stored = bare_review("A landmark adventure.", "", &["ps1"]);
+        assert!(review_port_keys(&stored, &catalog).is_empty());
+    }
+
+    #[test]
+    fn aggregator_hundred_is_shown_on_the_outlet_scale() {
+        assert_eq!(presented_raw("ign", Some(90.0), Some(100.0), 90.0), "9/10");
+        assert_eq!(presented_raw("eurogamer", Some(80.0), Some(100.0), 80.0), "4/5");
+        assert_eq!(presented_raw("gamesradar", Some(100.0), Some(100.0), 100.0), "5/5");
+        assert_eq!(presented_raw("jeuxvideo-com", Some(80.0), Some(100.0), 80.0), "16/20");
+        assert_eq!(presented_raw("weekly-famitsu", Some(90.0), Some(100.0), 90.0), "36/40");
+        assert_eq!(presented_raw("pc-gamer", Some(85.0), Some(100.0), 85.0), "85/100");
+        assert_eq!(presented_raw("ign", Some(8.5), Some(10.0), 85.0), "8.5/10");
     }
 
     #[test]

@@ -13,7 +13,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 CATALOG_GAMES = DATA / "catalog_games.json"
 CATALOG_OUTLETS = DATA / "catalog_outlets.json"
-DISCOVER_DIR = DATA / "discover"
 
 # Remasters / enhanced editions → base catalog slug.
 CANONICAL_SLUG: dict[str, str] = {
@@ -99,35 +98,11 @@ def slugify(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "item"
 
 
-# Keep in sync with adapters.OUTLET_ALIASES — same critic, one catalog row.
-OUTLET_SLUG_ALIASES: dict[str, str] = {
-    "gamesradar+": "gamesradar",
-    "games-radar": "gamesradar",
-    "games-radar+": "gamesradar",
-    "mmorpgcom": "mmorpg-com",
-    "sectorsk": "sector-sk",
-    "multiplayerit": "multiplayer-it",
-    "everyeyeit": "everyeye-it",
-    "gamesch": "games-ch",
-    "gryonlinepl": "gryonline-pl",
-    "gamerant": "game-rant",
-    "firingsquad": "firing-squad",
-    "trustedreviews": "trusted-reviews",
-    "ragequitgr": "ragequit-gr",
-    "restartrun": "restart-run",
-    "the-a-v-club": "the-av-club",
-    "generaci-n-xbox": "generacion-xbox",
-    "gamerno": "gamer-no",
-    "fingerguns": "finger-guns",
-    "gamecritics": "game-critics",
-    "gamestm": "games-tm",
-    "play!-zine": "play-zine",
-}
-
-
 def canonicalize_outlet_slug(slug: str) -> str:
-    key = slugify(slug or "")
-    return OUTLET_SLUG_ALIASES.get(key, key)
+    """Delegate to adapters so OUTLET_ALIASES stays the single source of truth."""
+    from adapters import canonicalize_outlet_slug as _canon
+
+    return _canon(slug)
 
 
 def norm(title: str) -> str:
@@ -223,26 +198,6 @@ def save_outlets_catalog(catalog: dict[str, Any], path: Path | None = None) -> N
     tmp = p.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
     tmp.replace(p)
-
-
-def save_discover_batch(name: str, candidates: list[dict[str, Any]]) -> Path:
-    DISCOVER_DIR.mkdir(parents=True, exist_ok=True)
-    path = DISCOVER_DIR / f"{name}.json"
-    payload = {
-        "updated_at": utc_now(),
-        "count": len(candidates),
-        "candidates": candidates,
-    }
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
-    return path
-
-
-def load_discover_batch(name: str) -> list[dict[str, Any]]:
-    path = DISCOVER_DIR / f"{name}.json"
-    if not path.exists():
-        return []
-    data = json.loads(path.read_text())
-    return list(data.get("candidates") or [])
 
 
 def _index_catalog(games: dict[str, dict]) -> tuple[dict[str, str], dict[str, str]]:

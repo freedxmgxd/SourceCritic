@@ -23,6 +23,20 @@ from adapters import (  # noqa: E402
 )
 
 
+def load_outlet_scales() -> dict[str, float]:
+    path = ROOT / "data" / "outlets.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    scales: dict[str, float] = {}
+    for outlet in payload.get("outlets") or []:
+        slug = outlet.get("slug")
+        scale = outlet.get("scale_max")
+        if isinstance(slug, str) and isinstance(scale, (int, float)) and scale > 0:
+            scales[slug] = float(scale)
+    return scales
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", default="http://127.0.0.1:3000/reviews")
@@ -31,6 +45,7 @@ def main() -> None:
     args = parser.parse_args()
 
     data = json.loads(args.seed.read_text())
+    outlet_scales = load_outlet_scales()
     synopses: dict[str, str] = {}
     if SYNOPSES.exists():
         synopses = {
@@ -73,11 +88,20 @@ def main() -> None:
                 "game_slug": game_slug,
                 "game_title": game["title"],
                 "cover_path": cover,
-                "scale_max": 100.0,
                 "raw_score_norm": 0.0 if score_f is None else score_f,
             }
             if score_f is not None:
-                item["raw_score"] = score_f
+                native = review.get("scale_max")
+                raw_given = review.get("raw_score")
+                if native is not None and raw_given is not None:
+                    item["scale_max"] = float(native)
+                    item["raw_score"] = float(raw_given)
+                else:
+                    scale = float(outlet_scales.get(outlet_slug) or 100.0)
+                    item["scale_max"] = scale
+                    item["raw_score"] = score_f * scale / 100.0
+            else:
+                item["scale_max"] = 100.0
             if release_year is not None:
                 item["release_year"] = int(release_year)
             if platforms:

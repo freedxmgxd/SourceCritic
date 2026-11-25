@@ -2,13 +2,10 @@
 """
 Scrape critic reviews for every active game in data/catalog_games.json.
 
-Source priority (per game, one row per outlet):
-  1. Direct outlet site (IGN / PC Gamer / Eurogamer / GamesRadar / …)
-  2. Metacritic aggregator
-  3. OpenCritic aggregator
+Only direct outlet sites (IGN / PC Gamer / Eurogamer / GamesRadar / …).
+Metacritic and OpenCritic fetches are disabled.
 
-Duplicates collapse with outlet > MC > OC so Bayesian scores aren't inflated.
-Discovery stays in discover_*.py — this script never grows the game list.
+Does not grow catalog_games — add games to the catalog manually when needed.
 """
 
 from __future__ import annotations
@@ -30,12 +27,14 @@ from adapters import (  # noqa: E402
     canon_platforms,
     dedupe_seed_reviews,
     download_cover,
+    is_mc_edition_slug,
     load_oc_index,
     mc_details,
     mc_reviews,
     merge_reviews,
     oc_details,
     oc_reviews,
+    prefer_base_mc_slug,
     search_mc,
     search_oc,
 )
@@ -102,11 +101,34 @@ def resolve_mc(game: dict) -> tuple[str | None, dict | None]:
     ext = game.get("external") or {}
     mc_slug = ext.get("metacritic")
     details = None
-    if mc_slug:
-        details = mc_details(mc_slug)
+
+    def _load(slug: str | None) -> tuple[str | None, dict | None]:
+        if not slug:
+            return None, None
+        meta = mc_details(slug)
         time.sleep(0.06)
-        if details:
-            return details["slug"], details
+        if not meta:
+            return None, None
+        return meta["slug"], meta
+
+    if mc_slug:
+        # Catalog sometimes points at Gold/Complete/port SKUs — prefer base.
+        if is_mc_edition_slug(mc_slug):
+            base = prefer_base_mc_slug(mc_slug)
+            slug, details = _load(base)
+            if details:
+                return slug, details
+        slug, details = _load(mc_slug)
+        if details and not is_mc_edition_slug(slug):
+            return slug, details
+        if details and is_mc_edition_slug(slug):
+            base = prefer_base_mc_slug(slug)
+            if base and base != slug:
+                base_slug, base_details = _load(base)
+                if base_details:
+                    return base_slug, base_details
+            # Last resort: keep edition only if base missing.
+            return slug, details
     hit = search_mc(game.get("title") or game["slug"])
     time.sleep(0.08)
     if not hit:
@@ -114,7 +136,13 @@ def resolve_mc(game: dict) -> tuple[str | None, dict | None]:
     mc_slug = hit["slug"]
     details = mc_details(mc_slug)
     time.sleep(0.06)
-    return mc_slug, details
+    if details and is_mc_edition_slug(details["slug"]):
+        base = prefer_base_mc_slug(details["slug"])
+        if base and base != details["slug"]:
+            base_slug, base_details = _load(base)
+            if base_details:
+                return base_slug, base_details
+    return (details["slug"], details) if details else (mc_slug, None)
 
 
 def _oc_target_ok(game_slug: str, oc_slug: str | None) -> bool:
@@ -221,6 +249,22 @@ def is_stale(game: dict, max_age_days: float | None) -> bool:
     return age.total_seconds() >= max_age_days * 86400
 
 
+def _port_edition_mc_slugs(catalog: dict | None, base_slug: str, base_mc: str | None) -> list[str]:
+    """MC slugs of catalog stubs merged into this game (Complete/Deluxe ports)."""
+    if not catalog:
+        return []
+    out: list[str] = []
+    for entry in (catalog.get("games") or {}).values():
+        if entry.get("status") != "merged_into":
+            continue
+        if entry.get("merged_into") != base_slug:
+            continue
+        mc = (entry.get("external") or {}).get("metacritic")
+        if mc and mc != base_mc and mc not in out:
+            out.append(mc)
+    return out
+
+
 def scrape_one(
     slug: str,
     game: dict,
@@ -231,6 +275,7 @@ def scrape_one(
     need_oc: bool,
     need_outlets: bool,
     outlet_ids: list[str],
+    catalog: dict | None = None,
 ) -> str:
     """
     Returns status: skipped|updated|added|no_reviews|error
@@ -312,6 +357,19 @@ def scrape_one(
                 time.sleep(0.05)
             except Exception as error:
                 print(f"  MC reviews fail {mc_slug}: {error}", flush=True)
+            # Fold port/Complete SKU critic rows into the same game (tagged by platform).
+            for port_slug in _port_edition_mc_slugs(catalog, slug, mc_slug):
+                try:
+                    port_rows = mc_reviews(port_slug)
+                    if port_rows:
+                        reviews = merge_reviews(reviews, port_rows)
+                        print(
+                            f"  MC port +{len(port_rows)} from {port_slug}",
+                            flush=True,
+                        )
+                    time.sleep(0.05)
+                except Exception as error:
+                    print(f"  MC port fail {port_slug}: {error}", flush=True)
 
     # 3) OpenCritic last — only adds outlets still missing after outlet+MC.
     oc_id = None
@@ -362,14 +420,33 @@ def scrape_one(
 
     if existing:
         title = existing.get("title") or title
-        year = existing.get("release_year") if existing.get("release_year") is not None else year
-        if existing.get("platforms"):
-            platforms = existing["platforms"]
+        # When we resolved a base MC SKU, prefer its year over a stale port year
+        # (e.g. Switch 2 2026 overwriting a 2023 remake).
+        if year is None:
+            year = existing.get("release_year")
+        elif (
+            existing.get("release_year") is not None
+            and mc_meta
+            and not is_mc_edition_slug(mc_slug)
+            and int(year) < int(existing["release_year"])
+        ):
+            pass  # keep earlier base release year from mc_meta
+        elif existing.get("release_year") is not None and not mc_meta:
+            year = existing["release_year"]
+        existing_plats = existing.get("platforms") or []
+        if platforms and existing_plats:
+            platforms = list(dict.fromkeys([*existing_plats, *platforms]))
+        elif not platforms:
+            platforms = list(existing_plats)
         if existing.get("metascore") is not None and metascore is None:
             metascore = existing["metascore"]
         if existing.get("opencritic_score") is not None and oc_score is None:
             oc_score = existing["opencritic_score"]
-        mc_slug = mc_slug or existing.get("mc_slug")
+        # Don't keep a Gold/Complete edition slug once we have a base SKU.
+        if mc_slug and is_mc_edition_slug(existing.get("mc_slug")):
+            pass
+        else:
+            mc_slug = mc_slug or existing.get("mc_slug")
         oc_id = oc_id if oc_id is not None else existing.get("opencritic_id")
 
     cover = download_cover(slug, cover_url) or (existing or {}).get("cover") or f"/covers/{slug}.jpg"
@@ -544,15 +621,10 @@ def main() -> None:
 
     outlet_ids = args.outlet or ["ign", "pc-gamer", "eurogamer", "gamesradar"]
     outlet_ids = [o for o in outlet_ids if o in ADAPTERS]
-    if args.outlets_only:
-        need_mc = False
-        need_oc = False
-        need_outlets = True
-    else:
-        need_mc = not args.skip_mc
-        need_oc = not args.skip_oc
-        # Default: outlet sites first, then aggregators.
-        need_outlets = bool(args.with_outlets) and not args.skip_outlets
+    # Aggregator APIs stay off regardless of flags.
+    need_mc = False
+    need_oc = False
+    need_outlets = not args.skip_outlets
 
     if need_mc or need_oc:
         load_oc_index()
@@ -620,6 +692,7 @@ def main() -> None:
                     need_oc=need_oc,
                     need_outlets=need_outlets,
                     outlet_ids=outlet_ids,
+                    catalog=catalog,
                 )
             except Exception as error:
                 print(f"  error: {error}", flush=True)

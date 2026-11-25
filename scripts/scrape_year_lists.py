@@ -6,8 +6,8 @@ Selection (union):
   - top 50 / bottom 50 by critic score
   - top 50 / bottom 50 by user score (MC user score, OC % recommended)
 
-Critic reviews come from both sites. Aggregate user scores are stored as
-pseudo-outlets so the Bayesian pipeline can absorb them.
+Critic reviews come from both sites. Aggregate user scores / recommend %
+are stored as game-level metadata only — never as pseudo-outlet reviews.
 """
 
 from __future__ import annotations
@@ -99,7 +99,12 @@ def oc_parse_state(html: str) -> dict:
     )
     if not match:
         return {}
-    raw = unescape(match.group(1).replace("&q;", '"').replace("&s;", "'"))
+    raw = (
+        unescape(match.group(1))
+        .replace("&q;", '"')
+        .replace("&s;", "'")
+        .replace("&a;", "&")
+    )
     return json.loads(raw)
 
 
@@ -459,6 +464,7 @@ def ensure_game(seed: dict, game_slug: str, title: str, cover: str | None) -> di
 
 
 def main() -> None:
+    raise SystemExit("Metacritic and OpenCritic scraping is disabled (compliance).")
     parser = argparse.ArgumentParser()
     parser.add_argument("--year", type=int, default=YEAR)
     parser.add_argument("--top", type=int, default=50)
@@ -494,24 +500,6 @@ def main() -> None:
         entry["opencritic_score"] = game.get("topCriticScore")
         entry["opencritic_recommend"] = game.get("percentRecommended")
         entry["reviews"] = merge_reviews(entry.get("reviews") or [], reviews)
-        # user-like aggregate from OC
-        pct = game.get("percentRecommended")
-        if pct is not None and pct >= 0:
-            entry["reviews"] = merge_reviews(
-                entry["reviews"],
-                [
-                    {
-                        "publication": "OpenCritic Recommend %",
-                        "slug": "opencritic-recommend",
-                        "score": float(pct),
-                        "source": "opencritic-user",
-                        "excerpt": (
-                            f"{pct:.1f}% of OpenCritic critics recommend this game "
-                            f"({game.get('numReviews') or '?'} reviews)."
-                        ),
-                    }
-                ],
-            )
         print(f"    reviews now {len(entry['reviews'])}")
         time.sleep(0.1)
 
@@ -563,23 +551,6 @@ def main() -> None:
         entry["mc_slug"] = details.get("mc_slug") or slug
         entry["mc_user_score"] = details.get("user_score")
         entry["reviews"] = merge_reviews(entry.get("reviews") or [], reviews)
-        if details.get("user_score") is not None:
-            user_100 = float(details["user_score"]) * 10.0
-            entry["reviews"] = merge_reviews(
-                entry["reviews"],
-                [
-                    {
-                        "publication": "Metacritic Users",
-                        "slug": "metacritic-users",
-                        "score": user_100,
-                        "source": "metacritic-user",
-                        "excerpt": (
-                            f"Metacritic user score {details['user_score']}/10 "
-                            f"({details.get('user_count') or '?'} ratings)."
-                        ),
-                    }
-                ],
-            )
         print(f"    reviews now {len(entry['reviews'])}")
 
     args.seed.write_text(json.dumps(seed, indent=2) + "\n")
