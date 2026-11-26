@@ -1512,7 +1512,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Ocarina of Time is the complete package appealing to one and all, and is the definitive accomplishment in game design.",
-        "url": "https://web.archive.org/web/20070202175618/http://www.avault.com/consoles/reviews/n64/review_temp.asp?game=zelda&page=1"
+        "url": "https://web.archive.org/web/20070202175618/http://www.avault.com:80/consoles/reviews/n64/review_temp.asp?game=zelda&page=1"
       },
       {
         "publication": "Games Domain",
@@ -1560,7 +1560,7 @@
         "score": 98.0,
         "source": "metacritic",
         "excerpt": "When it comes to what people will now demand of a top videogame, Nintendo has moved the goalposts off the pitch, into a lorry, down the road, into the airport, onto a plane and halfway round the world to a different continent entirely.",
-        "url": "https://n64.totalgames.net/(kg4rhr55zoqcdzr3y1f2bq55)/pma/12958"
+        "url": null
       },
       {
         "publication": "Gaming Age",
@@ -1585,6 +1585,30 @@
         "source": "metacritic",
         "excerpt": "Realism is one of the major reasons this title is so amazing. After playing for a while it feels as though you have actually been to Hyrule.",
         "url": null
+      },
+      {
+        "publication": "Nintendo Life",
+        "slug": "nintendo-life",
+        "score": 100.0,
+        "source": "nintendolife",
+        "excerpt": "Ocarina of Time is honestly as close to video game perfection as you can get and an absolute must-play for any video game fan.",
+        "url": "https://www.nintendolife.com/reviews/n64/legend_of_zelda_ocarina_of_time"
+      },
+      {
+        "publication": "Edge Magazine",
+        "slug": "edge-magazine",
+        "score": 100.0,
+        "source": "edge",
+        "excerpt": "Ocarina of Time shapes up as arguably the most accomplished game to have ever come out of the studios of NCL, and is reason enough to buy a Nintendo 64 in itself. A work of genius.",
+        "url": "https://web.archive.org/web/20130805063746/http://www.edge-online.com/review/legend-zelda-ocarina-time-review/"
+      },
+      {
+        "publication": "Cubed3",
+        "slug": "cubed3",
+        "score": 90.0,
+        "source": "cubed3",
+        "excerpt": "There are certain moments here that are pure magic, moments that truly grab the player and make you show emotion and pride.",
+        "url": "https://www.cubed3.com/games/reviews/nintendo-64/the-legend-of-zelda-ocarina-of-time"
       }
     ],
     "metascore": 99,
@@ -6622,7 +6646,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Not only are the graphics significantly improved, they whisk by at a steady pace and feature larger levels with even more interactive environments.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=thawk3"
+        "url": "https://web.archive.org/web/20061118062834/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=thawk3"
       },
       {
         "publication": "Voodoo Extreme",
@@ -19267,7 +19291,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "In what could be billed as \"the complete criminal experience\" this game delivers in every category with jaw dropping graphics, stunning sound effects, a unique musical score that's presented with countless hilarious commercials through your car's radio, and a relentless AI that will hunt you down…",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=gta3"
+        "url": "https://web.archive.org/web/20070205104003/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=gta3"
       },
       {
         "publication": "Core Magazine",
@@ -21258,7 +21282,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Your objectives are simple enough that you never have to flip switches, jump over pits or hunt down missing keys, but at the same time the smart enemies, brilliant level design and strategic combat will tax your brain more than any scavenger hunt ever could.",
-        "url": "https://avault.com/consoles/reviews/xbox/review_temp.asp?game=halo"
+        "url": "https://web.archive.org/web/20070202221221/http://www.avault.com:80/reviews/review_temp.asp?game=halo"
       },
       {
         "publication": "Yahoo!",
@@ -21923,7 +21947,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Valve's inclusion of an interactive physics-based environment and the wonderful gravity gun lends itself to fun gravity puzzles, making use of good old-fashioned common sense and intuition - something I've found to be absent in the average first-person shooter.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=hl2"
+        "url": "https://web.archive.org/web/20061011235926/http://www.avault.com:80/reviews/review_temp.asp?game=hl2"
       },
       {
         "publication": "Gamer.tv",
@@ -23209,7 +23233,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Bar none this is the greatest console game ever made... Its mix of thought-provoking action, wonderful ambience, and perfect execution make this a must play for any gamer.",
-        "url": "https://avault.com/consoles/reviews/n64/review_temp.asp?game=bond&page=1"
+        "url": "https://web.archive.org/web/20060228130124/http://www.avault.com:80/consoles/reviews/n64/review_temp.asp?game=bond&page=1"
       },
       {
         "publication": "Games Domain",
@@ -26665,7 +26689,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "The best fighter for any console system. What else needs to be said?",
-        "url": "https://avault.com/consoles/reviews/psx/review_temp.asp?game=tekn3&page=1"
+        "url": "https://web.archive.org/web/20060214114317/http://www.avault.com:80/consoles/reviews/psx/review_temp.asp?game=tekn3&page=1"
       },
       {
         "publication": "Games Domain",
@@ -29452,7 +29476,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "If you want an incredible 3D experience that will cause you to lose sleep, meals, PTA meetings, and romantic rendezvous, this is the game.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=half&page=1"
+        "url": "https://web.archive.org/web/20070202231130/http://www.avault.com:80/reviews/review_temp.asp?game=half&page=1"
       },
       {
         "publication": "Hot Games",
@@ -31981,7 +32005,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "However, it is not perfect: Most notably, while fans of the original title will surely find this game enjoyable, they will also find it extremely easy to defeat, with unusually light penalties for dying.",
-        "url": "https://avault.com/consoles/reviews/gc/review_temp.asp?game=lzww"
+        "url": "https://web.archive.org/web/20070202232417/http://www.avault.com:80/consoles/reviews/gc/review_temp.asp?game=lzww"
       },
       {
         "publication": "All Game Guide",
@@ -32073,7 +32097,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Difficulty complaints aside, Gran Turismo is truly an amazing game... This is the last word in console racing games, period.",
-        "url": "https://avault.com/consoles/reviews/psx/review_temp.asp?game=gt&page=1"
+        "url": "https://web.archive.org/web/20070202233519/http://www.avault.com:80/consoles/reviews/psx/review_temp.asp?game=gt&page=1"
       },
       {
         "publication": "All Game Guide",
@@ -32952,7 +32976,7 @@
         "slug": "adrenaline-vault",
         "score": 100.0,
         "excerpt": "Astounding graphics, sound, and storytelling combine to make the definitive fantasy RPG epic, one that will enthrall players for years to come.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=bg2soa"
+        "url": "https://web.archive.org/web/20070205094634/http://www.avault.com:80/reviews/review_temp.asp?game=bg2soa"
       },
       {
         "publication": "GMR Magazine",
@@ -34213,7 +34237,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "The seamless amalgamation of all things '80s into the mix lets the creative team go wild with the vocal work and provide an outstanding retro soundtrack.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=vice"
+        "url": "https://web.archive.org/web/20070202174211/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=vice"
       },
       {
         "publication": "PSX Nation",
@@ -35221,7 +35245,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "I can say with complete honesty that no other first-person shooter can touch Bungie's epic in terms of level design, gunplay, sheer action or multiplayer entertainment.",
-        "url": "https://avault.com/consoles/reviews/xbox/review_temp.asp?game=halo2"
+        "url": "https://web.archive.org/web/20060831124224/http://www.avault.com:80/consoles/reviews/xbox/review_temp.asp?game=halo2"
       },
       {
         "publication": "Yahoo!",
@@ -35858,7 +35882,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Remember to start on the outside of the turn, cut to the inside and then tromp on the accelerator when you're past the half way; that should keep your speed as high as possible on the your way to the nearest retailer. Trust me, the traffic ticket would be worth it.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=gt3"
+        "url": "https://web.archive.org/web/20070202173553/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=gt3"
       },
       {
         "publication": "GamePro",
@@ -48075,7 +48099,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "With gameplay oozing off of this disk like gravy out of Refrigerator Perry's hot beef sandwich, fans of the gridiron will lose themselves in hours of rapture and may very well forget to eat or sleep.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=madden2002"
+        "url": "https://web.archive.org/web/20070205104726/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=madden2002"
       },
       {
         "publication": "GamePro",
@@ -49895,7 +49919,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "The new owner's box adds astonishing depth and replayability to a franchise mode that is already dangerously addictive, while the playmaker controls only serve to better immerse the player in the experience.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=madden04"
+        "url": "https://web.archive.org/web/20060823224532/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=madden04"
       },
       {
         "publication": "Cheat Code Central",
@@ -51460,7 +51484,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "The graphics, sound, and intelligence factors combine to make a game that will scare the hell out of you! The main problem that Quake seems to have is a lack of identity…",
-        "url": "https://avault.com/reviews/review_temp.asp?game=q&page=1"
+        "url": "https://web.archive.org/web/20060629130929/http://www.avault.com:80/reviews/review_temp.asp?game=q&page=1"
       },
       {
         "publication": "Gamezilla!",
@@ -55544,7 +55568,7 @@
         "score": 70.0,
         "source": "metacritic",
         "excerpt": "While it is playable, and actually pretty fun a lot of the time, it has some serious, nearly game ruining flaws that, for me, made it a complete disappointment.",
-        "url": "https://avault.com/consoles/reviews/psx/review_temp.asp?game=metalgear&page=1"
+        "url": "https://web.archive.org/web/20060214115139/http://www.avault.com:80/consoles/reviews/psx/review_temp.asp?game=metalgear&page=1"
       },
       {
         "publication": "PC Gamer",
@@ -58455,7 +58479,7 @@
         "slug": "adrenaline-vault",
         "score": 90.0,
         "excerpt": "Burnout's World Tour circuit is both lengthy and addictive. However, once you've beaten all the competition, filled your garage to its fullest, and amassed a complete collection of trophies, the single-player game does lose some of its luster.",
-        "url": "https://avault.com/consoles/reviews/xbox/review_temp.asp?game=takedown"
+        "url": "https://web.archive.org/web/20060516153854/http://avault.com:80/consoles/reviews/xbox/review_temp.asp?game=takedown"
       },
       {
         "publication": "Yahoo!",
@@ -58559,7 +58583,7 @@
         "slug": "adrenaline-vault",
         "score": 100.0,
         "excerpt": "About as close to Hell as you're going to get - whether you believe in it or not. Everything about this game just rules and it will blow you away…",
-        "url": "https://avault.com/reviews/review_temp.asp?game=diablo&page=1"
+        "url": "https://web.archive.org/web/20060831145415/http://www.avault.com:80/reviews/review_temp.asp?game=diablo&page=1"
       },
       {
         "publication": "Computer Gaming World",
@@ -61112,7 +61136,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "The massive environments are a joy to explore, and the fact that combat and exploration take place on the same screen prevents even the most frequent of encounters from becoming a burden.",
-        "url": "https://avault.com/consoles/reviews/xbox/review_temp.asp?game=kotor"
+        "url": "https://web.archive.org/web/20070202233236/http://www.avault.com:80/consoles/reviews/xbox/review_temp.asp?game=kotor"
       },
       {
         "publication": "G4 TV",
@@ -153982,7 +154006,7 @@
         "score": 70.0,
         "source": "metacritic",
         "excerpt": "Anyone who paid for a Sonic title will be racing hedgehogs only 33 percent of the time, and that just isn’t enough.",
-        "url": "https://avault.com/consoles/reviews/gc/review_temp.asp?game=sa2b"
+        "url": "https://web.archive.org/web/20060911141338/http://www.avault.com:80/consoles/reviews/gc/review_temp.asp?game=sa2b"
       },
       {
         "publication": "IGN",
@@ -156722,7 +156746,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "If playing games is more of a religion than a hobby to you, meet your new bible...System Shock 2 will scare the hell right out of you -- and you'll like it for that reason.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=sshock2&page=1"
+        "url": "https://web.archive.org/web/20070202172522/http://www.avault.com:80/reviews/review_temp.asp?game=sshock2&page=1"
       },
       {
         "publication": "Yahoo!",
@@ -313421,7 +313445,7 @@
         "score": 70.0,
         "source": "metacritic",
         "excerpt": "You must have patience and be excited about non-structured gameplay in order for it to be worth the price of admission. Action hungry thrill-mongers will do themselves a favor by steering clear of this one.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=eveol"
+        "url": "https://web.archive.org/web/20070202222807/http://www.avault.com:80/reviews/review_temp.asp?game=eveol"
       },
       {
         "publication": "Game Informer",
@@ -319949,7 +319973,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "Freedom Force oozes polish and personality from every pixel.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=fforce"
+        "url": "https://web.archive.org/web/20070205094932/http://www.avault.com:80/reviews/review_temp.asp?game=fforce"
       },
       {
         "publication": "netjak",
@@ -320417,7 +320441,7 @@
         "score": 70.0,
         "source": "metacritic",
         "excerpt": "Its additions are fine and I enjoyed the game overall, but too many elements are the same as its predecessor, giving the program the feel of a very-polished expansion pack.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=ffv3r"
+        "url": "https://web.archive.org/web/20070202124149/http://www.avault.com:80/reviews/review_temp.asp?game=ffv3r"
       },
       {
         "publication": "Edge Magazine",
@@ -332292,7 +332316,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "Beyond the confines of the single player is the best multiplayer strategy game since \"Total Annihilation.\" ... If you buy a single game this fall -- make sure it's this one!",
-        "url": "https://avault.com/reviews/review_temp.asp?game=homew&page=1"
+        "url": "https://web.archive.org/web/20070202170946/http://www.avault.com:80/reviews/review_temp.asp?game=homew&page=1"
       },
       {
         "publication": "Evil Avatar",
@@ -348408,7 +348432,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "With the radar screen gone and the camouflage index, stamina gauge, inclusive healing system and a whole host of new gadgets in, the series is more tactical than ever.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=mgs3"
+        "url": "https://web.archive.org/web/20060824170239/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=mgs3"
       },
       {
         "publication": "Cinescape",
@@ -361235,7 +361259,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "The goalies are still a bit of a sore point, however, since a single defender can run the gamut from godlike to pylon within a single period with little rhyme or reason.",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=nhl2002"
+        "url": "https://web.archive.org/web/20060823231220/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=nhl2002"
       },
       {
         "publication": "PSX Nation",
@@ -376888,7 +376912,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "Awesome and addicting in everyway, it's also only the second game for Windows 95 that was worth playing at all (the other being \"Ultima Online\").",
-        "url": "https://avault.com/reviews/review_temp.asp?game=civ2&page=1"
+        "url": "https://web.archive.org/web/20070202165715/http://www.avault.com:80/reviews/review_temp.asp?game=civ2&page=1"
       }
     ],
     "metascore": 94,
@@ -390085,7 +390109,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "One of the best adventure games I've ever played. The near-perfectly crafted combination of story, gameplay, graphics and audio makes it utterly enchanting.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=syberia"
+        "url": "https://web.archive.org/web/20060825071859/http://www.avault.com:80/reviews/review_temp.asp?game=syberia"
       },
       {
         "publication": "Yahoo!",
@@ -399998,7 +400022,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "The real attraction, however, is the Xbox Live component, which is so original and compelling that even staunch critics of the first title may want to give Splinter Cell another opportunity.",
-        "url": "https://avault.com/consoles/reviews/xbox/review_temp.asp?game=scpt"
+        "url": "https://web.archive.org/web/20070202174542/http://www.avault.com:80/consoles/reviews/xbox/review_temp.asp?game=scpt"
       },
       {
         "publication": "Yahoo!",
@@ -400392,7 +400416,7 @@
         "score": 90.0,
         "source": "metacritic",
         "excerpt": "It seamlessly combines real-time and turn-based gameplay, gives the player ultimate control of their experience, and provides a level of depth that verges on bottomless.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=rome"
+        "url": "https://web.archive.org/web/20070202221324/http://www.avault.com:80/reviews/review_temp.asp?game=rome"
       },
       {
         "publication": "Edge Magazine",
@@ -402906,7 +402930,7 @@
         "score": 100.0,
         "source": "metacritic",
         "excerpt": "The gameplay is pitch-perfect, and everything has a rich and polished feeling about it. The variety of the styles of play is deep and incorporates some of the best multiplayer fragfests to date.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=ut2004"
+        "url": "https://web.archive.org/web/20060925234401/http://www.avault.com:80/reviews/review_temp.asp?game=ut2004"
       },
       {
         "publication": "GamerFeed",
@@ -404719,7 +404743,7 @@
         "score": 80.0,
         "source": "metacritic",
         "excerpt": "There's also the matter of the decidedly realistic approach taken here, which some may find a bit dry in comparison to other longstanding fighters, such as \"Tekken Tag Tournament.\"",
-        "url": "https://avault.com/consoles/reviews/ps2/review_temp.asp?game=vf4e"
+        "url": "https://web.archive.org/web/20070205104012/http://www.avault.com:80/consoles/reviews/ps2/review_temp.asp?game=vf4e"
       },
       {
         "publication": "Eurogamer",
@@ -410890,14 +410914,6 @@
         "source": "metacritic",
         "excerpt": "The delivered promise of video games to stand alongside cinema and literature as works of art. It accomplishes this through extraordinary graphical and audio prowess, wrapped around a riveting story and conveyed by unsurpassed gameplay...It is, bar none, the finest game I've ever played.",
         "url": "https://etoychest.org/content.php?review.773="
-      },
-      {
-        "publication": "Adrenaline Vault",
-        "slug": "adrenaline-vault",
-        "score": 100.0,
-        "source": "metacritic",
-        "excerpt": "Valve's inclusion of an interactive physics-based environment and the wonderful gravity gun lends itself to fun gravity puzzles, making use of good old-fashioned common sense and intuition - something I've found to be absent in the average first-person shooter.",
-        "url": "https://avault.com/reviews/review_temp.asp?game=hl2"
       },
       {
         "publication": "Gamer.tv",

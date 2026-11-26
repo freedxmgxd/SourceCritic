@@ -31,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from adapters import is_hub_url, repair_mojibake  # noqa: E402
+from dedupe_reviews import dedupe_database, dedupe_key, prefer_review, relax_review_uniqueness, upsert_review  # noqa: E402
 from collect import (  # noqa: E402
     KNOWN_FEEDS,
     decode_response,
@@ -378,9 +379,20 @@ def attach_reviews(games: list[dict], versions: dict[str, str], reviews: list[di
         if matched is None:
             continue
         bucket = grouped[matched]["reviews"]
-        if any(item["outlet_slug"] == review["outlet_slug"] for item in bucket):
-            continue
-        bucket.append(review)
+        # Same outlet and the same URL is one review. A different URL is a second one.
+        key = dedupe_key(review.get("outlet_slug") or "", review.get("url"), review.get("score"), review.get("author"))
+        match = next(
+            (
+                index
+                for index, item in enumerate(bucket)
+                if dedupe_key(item.get("outlet_slug") or "", item.get("url"), item.get("score"), item.get("author")) == key
+            ),
+            None,
+        )
+        if match is None:
+            bucket.append(review)
+        else:
+            bucket[match] = prefer_review(bucket[match], review)
     return grouped
 
 
@@ -518,6 +530,7 @@ def repair_seed_text(path: Path) -> None:
 
 
 def store_games(con: sqlite3.Connection, games: list[dict]) -> None:
+    relax_review_uniqueness(con)
     for game in games:
         slug = slugify(game["title"])
         year = None
@@ -537,36 +550,7 @@ def store_games(con: sqlite3.Connection, games: list[dict]) -> None:
             (slug, game["title"], year, platforms, synopsis, game.get("released_on")),
         )
         for review in game["reviews"]:
-            con.execute(
-                """INSERT INTO outlets (slug, name, review_count, mu, sigma, mu_prime, sigma_prime)
-                   VALUES (?, ?, 0, 0, 0, 0, 0)
-                   ON CONFLICT(slug) DO UPDATE SET name=excluded.name""",
-                (review["outlet_slug"], review["outlet_name"]),
-            )
-            con.execute(
-                """INSERT INTO reviews (
-                       outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score, excerpt, review_url
-                   ) VALUES (
-                       (SELECT id FROM outlets WHERE slug=?),
-                       (SELECT id FROM games WHERE slug=?),
-                       ?, ?, ?, 0, ?, ?
-                   )
-                   ON CONFLICT(outlet_id, game_id) DO UPDATE SET
-                     raw_score=excluded.raw_score,
-                     scale_max=excluded.scale_max,
-                     raw_score_norm=excluded.raw_score_norm,
-                     excerpt=COALESCE(excluded.excerpt, reviews.excerpt),
-                     review_url=COALESCE(excluded.review_url, reviews.review_url)""",
-                (
-                    review["outlet_slug"],
-                    slug,
-                    review["raw_score"],
-                    review["scale_max"],
-                    review["score"],
-                    review.get("excerpt") or None,
-                    review.get("url"),
-                ),
-            )
+            upsert_review(con, slug, review)
     con.commit()
 
 
@@ -646,8 +630,10 @@ def run(db_path: Path) -> None:
     publish = [game for game in publish if game["reviews"]]
     con = sqlite3.connect(db_path)
     try:
+        dedupe_database(con)
         repair_database(con)
         store_games(con, publish)
+        dedupe_database(con)
     finally:
         con.close()
     repair_seed_text(SEED_PATH)

@@ -40,7 +40,9 @@ CREATE TABLE IF NOT EXISTS reviews (
     z_score REAL NOT NULL,
     excerpt TEXT,
     review_url TEXT,
-    UNIQUE (outlet_id, game_id)
+    reviewed_on TEXT,
+    platforms TEXT,
+    reviewer TEXT
 );
 "#;
 
@@ -90,6 +92,8 @@ pub struct IncomingReview {
     pub review_url: Option<String>,
     /// Platforms this specific review covers (MC port SKUs), not the game catalog list.
     pub review_platforms: Vec<String>,
+    pub reviewed_on: Option<String>,
+    pub reviewer: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -195,6 +199,9 @@ impl Database {
         ensure_column(&self.conn, "reviews", "review_url", "TEXT")?;
         ensure_column(&self.conn, "reviews", "platforms", "TEXT")?;
         ensure_column(&self.conn, "reviews", "reviewed_on", "TEXT")?;
+        ensure_column(&self.conn, "reviews", "reviewer", "TEXT")?;
+        drop_review_outlet_game_unique(&self.conn)?;
+        dedupe_stored_reviews(&self.conn)?;
         Ok(())
     }
 
@@ -204,11 +211,12 @@ impl Database {
     ) -> Result<Vec<GameView>, DbError> {
         let tx = self.conn.transaction()?;
         for review in incoming {
+            let outlet_slug = resolve_outlet_slug(&tx, &review.outlet_slug)?;
             tx.execute(
                 "INSERT INTO outlets (slug, name, review_count, mu, sigma, mu_prime, sigma_prime)
                  VALUES (?1, ?2, 0, 0, 0, 0, 0)
                  ON CONFLICT(slug) DO UPDATE SET name = excluded.name",
-                params![review.outlet_slug, review.outlet_name],
+                params![outlet_slug, review.outlet_name],
             )?;
             let platforms_json = if review.platforms.is_empty() {
                 None
@@ -241,34 +249,7 @@ impl Database {
             } else {
                 Some(serde_json::to_string(&review.review_platforms).unwrap_or_default())
             };
-            tx.execute(
-                "INSERT INTO reviews (
-                     outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score,
-                     excerpt, review_url, platforms
-                 )
-                 VALUES (
-                     (SELECT id FROM outlets WHERE slug = ?1),
-                     (SELECT id FROM games WHERE slug = ?2),
-                     ?3, ?4, ?5, 0, ?6, ?7, ?8
-                 )
-                 ON CONFLICT(outlet_id, game_id) DO UPDATE SET
-                     raw_score = excluded.raw_score,
-                     scale_max = excluded.scale_max,
-                     raw_score_norm = excluded.raw_score_norm,
-                     excerpt = COALESCE(excluded.excerpt, reviews.excerpt),
-                     review_url = COALESCE(excluded.review_url, reviews.review_url),
-                     platforms = COALESCE(excluded.platforms, reviews.platforms)",
-                params![
-                    review.outlet_slug,
-                    review.game_slug,
-                    review.raw_score,
-                    review.scale_max,
-                    review.raw_score_norm,
-                    review.excerpt,
-                    review.review_url,
-                    review_platforms_json,
-                ],
-            )?;
+            upsert_review_row(&tx, review, &outlet_slug, review_platforms_json.as_deref())?;
         }
         recompute(&tx)?;
         let mut slugs: Vec<String> = Vec::new();
@@ -303,16 +284,83 @@ impl Database {
         let mut outlets = load_outlets(&self.conn, Some(slug))?;
         Ok(outlets.pop())
     }
+
+    /// Games that still list one outlet and one normalized URL more than once.
+    pub fn duplicate_review_pairs(&self) -> Result<Vec<String>, DbError> {
+        duplicate_review_pairs(&self.conn)
+    }
 }
 
-/// Same population the scorer has always used. A missing link does not drop the grade.
+/// A grade counts only when the original article is an openable http(s) page.
+/// Kotaku, user scores, and recommend meters never count. Hub and parked URLs do not.
 const SCORED_REVIEW_WHERE: &str = "r.raw_score IS NOT NULL
            AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend', 'kotaku')";
+
+pub(crate) fn is_hub_url(url: &str) -> bool {
+    let Some(after_scheme) = url.split("://").nth(1) else {
+        return true;
+    };
+    let cut = after_scheme.find(['?', '#']).unwrap_or(after_scheme.len());
+    let path = &after_scheme[..cut];
+    let query = if cut < after_scheme.len() { &after_scheme[cut + 1..] } else { "" };
+    let mut parts: Vec<String> = path
+        .split('/')
+        .filter(|part| !part.is_empty())
+        .skip(1)
+        .map(|part| part.to_ascii_lowercase())
+        .collect();
+    const LOCALES: &[&str] = &["en", "uk", "au", "us", "br", "fr", "de", "es", "jp"];
+    while parts.first().is_some_and(|part| LOCALES.contains(&part.as_str())) {
+        parts.remove(0);
+    }
+    if parts.is_empty() {
+        return query.is_empty();
+    }
+    const SECTIONS: &[&str] = &[
+        "xbox",
+        "playstation",
+        "pc",
+        "nintendo",
+        "switch",
+        "ps5",
+        "ps4",
+        "ps3",
+        "reviews",
+        "review",
+        "gaming",
+        "games",
+        "video-games",
+        "news",
+        "404",
+        "review-guidelines",
+        "casino-sites",
+        "actualite.html",
+    ];
+    let last = parts[parts.len() - 1].as_str();
+    if last.contains("suspendedpage")
+        || last == "404"
+        || last == "review-guidelines"
+        || last == "casino-sites"
+        || last == "actualite.html"
+    {
+        return true;
+    }
+    parts.iter().all(|part| SECTIONS.contains(&part.as_str()))
+}
+
+/// Same check the page uses before it prints "Original inaccessible".
+pub(crate) fn openable_original(url: Option<&str>) -> bool {
+    url.is_some_and(|url| {
+        (url.starts_with("https://") || url.starts_with("http://"))
+            && !url.contains("savethechildren.org")
+            && !is_hub_url(url)
+    })
+}
 
 /// `μ_global` mudou, então todo veículo e todo jogo são reescritos.
 fn recompute(conn: &Connection) -> Result<(), DbError> {
     let mut stmt = conn.prepare(&format!(
-        "SELECT o.slug, g.slug, r.raw_score_norm
+        "SELECT o.slug, g.slug, r.raw_score_norm, r.review_url
          FROM reviews r
          JOIN outlets o ON o.id = r.outlet_id
          JOIN games g ON g.id = r.game_id
@@ -320,13 +368,22 @@ fn recompute(conn: &Connection) -> Result<(), DbError> {
     ))?;
     let inputs = stmt
         .query_map([], |row| {
-            Ok(ReviewInput {
-                outlet_key: row.get(0)?,
-                game_key: row.get(1)?,
-                raw_score_norm: row.get(2)?,
-            })
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, f64>(2)?,
+                row.get::<_, Option<String>>(3)?,
+            ))
         })?
-        .collect::<Result<Vec<_>, _>>()?;
+        .collect::<Result<Vec<_>, _>>()?
+        .into_iter()
+        .filter(|(_, _, _, url)| openable_original(url.as_deref()))
+        .map(|(outlet_key, game_key, raw_score_norm, _)| ReviewInput {
+            outlet_key,
+            game_key,
+            raw_score_norm,
+        })
+        .collect::<Vec<_>>();
     drop(stmt);
 
     let scored = score_corpus(&inputs)?;
@@ -491,6 +548,462 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
     Ok(games)
 }
 
+/// Lowercase host, no query, no fragment, no trailing slash.
+///
+/// A leading `www.` is removed and the port is not part of the host, so
+/// `https://www.jeuxvideo.com:443/a/?q=1#x` and `https://jeuxvideo.com/a` match.
+pub fn normalize_review_url(raw: &str) -> String {
+    let raw = raw.trim();
+    let Some((scheme, rest)) = raw.split_once("://") else {
+        return String::new();
+    };
+    let scheme = scheme.to_ascii_lowercase();
+    if scheme != "http" && scheme != "https" {
+        return String::new();
+    }
+    let rest = rest.split(['?', '#']).next().unwrap_or(rest);
+    let (authority, path) = match rest.split_once('/') {
+        Some((authority, path)) => (authority, format!("/{path}")),
+        None => (rest, String::new()),
+    };
+    let authority = authority.rsplit('@').next().unwrap_or(authority);
+    let host = if let Some(ipv6) = authority.strip_prefix('[') {
+        ipv6.split(']').next().unwrap_or(ipv6)
+    } else {
+        authority.split(':').next().unwrap_or(authority)
+    };
+    let lower = host.to_ascii_lowercase();
+    let host = lower.strip_prefix("www.").unwrap_or(&lower);
+    if host.is_empty() {
+        return String::new();
+    }
+    let path = path.trim_end_matches('/');
+    format!("{scheme}://{host}{path}")
+}
+
+fn score_token(score: f64) -> String {
+    format!("{score:.2}")
+}
+
+fn reviewer_token(reviewer: Option<&str>) -> String {
+    reviewer
+        .unwrap_or("")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase()
+}
+
+/// Outlet plus normalized URL. An empty URL uses outlet, score, and reviewer.
+pub fn review_dedupe_key(
+    outlet_slug: &str,
+    url: Option<&str>,
+    score: f64,
+    reviewer: Option<&str>,
+) -> String {
+    let norm = url.map(normalize_review_url).unwrap_or_default();
+    if !norm.is_empty() {
+        format!("url\u{1}{outlet_slug}\u{1}{norm}")
+    } else {
+        format!(
+            "bare\u{1}{outlet_slug}\u{1}{}\u{1}{}",
+            score_token(score),
+            reviewer_token(reviewer)
+        )
+    }
+}
+
+fn hyphen_flat(slug: &str) -> String {
+    slug.chars().filter(|ch| *ch != '-').collect()
+}
+
+fn resolve_outlet_slug(conn: &Connection, slug: &str) -> Result<String, DbError> {
+    let mut stmt = conn.prepare("SELECT slug FROM outlets")?;
+    let existing = stmt
+        .query_map([], |row| row.get::<_, String>(0))?
+        .collect::<Result<Vec<_>, _>>()?;
+    if existing.iter().any(|item| item == slug) {
+        return Ok(slug.to_string());
+    }
+    let flat = hyphen_flat(slug);
+    let mut hits: Vec<String> = existing
+        .into_iter()
+        .filter(|item| hyphen_flat(item) == flat)
+        .collect();
+    if hits.len() == 1 {
+        return Ok(hits.remove(0));
+    }
+    Ok(slug.to_string())
+}
+
+fn richness(url: Option<&str>, score: Option<f64>, date: Option<&str>) -> (u8, u8, u8, u8) {
+    let has_url = url.is_some_and(|value| !normalize_review_url(value).is_empty()) as u8;
+    let has_score = score.is_some() as u8;
+    let has_date = date.is_some_and(|value| !value.trim().is_empty()) as u8;
+    (has_url + has_score + has_date, has_url, has_score, has_date)
+}
+
+fn pair_ok(raw: Option<f64>, scale: Option<f64>, norm: f64) -> bool {
+    match (raw, scale) {
+        (Some(raw), Some(scale)) if scale > 0.0 => (raw / scale * 100.0 - norm).abs() < 1.5,
+        _ => false,
+    }
+}
+
+fn text_blank(value: &Option<String>) -> bool {
+    value.as_deref().map(str::trim).unwrap_or("").is_empty()
+}
+
+fn coalesce_text(primary: Option<String>, fallback: Option<String>) -> Option<String> {
+    if text_blank(&primary) {
+        fallback.filter(|value| !value.trim().is_empty())
+    } else {
+        primary
+    }
+}
+
+#[derive(Clone)]
+struct StoredReview {
+    id: i64,
+    url: Option<String>,
+    raw_score: Option<f64>,
+    scale_max: Option<f64>,
+    raw_score_norm: f64,
+    excerpt: Option<String>,
+    platforms: Option<String>,
+    reviewed_on: Option<String>,
+    reviewer: Option<String>,
+}
+
+fn upsert_review_row(
+    conn: &Connection,
+    review: &IncomingReview,
+    outlet_slug: &str,
+    platforms_json: Option<&str>,
+) -> Result<(), DbError> {
+    let key = review_dedupe_key(
+        outlet_slug,
+        review.review_url.as_deref(),
+        review.raw_score_norm,
+        review.reviewer.as_deref(),
+    );
+    let mut stmt = conn.prepare(
+        "SELECT r.id, r.raw_score, r.scale_max, r.raw_score_norm, r.excerpt, r.review_url,
+                r.platforms, r.reviewed_on, r.reviewer
+         FROM reviews r
+         JOIN outlets o ON o.id = r.outlet_id
+         JOIN games g ON g.id = r.game_id
+         WHERE o.slug = ?1 AND g.slug = ?2
+         ORDER BY r.id",
+    )?;
+    let rows = stmt.query_map(params![outlet_slug, review.game_slug], |row| {
+        Ok(StoredReview {
+            id: row.get(0)?,
+            raw_score: row.get(1)?,
+            scale_max: row.get(2)?,
+            raw_score_norm: row.get(3)?,
+            excerpt: row.get(4)?,
+            url: row.get(5)?,
+            platforms: row.get(6)?,
+            reviewed_on: row.get(7)?,
+            reviewer: row.get(8)?,
+        })
+    })?;
+    let mut found = None;
+    for row in rows {
+        let row = row?;
+        let existing_key = review_dedupe_key(
+            outlet_slug,
+            row.url.as_deref(),
+            row.raw_score_norm,
+            row.reviewer.as_deref(),
+        );
+        if existing_key == key {
+            found = Some(row);
+            break;
+        }
+    }
+    drop(stmt);
+
+    let Some(existing) = found else {
+        conn.execute(
+            "INSERT INTO reviews (
+                 outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score,
+                 excerpt, review_url, platforms, reviewed_on, reviewer
+             )
+             VALUES (
+                 (SELECT id FROM outlets WHERE slug = ?1),
+                 (SELECT id FROM games WHERE slug = ?2),
+                 ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10
+             )",
+            params![
+                outlet_slug,
+                review.game_slug,
+                review.raw_score,
+                review.scale_max,
+                review.raw_score_norm,
+                review.excerpt,
+                review.review_url,
+                platforms_json,
+                review.reviewed_on,
+                review.reviewer,
+            ],
+        )?;
+        return Ok(());
+    };
+
+    let incoming_rank = richness(
+        review.review_url.as_deref(),
+        review.raw_score,
+        review.reviewed_on.as_deref(),
+    );
+    let stored_rank = richness(
+        existing.url.as_deref(),
+        existing.raw_score,
+        existing.reviewed_on.as_deref(),
+    );
+    let incoming_wins = incoming_rank > stored_rank
+        || (incoming_rank == stored_rank
+            && pair_ok(review.raw_score, review.scale_max, review.raw_score_norm)
+            && !pair_ok(existing.raw_score, existing.scale_max, existing.raw_score_norm));
+    let (raw_score, scale_max, raw_score_norm, excerpt, review_url, platforms, reviewed_on, reviewer) =
+        if incoming_wins {
+            (
+                review.raw_score.or(existing.raw_score),
+                review.scale_max.or(existing.scale_max),
+                if review.raw_score.is_some() {
+                    review.raw_score_norm
+                } else {
+                    existing.raw_score_norm
+                },
+                coalesce_text(review.excerpt.clone(), existing.excerpt.clone()),
+                coalesce_text(review.review_url.clone(), existing.url.clone()),
+                coalesce_text(platforms_json.map(str::to_string), existing.platforms.clone()),
+                coalesce_text(review.reviewed_on.clone(), existing.reviewed_on.clone()),
+                coalesce_text(review.reviewer.clone(), existing.reviewer.clone()),
+            )
+        } else {
+            (
+                existing.raw_score.or(review.raw_score),
+                existing.scale_max.or(review.scale_max),
+                if existing.raw_score.is_some() {
+                    existing.raw_score_norm
+                } else {
+                    review.raw_score_norm
+                },
+                coalesce_text(existing.excerpt.clone(), review.excerpt.clone()),
+                coalesce_text(existing.url.clone(), review.review_url.clone()),
+                coalesce_text(existing.platforms.clone(), platforms_json.map(str::to_string)),
+                coalesce_text(existing.reviewed_on.clone(), review.reviewed_on.clone()),
+                coalesce_text(existing.reviewer.clone(), review.reviewer.clone()),
+            )
+        };
+    conn.execute(
+        "UPDATE reviews
+         SET raw_score = ?1, scale_max = ?2, raw_score_norm = ?3, excerpt = ?4,
+             review_url = ?5, platforms = ?6, reviewed_on = ?7, reviewer = ?8
+         WHERE id = ?9",
+        params![
+            raw_score,
+            scale_max,
+            raw_score_norm,
+            excerpt,
+            review_url,
+            platforms,
+            reviewed_on,
+            reviewer,
+            existing.id,
+        ],
+    )?;
+    Ok(())
+}
+
+fn drop_review_outlet_game_unique(conn: &Connection) -> Result<(), DbError> {
+    let sql: String = conn.query_row(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'reviews'",
+        [],
+        |row| row.get(0),
+    )?;
+    if !sql.to_ascii_lowercase().contains("unique") {
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS reviews_outlet_game ON reviews(outlet_id, game_id)",
+            [],
+        )?;
+        return Ok(());
+    }
+    conn.pragma_update(None, "foreign_keys", "OFF")?;
+    conn.execute_batch(
+        "DROP TABLE IF EXISTS reviews_new;
+         CREATE TABLE reviews_new (
+            id INTEGER PRIMARY KEY,
+            outlet_id INTEGER NOT NULL REFERENCES outlets(id),
+            game_id INTEGER NOT NULL REFERENCES games(id),
+            raw_score REAL,
+            scale_max REAL,
+            raw_score_norm REAL NOT NULL,
+            z_score REAL NOT NULL,
+            excerpt TEXT,
+            review_url TEXT,
+            reviewed_on TEXT,
+            platforms TEXT,
+            reviewer TEXT
+         );
+         INSERT INTO reviews_new (
+            id, outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score,
+            excerpt, review_url, reviewed_on, platforms, reviewer
+         )
+         SELECT id, outlet_id, game_id, raw_score, scale_max, raw_score_norm, z_score,
+                excerpt, review_url, reviewed_on, platforms, reviewer
+         FROM reviews;
+         DROP TABLE reviews;
+         ALTER TABLE reviews_new RENAME TO reviews;
+         CREATE INDEX IF NOT EXISTS reviews_outlet_game ON reviews(outlet_id, game_id);",
+    )?;
+    conn.pragma_update(None, "foreign_keys", "ON")?;
+    Ok(())
+}
+
+fn dedupe_stored_reviews(conn: &Connection) -> Result<(), DbError> {
+    let mut stmt = conn.prepare(
+        "SELECT r.id, g.slug, o.slug, r.raw_score, r.scale_max, r.raw_score_norm,
+                r.excerpt, r.review_url, r.platforms, r.reviewed_on, r.reviewer
+         FROM reviews r
+         JOIN games g ON g.id = r.game_id
+         JOIN outlets o ON o.id = r.outlet_id
+         ORDER BY g.slug, r.id",
+    )?;
+    let rows = stmt
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, i64>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                StoredReview {
+                    id: row.get(0)?,
+                    raw_score: row.get(3)?,
+                    scale_max: row.get(4)?,
+                    raw_score_norm: row.get(5)?,
+                    excerpt: row.get(6)?,
+                    url: row.get(7)?,
+                    platforms: row.get(8)?,
+                    reviewed_on: row.get(9)?,
+                    reviewer: row.get(10)?,
+                },
+            ))
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+    drop(stmt);
+
+    let mut kept: HashMap<(String, String), StoredReview> = HashMap::new();
+    let mut delete_ids = Vec::new();
+    for (id, game, outlet, row) in rows {
+        let _ = id;
+        let key = review_dedupe_key(
+            &outlet,
+            row.url.as_deref(),
+            row.raw_score_norm,
+            row.reviewer.as_deref(),
+        );
+        let slot = (game, key);
+        if let Some(previous) = kept.get(&slot) {
+            let previous_rank = richness(
+                previous.url.as_deref(),
+                previous.raw_score,
+                previous.reviewed_on.as_deref(),
+            );
+            let next_rank = richness(row.url.as_deref(), row.raw_score, row.reviewed_on.as_deref());
+            let (mut base, other, drop_id) = if next_rank > previous_rank
+                || (next_rank == previous_rank
+                    && pair_ok(row.raw_score, row.scale_max, row.raw_score_norm)
+                    && !pair_ok(previous.raw_score, previous.scale_max, previous.raw_score_norm))
+            {
+                (row, previous.clone(), previous.id)
+            } else {
+                (previous.clone(), row.clone(), row.id)
+            };
+            if base.raw_score.is_none() {
+                base.raw_score = other.raw_score;
+                base.raw_score_norm = other.raw_score_norm;
+            }
+            if base.scale_max.is_none() {
+                base.scale_max = other.scale_max;
+            }
+            base.excerpt = coalesce_text(base.excerpt.clone(), other.excerpt.clone());
+            base.url = coalesce_text(base.url.clone(), other.url.clone());
+            base.platforms = coalesce_text(base.platforms.clone(), other.platforms.clone());
+            base.reviewed_on = coalesce_text(base.reviewed_on.clone(), other.reviewed_on.clone());
+            base.reviewer = coalesce_text(base.reviewer.clone(), other.reviewer.clone());
+            delete_ids.push(drop_id);
+            kept.insert(slot, base);
+        } else {
+            kept.insert(slot, row);
+        }
+    }
+    if delete_ids.is_empty() {
+        return Ok(());
+    }
+    let tx = conn.unchecked_transaction()?;
+    for row in kept.values() {
+        if delete_ids.contains(&row.id) {
+            continue;
+        }
+        tx.execute(
+            "UPDATE reviews
+             SET raw_score = ?1, scale_max = ?2, raw_score_norm = ?3, excerpt = ?4,
+                 review_url = ?5, platforms = ?6, reviewed_on = ?7, reviewer = ?8
+             WHERE id = ?9",
+            params![
+                row.raw_score,
+                row.scale_max,
+                row.raw_score_norm,
+                row.excerpt,
+                row.url,
+                row.platforms,
+                row.reviewed_on,
+                row.reviewer,
+                row.id,
+            ],
+        )?;
+    }
+    for id in &delete_ids {
+        tx.execute("DELETE FROM reviews WHERE id = ?1", params![id])?;
+    }
+    tx.commit()?;
+    Ok(())
+}
+
+fn duplicate_review_pairs(conn: &Connection) -> Result<Vec<String>, DbError> {
+    let mut stmt = conn.prepare(
+        "SELECT g.slug, o.slug, r.review_url
+         FROM reviews r
+         JOIN games g ON g.id = r.game_id
+         JOIN outlets o ON o.id = r.outlet_id",
+    )?;
+    let rows = stmt.query_map([], |row| {
+        Ok((
+            row.get::<_, String>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, Option<String>>(2)?,
+        ))
+    })?;
+    let mut counts: HashMap<(String, String, String), usize> = HashMap::new();
+    for row in rows {
+        let (game, outlet, url) = row?;
+        let norm = url.as_deref().map(normalize_review_url).unwrap_or_default();
+        if norm.is_empty() {
+            continue;
+        }
+        *counts.entry((game, outlet, norm)).or_default() += 1;
+    }
+    let mut dupes: Vec<String> = counts
+        .into_iter()
+        .filter(|(_, count)| *count > 1)
+        .map(|((game, outlet, url), count)| format!("{game} lists {outlet} {count} times at {url}"))
+        .collect();
+    dupes.sort();
+    Ok(dupes)
+}
+
 fn ensure_column(
     conn: &Connection,
     table: &str,
@@ -518,14 +1031,20 @@ fn ensure_column(
 fn global_moments(conn: &Connection) -> Result<(f64, f64), DbError> {
     // Same population the scorer uses. An unscored row must not move the baseline.
     let mut stmt = conn.prepare(&format!(
-        "SELECT r.raw_score_norm
+        "SELECT r.raw_score_norm, r.review_url
          FROM reviews r
          JOIN outlets o ON o.id = r.outlet_id
          WHERE {SCORED_REVIEW_WHERE}"
     ))?;
     let values = stmt
-        .query_map([], |row| row.get(0))?
-        .collect::<Result<Vec<f64>, _>>()?;
+        .query_map([], |row| {
+            Ok((row.get::<_, f64>(0)?, row.get::<_, Option<String>>(1)?))
+        })?
+        .collect::<Result<Vec<_>, _>>()?
+        .into_iter()
+        .filter(|(_, url)| openable_original(url.as_deref()))
+        .map(|(score, _)| score)
+        .collect::<Vec<_>>();
     Ok(mean_and_population_std(&values))
 }
 
@@ -673,6 +1192,60 @@ pub(crate) fn decode_entities(value: &str) -> String {
         }
     }
     text
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{normalize_review_url, review_dedupe_key};
+
+    #[test]
+    fn normalizes_the_review_url() {
+        assert_eq!(
+            normalize_review_url(
+                "https://www.Jeuxvideo.com:443/test/829186/god-of-war.htm?utm=1#frag"
+            ),
+            "https://jeuxvideo.com/test/829186/god-of-war.htm"
+        );
+        assert_eq!(
+            normalize_review_url("https://gameover.gr/reviews/1/"),
+            "https://gameover.gr/reviews/1"
+        );
+        assert_eq!(
+            normalize_review_url("http://gamer.no/artikler/x/"),
+            "http://gamer.no/artikler/x"
+        );
+        assert_eq!(normalize_review_url(""), "");
+    }
+
+    #[test]
+    fn dedupe_key_keeps_a_second_url_and_folds_an_empty_one() {
+        assert_eq!(
+            review_dedupe_key(
+                "gameover-gr",
+                Some("https://gameover.gr/reviews/1/"),
+                100.0,
+                None
+            ),
+            review_dedupe_key(
+                "gameover-gr",
+                Some("https://www.gameover.gr/reviews/1?draft=1"),
+                90.0,
+                Some("Ann")
+            )
+        );
+        assert_ne!(
+            review_dedupe_key("ign", Some("https://ign.com/ps5-review"), 90.0, None),
+            review_dedupe_key("ign", Some("https://ign.com/pc-review"), 90.0, None)
+        );
+        assert_eq!(
+            review_dedupe_key("games-tm", None, 90.0, None),
+            review_dedupe_key("games-tm", Some(""), 90.0, Some("  "))
+        );
+        assert_ne!(
+            review_dedupe_key("games-tm", None, 90.0, Some("Ann")),
+            review_dedupe_key("games-tm", None, 90.0, Some("Bob"))
+        );
+    }
 }
 
 fn parse_platforms(raw: Option<&str>) -> Vec<String> {

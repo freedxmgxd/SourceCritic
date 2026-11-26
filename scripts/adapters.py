@@ -241,6 +241,10 @@ def sanitize_review_url(url: str | None) -> str | None:
     link = unescape(str(url)).strip().replace("&a;", "&").replace("&amp;", "&")
     link = urllib.parse.unquote(link)
     link = link.split()[0]
+    archive_host = (urllib.parse.urlparse(link).hostname or "").lower().removeprefix("www.")
+    # Wayback embeds the original URL. Keep the snapshot; do not peel it back to the dead page.
+    if archive_host in {"web.archive.org", "archive.org"}:
+        return link.split(">")[0].strip()
     starts = [match.start() for match in re.finditer(r"https?://", link)]
     if len(starts) >= 2:
         candidates = [link[start:].strip(">/\"'") for start in starts]

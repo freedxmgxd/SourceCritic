@@ -21,6 +21,7 @@ from urllib.parse import parse_qsl, unquote, urlencode, urlparse, urlunparse
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from adapters import UNSCORED_SLUGS, decode_text, fold_name, is_hub_url  # noqa: E402
+from dedupe_reviews import dedupe_database, relax_review_uniqueness  # noqa: E402
 
 BLOCKED_SLUGS = {"metacritic-users", "opencritic-recommend"}
 BAD_HOSTS = {
@@ -153,11 +154,22 @@ def unwrap_proofpoint(url: str) -> str:
     return url
 
 
+def _archive_host(url: str) -> bool:
+    host = (urlparse(url).hostname or "").lower().removeprefix("www.")
+    return host == "web.archive.org" or host == "archive.org"
+
+
 def unwrap_glued_url(link: str) -> str:
-    """A scrape sometimes concatenates two URLs, or glues the excerpt onto the link."""
+    """A scrape sometimes concatenates two URLs, or glues the excerpt onto the link.
+
+    A Wayback snapshot embeds the original http URL in its path. That is one
+    link, not two glued together.
+    """
     text = unescape(link).strip().replace("&a;", "&").replace("&amp;", "&")
     text = unquote(text)
     text = text.split()[0]
+    if _archive_host(text):
+        return text.split(">")[0].strip()
     starts = [match.start() for match in re.finditer(r"https?://", text)]
     if len(starts) >= 2:
         candidates = [text[start:].strip(">/\"'") for start in starts]
@@ -171,6 +183,10 @@ def normalize_url(url: str | None) -> str | None:
         return None
     link = unwrap_glued_url(url)
     link = unwrap_proofpoint(link)
+    if _archive_host(link):
+        if link.startswith("http://"):
+            return "https://" + link[len("http://") :]
+        return link
     if not (link.startswith("http://") or link.startswith("https://")):
         return None
     parsed = urlparse(link)
@@ -334,7 +350,8 @@ def outlet_domains(data: dict) -> dict[str, str]:
 
 
 def merge_same_name_outlets(con: sqlite3.Connection) -> int:
-    """Collapse Gamer.no / gamer-no style twins. The cited row keeps its score."""
+    """Collapse Gamer.no / gamer-no style twins. A second URL stays until dedupe."""
+    relax_review_uniqueness(con)
     rows = con.execute("SELECT id, slug, name FROM outlets").fetchall()
     groups: dict[str, list[tuple[int, str, str]]] = defaultdict(list)
     for oid, slug, name in rows:
@@ -360,38 +377,10 @@ def merge_same_name_outlets(con: sqlite3.Connection) -> int:
         keep_name = ranked[0][5]
         con.execute("UPDATE outlets SET name=? WHERE id=?", (keep_name, keep_id))
         for _count, _urls, _length, loser_id, _slug, _name in ranked[1:]:
-            reviews = con.execute(
-                """SELECT id, game_id, raw_score, raw_score_norm, excerpt, review_url
-                   FROM reviews WHERE outlet_id=?""",
-                (loser_id,),
-            ).fetchall()
-            for rid, game_id, raw, norm, excerpt, url in reviews:
-                existing = con.execute(
-                    """SELECT id, raw_score, raw_score_norm, excerpt, review_url
-                       FROM reviews WHERE outlet_id=? AND game_id=?""",
-                    (keep_id, game_id),
-                ).fetchone()
-                if existing is None:
-                    con.execute("UPDATE reviews SET outlet_id=? WHERE id=?", (keep_id, rid))
-                    continue
-                eid, eraw, enorm, eexcerpt, eurl = existing
-                # A review with a URL is the cited one. Don't average it with a twin.
-                if url and not eurl:
-                    eraw, enorm = raw, norm
-                    eurl = url
-                if not eexcerpt and excerpt:
-                    eexcerpt = excerpt
-                if not eurl and url:
-                    eurl = url
-                con.execute(
-                    """UPDATE reviews
-                       SET raw_score=?, raw_score_norm=?, excerpt=?, review_url=?
-                       WHERE id=?""",
-                    (eraw, enorm, eexcerpt, eurl, eid),
-                )
-                con.execute("DELETE FROM reviews WHERE id=?", (rid,))
-                removed += 1
+            # Keep every article. dedupe_database drops only the same URL.
+            con.execute("UPDATE reviews SET outlet_id=? WHERE outlet_id=?", (keep_id, loser_id))
             con.execute("DELETE FROM outlets WHERE id=?", (loser_id,))
+            removed += 1
     return removed
 
 
@@ -400,6 +389,7 @@ def repair_db(path: Path, seed_path: Path) -> None:
     domains = outlet_domains(seed)
     con = sqlite3.connect(path)
     con.execute("PRAGMA foreign_keys=ON")
+    relax_review_uniqueness(con)
     con.execute("ALTER TABLE games ADD COLUMN platform_years TEXT") if "platform_years" not in {
         row[1] for row in con.execute("PRAGMA table_info(games)")
     } else None
@@ -423,31 +413,7 @@ def repair_db(path: Path, seed_path: Path) -> None:
             del outlets[slug]
         else:
             target_id = outlets[canon][0]
-            rows = con.execute(
-                "SELECT id, game_id, raw_score, raw_score_norm, excerpt, review_url FROM reviews WHERE outlet_id=?",
-                (oid,),
-            ).fetchall()
-            for rid, game_id, raw, norm, excerpt, url in rows:
-                existing = con.execute(
-                    "SELECT id, raw_score, raw_score_norm, excerpt, review_url FROM reviews WHERE outlet_id=? AND game_id=?",
-                    (target_id, game_id),
-                ).fetchone()
-                if existing is None:
-                    con.execute("UPDATE reviews SET outlet_id=? WHERE id=?", (target_id, rid))
-                else:
-                    eid, eraw, enorm, eexcerpt, eurl = existing
-                    if raw is not None and eraw is not None:
-                        raw = (raw + eraw) / 2
-                        norm = (norm + enorm) / 2
-                    elif raw is None:
-                        raw, norm = eraw, enorm
-                    excerpt = eexcerpt or excerpt
-                    url = eurl or url
-                    con.execute(
-                        "UPDATE reviews SET raw_score=?, raw_score_norm=?, excerpt=?, review_url=? WHERE id=?",
-                        (raw, norm if raw is not None else enorm, excerpt, url, eid),
-                    )
-                    con.execute("DELETE FROM reviews WHERE id=?", (rid,))
+            con.execute("UPDATE reviews SET outlet_id=? WHERE outlet_id=?", (target_id, oid))
             con.execute("DELETE FROM outlets WHERE id=?", (oid,))
             del outlets[slug]
     con.commit()
@@ -495,19 +461,6 @@ def repair_db(path: Path, seed_path: Path) -> None:
             "UPDATE reviews SET raw_score=?, raw_score_norm=?, excerpt=?, review_url=? WHERE id=?",
             (score, stored_norm, new_excerpt, new_url, rid),
         )
-    # Drop duplicate normalized URLs inside one game, keeping the first row.
-    seen: dict[tuple[int, str], int] = {}
-    dupes = 0
-    for rid, game_id, url in con.execute(
-        "SELECT id, game_id, review_url FROM reviews WHERE review_url IS NOT NULL ORDER BY id"
-    ):
-        key = (game_id, url)
-        if key in seen:
-            con.execute("UPDATE reviews SET review_url=NULL WHERE id=?", (rid,))
-            dupes += 1
-        else:
-            seen[key] = rid
-
     for slug, (year, platforms, years) in RELEASES.items():
         con.execute(
             "UPDATE games SET release_year=?, platforms=?, platform_years=? WHERE slug=?",
@@ -519,8 +472,10 @@ def repair_db(path: Path, seed_path: Path) -> None:
             (year, slug),
         )
     con.commit()
+    removed_dupes = dedupe_database(con)
     print(
-        f"db removed={removed} nulled={nulled} unlinked={unlinked} clipped={clipped} dup_urls={dupes} name_dupes={name_dupes}"
+        f"db removed={removed} nulled={nulled} unlinked={unlinked} clipped={clipped} "
+        f"name_dupes={name_dupes} deduped={removed_dupes}"
     )
     con.close()
 

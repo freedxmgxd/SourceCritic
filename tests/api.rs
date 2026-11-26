@@ -17,7 +17,8 @@ fn review(outlet: &str, game: &str, score: f64) -> Value {
         "outlet_name": outlet,
         "game_slug": game,
         "game_title": game,
-        "raw_score_norm": score
+        "raw_score_norm": score,
+        "review_url": format!("https://example.com/{outlet}/{game}-review")
     })
 }
 
@@ -74,7 +75,8 @@ async fn post_single_review_and_read_game() {
                         "game_title": "Hades II",
                         "raw_score": 8.0,
                         "scale_max": 10.0,
-                        "raw_score_norm": 80.0
+                        "raw_score_norm": 80.0,
+                        "review_url": "https://www.ign.com/articles/hades-2-review"
                     })
                     .to_string(),
                 ))
@@ -121,6 +123,49 @@ async fn post_single_review_and_read_game() {
 }
 
 #[tokio::test]
+async fn a_review_without_an_openable_original_does_not_score() {
+    let app = app(Database::open_in_memory().unwrap());
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/reviews")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "reviews": [
+                            {
+                                "outlet_slug": "ign",
+                                "outlet_name": "IGN",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score_norm": 80.0,
+                                "review_url": "https://www.ign.com/articles/hades-2-review"
+                            },
+                            {
+                                "outlet_slug": "gamespot",
+                                "outlet_name": "GameSpot",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score_norm": 100.0
+                            }
+                        ]
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let created = body_json(response).await;
+    let game = &created["games"][0];
+    assert_eq!(game["review_count"], json!(1));
+    assert_eq!(game["agg_score"], json!(80.0));
+    assert_eq!(game["simple_mean"], json!(80.0));
+}
+
+#[tokio::test]
 async fn kotaku_is_listed_without_a_score() {
     let app = app(Database::open_in_memory().unwrap());
     let response = app
@@ -140,7 +185,8 @@ async fn kotaku_is_listed_without_a_score() {
                                 "game_title": "Hades II",
                                 "raw_score": 8.0,
                                 "scale_max": 10.0,
-                                "raw_score_norm": 80.0
+                                "raw_score_norm": 80.0,
+                                "review_url": "https://www.ign.com/articles/hades-2-review"
                             },
                             {
                                 "outlet_slug": "kotaku",
@@ -214,7 +260,8 @@ async fn port_filter_uses_the_platform_each_review_names() {
                                 "game_title": "Resident Evil 4",
                                 "platforms": ["ps5", "nintendo switch"],
                                 "raw_score_norm": 90.0,
-                                "excerpt": "The PS5 version is the one to play."
+                                "excerpt": "The PS5 version is the one to play.",
+                                "review_url": "https://www.ign.com/articles/resident-evil-4-review"
                             },
                             {
                                 "outlet_slug": "nintendo-life",
@@ -222,7 +269,8 @@ async fn port_filter_uses_the_platform_each_review_names() {
                                 "game_slug": "resident-evil-4",
                                 "game_title": "Resident Evil 4",
                                 "raw_score_norm": 80.0,
-                                "excerpt": "This Switch 2 port holds up."
+                                "excerpt": "This Switch 2 port holds up.",
+                                "review_url": "https://www.nintendolife.com/reviews/resident-evil-4"
                             },
                             {
                                 "outlet_slug": "ztgd",
@@ -230,7 +278,8 @@ async fn port_filter_uses_the_platform_each_review_names() {
                                 "game_slug": "resident-evil-4",
                                 "game_title": "Resident Evil 4",
                                 "raw_score_norm": 85.0,
-                                "excerpt": "A landmark remake."
+                                "excerpt": "A landmark remake.",
+                                "review_url": "https://ztgd.com/resident-evil-4/review"
                             }
                         ]
                     })
@@ -473,7 +522,8 @@ async fn pages_are_separate_documents() {
                         "game_title": "Hades II",
                         "raw_score": 8.0,
                         "scale_max": 10.0,
-                        "raw_score_norm": 80.0
+                        "raw_score_norm": 80.0,
+                        "review_url": "https://www.ign.com/articles/hades-ii-review"
                     })
                     .to_string(),
                 ))
@@ -648,4 +698,61 @@ async fn pages_are_separate_documents() {
     assert!(about.contains("mailto:joeltondbrandao@freedxm.com"));
     assert!(about.contains("https://github.com/freedxmgxd"));
     assert!(about.contains("aria-current=\"page\""));
+}
+
+#[tokio::test]
+async fn same_url_collapses_and_a_different_url_stays() {
+    let app = app(Database::open_in_memory().unwrap());
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/reviews")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "reviews": [
+                            {
+                                "outlet_slug": "ign",
+                                "outlet_name": "IGN",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score_norm": 80.0,
+                                "review_url": "https://www.ign.com/articles/hades-2-review?utm=1#top"
+                            },
+                            {
+                                "outlet_slug": "ign",
+                                "outlet_name": "IGN",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score_norm": 70.0,
+                                "review_url": "https://ign.com/articles/hades-2-review/"
+                            },
+                            {
+                                "outlet_slug": "ign",
+                                "outlet_name": "IGN",
+                                "game_slug": "hades-2",
+                                "game_title": "Hades II",
+                                "raw_score_norm": 90.0,
+                                "review_url": "https://ign.com/articles/hades-2-ps5-review"
+                            }
+                        ]
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let created = body_json(response).await;
+    let reviews = created["games"][0]["reviews"].as_array().unwrap();
+    assert_eq!(reviews.len(), 2, "{reviews:?}");
+    let urls: Vec<&str> = reviews
+        .iter()
+        .filter_map(|review| review["review_url"].as_str())
+        .collect();
+    assert!(urls.iter().any(|url| url.contains("hades-2-review")));
+    assert!(urls.iter().any(|url| url.contains("hades-2-ps5-review")));
 }

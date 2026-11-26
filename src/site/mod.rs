@@ -38,6 +38,14 @@ impl From<io::Error> for ExportError {
 
 /// Write a full static site under `out_dir` (HTML + covers + GitHub Pages files).
 pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, ExportError> {
+    let dupes = db.duplicate_review_pairs().map_err(|error| ExportError::Db(error.to_string()))?;
+    if !dupes.is_empty() {
+        let sample = dupes.iter().take(20).cloned().collect::<Vec<_>>().join("; ");
+        return Err(ExportError::Db(format!(
+            "{} duplicate (outlet, URL) pairs ({sample})",
+            dupes.len()
+        )));
+    }
     if out_dir.exists() {
         eprintln!("removing {}", out_dir.display());
         fs::remove_dir_all(out_dir)?;

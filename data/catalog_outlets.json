@@ -2315,14 +2315,16 @@
     "adrenaline-vault": {
       "slug": "adrenaline-vault",
       "name": "Adrenaline Vault",
-      "homepage": "https://avault.com/consoles/",
-      "review_index_urls": [],
-      "scrape_adapter": "via_aggregator",
+      "homepage": "https://web.archive.org/web/20070607165449/http://www.avault.com:80/",
+      "review_index_urls": [
+        "https://oldpcgaming.net/the-adrenaline-vault-archive/"
+      ],
+      "scrape_adapter": "custom:adrenaline-vault",
       "scale": "0-100",
       "discovered_via": [
         "seed"
       ],
-      "status": "active",
+      "status": "archive",
       "last_scraped_at": null
     },
     "games-domain": {

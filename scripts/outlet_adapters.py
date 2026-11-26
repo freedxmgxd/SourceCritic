@@ -14,6 +14,7 @@ import time
 import urllib.parse
 import urllib.request
 from html import unescape
+from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
 
@@ -84,6 +85,16 @@ ADAPTERS: dict[str, dict[str, Any]] = {
         "link_must": ("/reviews/",),
         "link_review": ("review",),
     },
+    # Live avault.com was sold. Reviews come from Wayback / Old PC Gaming via repair_avault.py.
+    "adrenaline-vault": {
+        "name": "Adrenaline Vault",
+        "homepage": "https://web.archive.org/web/20070607165449/http://www.avault.com:80/",
+        "hosts": ("avault.com",),
+        "search": None,
+        "link_must": ("review_temp.asp",),
+        "link_review": ("review",),
+        "archive_only": True,
+    },
 }
 
 
@@ -106,6 +117,14 @@ def host_of(url: str) -> str:
 
 def outlet_for_url(url: str) -> tuple[str, str] | None:
     host = host_of(url)
+    # Live domain is dead; Wayback embeds avault.com in the snapshot path.
+    if "avault.com" in url and (
+        "web.archive.org" in host
+        or host == "archive.org"
+        or host == "avault.com"
+        or host.endswith(".avault.com")
+    ):
+        return ("adrenaline-vault", "Adrenaline Vault")
     if host in OUTLET_BY_HOST:
         return OUTLET_BY_HOST[host]
     # regional IGN (br.ign.com, etc.)
@@ -380,6 +399,8 @@ def existing_outlet_url(reviews: list[dict], adapter_id: str) -> str | None:
         matched = (info and info[0] == adapter_id) or (
             hosts and any(host == h or host.endswith("." + h) for h in hosts)
         )
+        if adapter_id == "adrenaline-vault" and "avault.com" in url and "web.archive.org" in host:
+            matched = True
         if not matched:
             continue
         rank = 0
@@ -394,6 +415,44 @@ def existing_outlet_url(reviews: list[dict], adapter_id: str) -> str | None:
     return candidates[0][1]
 
 
+def _avault_snapshots() -> dict[str, dict]:
+    path = Path(__file__).resolve().parents[1] / "data" / "avault_snapshots.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return payload.get("reviews") or {}
+
+
+def avault_snapshot_entry(title: str, existing_reviews: list[dict] | None = None) -> dict | None:
+    """Resolve AVault snapshot row (URL + outlet-scraped score when present)."""
+    reviews = _avault_snapshots()
+    existing = existing_outlet_url(existing_reviews or [], "adrenaline-vault")
+    needle = slugify(title)
+    for slug, entry in reviews.items():
+        if not entry.get("keep"):
+            continue
+        if slug == needle or slugify(entry.get("game_title") or "") == needle:
+            return entry
+    if existing and "web.archive.org" in existing:
+        for entry in reviews.values():
+            if entry.get("url") == existing:
+                return entry
+        return {"url": existing, "keep": True}
+    return None
+
+
+def avault_snapshot_url(title: str, existing_reviews: list[dict] | None = None) -> str | None:
+    """Resolve Adrenaline Vault from data/avault_snapshots.json, never live avault.com."""
+    entry = avault_snapshot_entry(title, existing_reviews)
+    if not entry:
+        return existing_outlet_url(existing_reviews or [], "adrenaline-vault")
+    url = entry.get("url") or ""
+    if "web.archive.org" in url:
+        return url
+    existing = existing_outlet_url(existing_reviews or [], "adrenaline-vault")
+    return existing if existing and "web.archive.org" in (existing or "") else None
+
+
 def scrape_outlet_for_game(
     adapter_id: str,
     title: str,
@@ -401,6 +460,38 @@ def scrape_outlet_for_game(
 ) -> dict | None:
     """Find + scrape one outlet review for a game title."""
     reviews = existing_reviews or []
+    if adapter_id == "adrenaline-vault":
+        entry = avault_snapshot_entry(title, reviews)
+        url = (entry or {}).get("url") if entry else None
+        if not url or "web.archive.org" not in url:
+            url = avault_snapshot_url(title, reviews)
+        if not url:
+            return None
+        # Prefer scores scraped from the archive HTML (repair_avault --rescrape).
+        if entry and entry.get("raw_score") is not None:
+            return {
+                "publication": "Adrenaline Vault",
+                "slug": "adrenaline-vault",
+                "score": float(entry.get("score_norm") or entry.get("score")),
+                "raw_score": float(entry["raw_score"]),
+                "scale_max": float(entry.get("scale_max") or 5.0),
+                "source": "outlet",
+                "excerpt": entry.get("excerpt"),
+                "url": url,
+            }
+        for review in reviews:
+            if review.get("slug") == "adrenaline-vault" and review.get("score") is not None:
+                return {
+                    "publication": "Adrenaline Vault",
+                    "slug": "adrenaline-vault",
+                    "score": float(review["score"]),
+                    "raw_score": review.get("raw_score"),
+                    "scale_max": review.get("scale_max") or 5.0,
+                    "source": review.get("source") or "outlet",
+                    "excerpt": review.get("excerpt"),
+                    "url": url,
+                }
+        return None
     url = existing_outlet_url(reviews, adapter_id)
     if not url:
         url = search_review_url(adapter_id, title)

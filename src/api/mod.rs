@@ -121,6 +121,10 @@ struct ReviewIn {
     review_url: Option<String>,
     #[serde(default)]
     review_platforms: Vec<String>,
+    #[serde(default)]
+    reviewed_on: Option<String>,
+    #[serde(default)]
+    reviewer: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -342,6 +346,16 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
         .as_ref()
         .map(|value| crate::db::decode_entities(value.trim()))
         .filter(|value| !value.is_empty());
+    let reviewed_on = review
+        .reviewed_on
+        .as_ref()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+    let reviewer = review
+        .reviewer
+        .as_ref()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
     // Kotaku does not publish a grade. Ignore any 0/100 carried over from an aggregator.
     let unscored = outlet_slug == "kotaku";
     Ok(IncomingReview {
@@ -363,5 +377,7 @@ fn validate(review: &ReviewIn) -> Result<IncomingReview, ApiError> {
         excerpt,
         review_url,
         review_platforms,
+        reviewed_on,
+        reviewer,
     })
 }
