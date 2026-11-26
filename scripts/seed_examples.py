@@ -67,9 +67,15 @@ def main() -> None:
             if outlet_slug in PSEUDO_OUTLET_SLUGS:
                 skipped += 1
                 continue
-            unscored = outlet_slug in UNSCORED_SLUGS
             score = review.get("score")
             score_f = None
+            url_early = sanitize_review_url(review.get("url"))
+            # Kotaku/etc., or outlet rows whose score page is gone but the body URL remains.
+            unscored = outlet_slug in UNSCORED_SLUGS or (
+                score is None
+                and review.get("source") == "outlet"
+                and bool(url_early)
+            )
             if not unscored:
                 if score is None:
                     skipped += 1

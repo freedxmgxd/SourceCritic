@@ -2320,7 +2320,7 @@
         "https://oldpcgaming.net/the-adrenaline-vault-archive/"
       ],
       "scrape_adapter": "custom:adrenaline-vault",
-      "scale": "0-100",
+      "scale": "0-5",
       "discovered_via": [
         "seed"
       ],

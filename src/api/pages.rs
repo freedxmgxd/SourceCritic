@@ -115,6 +115,101 @@ nav a[aria-current="page"] {
   gap: 6px 16px;
 }
 
+.nav-drop { position: relative; }
+
+.nav-drop-toggle::after {
+  content: "";
+  display: inline-block;
+  margin-left: 6px;
+  border: 4px solid transparent;
+  border-top-color: currentColor;
+  border-bottom: 0;
+  vertical-align: 2px;
+}
+
+.nav-drop::before {
+  content: "";
+  position: absolute;
+  z-index: 29;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+}
+
+.nav-menu {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  left: 0;
+  width: max-content;
+  max-width: min(560px, calc(100vw - 40px));
+  max-height: min(70vh, 540px);
+  overflow: auto;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(26, 18, 24, 0.12);
+}
+
+.nav-drop:hover .nav-menu,
+.nav-drop:focus-within .nav-menu,
+.nav-drop.open .nav-menu {
+  display: block;
+}
+
+.nav-best {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 7px 8px;
+  border-radius: 10px;
+}
+
+.nav-best + .nav-best { border-top: 1px solid var(--line); }
+
+header .site-nav .nav-platform {
+  flex: 0 0 11rem;
+  padding: 2px 0;
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+header .site-nav .nav-years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  flex: 1 1 180px;
+}
+
+header .site-nav .nav-menu a {
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 500;
+  box-shadow: none;
+}
+
+header .site-nav .nav-menu a:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+
+header .site-nav .nav-menu a[aria-current="page"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .nav-menu { left: auto; right: 0; }
+  header .site-nav .nav-platform { flex-basis: 100%; }
+}
+
 header .site-nav a {
   padding: 0 0 2px;
   border-radius: 0;
@@ -1579,6 +1674,22 @@ const SITE_JS: &str = r#"
       sortChildren(list, key, key, dir);
     }
   }
+  function bindBestMenu() {
+    var drop = document.querySelector(".nav-drop");
+    if (!drop) return;
+    var toggle = drop.querySelector(".nav-drop-toggle");
+    if (!toggle) return;
+    var hover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (hover) return;
+    toggle.addEventListener("click", function (ev) {
+      if (drop.classList.contains("open")) return;
+      ev.preventDefault();
+      drop.classList.add("open");
+    });
+    document.addEventListener("click", function (ev) {
+      if (!drop.contains(ev.target)) drop.classList.remove("open");
+    });
+  }
   function bindPortFilter() {
     var list = document.getElementById("game-reviews");
     var bar = document.getElementById("port-filter");
@@ -1660,6 +1771,7 @@ const SITE_JS: &str = r#"
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
     bindPortFilter();
+    bindBestMenu();
     if (form && !stateIsDefault(formState(form))) syncBrowse(currentPage());
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -1902,7 +2014,18 @@ pub(super) async fn games_index(State(state): State<AppState>) -> impl IntoRespo
         .into_response()
 }
 
-pub(super) async fn privacy() -> impl IntoResponse {
+fn publish_nav_from_state(state: &AppState) {
+    let Ok(db) = lock(state) else {
+        return;
+    };
+    let Ok(games) = db.list_games() else {
+        return;
+    };
+    publish_best_nav(&games);
+}
+
+pub(super) async fn privacy(State(state): State<AppState>) -> impl IntoResponse {
+    publish_nav_from_state(&state);
     ok_seo(
         Section::Other,
         "Privacy policy | SourceCritic",
@@ -1912,7 +2035,8 @@ pub(super) async fn privacy() -> impl IntoResponse {
     )
 }
 
-pub(super) async fn terms() -> impl IntoResponse {
+pub(super) async fn terms(State(state): State<AppState>) -> impl IntoResponse {
+    publish_nav_from_state(&state);
     ok_seo(
         Section::Other,
         "Terms of use | SourceCritic",
@@ -1966,6 +2090,7 @@ async fn discovery_response(state: AppState, file: &str) -> axum::response::Resp
             (Err(error), _) | (_, Err(error)) => return internal(error.to_string()).into_response(),
         }
     };
+    publish_best_nav(&games);
     match discovery_pages(&games, &outlets)
         .into_iter()
         .find(|(path, _)| path == file)
@@ -2043,6 +2168,7 @@ fn render_games_page(
     page: usize,
     path_override: Option<&str>,
 ) -> (StatusCode, Html<String>) {
+    publish_best_nav(&games);
     let platforms = collect_platforms(&games);
     let years = collect_years(&games);
     let catalog_total = games.len();
@@ -2137,6 +2263,7 @@ pub(super) async fn game(
         (found, games)
     };
     let (found, games) = loaded;
+    publish_best_nav(&games);
     let Some(mut game) = found else {
         return (
             StatusCode::NOT_FOUND,
@@ -2172,11 +2299,13 @@ pub(super) async fn game(
     )
 }
 
-pub(super) async fn method() -> impl IntoResponse {
+pub(super) async fn method(State(state): State<AppState>) -> impl IntoResponse {
+    publish_nav_from_state(&state);
     ok(Section::Score, "The score", &method_page())
 }
 
-pub(super) async fn about() -> impl IntoResponse {
+pub(super) async fn about(State(state): State<AppState>) -> impl IntoResponse {
+    publish_nav_from_state(&state);
     ok(Section::About, "About", &about_page())
 }
 
@@ -2189,6 +2318,9 @@ pub(super) async fn outlets(
             Ok(db) => db,
             Err(_) => return internal("lock poisoned".to_string()),
         };
+        if let Ok(games) = db.list_games() {
+            publish_best_nav(&games);
+        }
         match db.list_outlets() {
             Ok(outlets) => outlets,
             Err(error) => return internal(error.to_string()),
@@ -2213,6 +2345,7 @@ pub(super) async fn outlet(
             Ok(games) => games,
             Err(error) => return internal(error.to_string()),
         };
+        publish_best_nav(&games);
         games.retain(|game| withhold_page(game).is_none());
         let published = published_slugs(&games);
         let found = match db.get_outlet(&slug) {
@@ -2938,9 +3071,96 @@ fn aria_current(active: bool) -> &'static str {
     }
 }
 
+#[derive(Clone)]
+struct BestNavItem {
+    key: String,
+    label: String,
+    years: Vec<i32>,
+}
+
+static BEST_NAV: std::sync::Mutex<Vec<BestNavItem>> = std::sync::Mutex::new(Vec::new());
+
+fn best_nav_items(games: &[GameView]) -> Vec<BestNavItem> {
+    let catalog = best_catalog(games);
+    let mut items = Vec::new();
+    for key in best_platform_keys() {
+        if !catalog.hubs.contains(*key) {
+            continue;
+        }
+        let mut years: Vec<i32> = catalog
+            .years
+            .iter()
+            .filter(|(platform, _)| platform == key)
+            .map(|(_, year)| *year)
+            .collect();
+        years.sort_unstable_by(|a, b| b.cmp(a));
+        if years.is_empty() {
+            continue;
+        }
+        items.push(BestNavItem {
+            key: (*key).to_string(),
+            label: platform_label(key),
+            years,
+        });
+    }
+    items
+}
+
+fn publish_best_nav(games: &[GameView]) {
+    let items = best_nav_items(games);
+    match BEST_NAV.lock() {
+        Ok(mut slot) => *slot = items,
+        Err(poisoned) => *poisoned.into_inner() = items,
+    }
+}
+
+fn best_menu_markup(items: &[BestNavItem], path: &str) -> String {
+    let on_best = path == "/best" || path.starts_with("/best/");
+    if items.is_empty() {
+        return format!(
+            "<a href=\"/best/\"{best}>Best of</a>",
+            best = aria_current(on_best)
+        );
+    }
+    let mut html = format!(
+        "<div class=\"nav-drop\"><a class=\"nav-drop-toggle\" href=\"/best/\" aria-haspopup=\"true\"{best}>Best of</a><div class=\"nav-menu\">",
+        best = aria_current(on_best)
+    );
+    for item in items {
+        let platform_path = format!("/best/{}/", item.key);
+        let on_platform = path.trim_end_matches('/') == platform_path.trim_end_matches('/');
+        html.push_str("<div class=\"nav-best\">");
+        html.push_str(&format!(
+            "<a class=\"nav-platform\" href=\"{platform_path}\"{current}>{label}</a>",
+            current = aria_current(on_platform),
+            label = esc(&item.label),
+        ));
+        if !item.years.is_empty() {
+            html.push_str("<span class=\"nav-years\">");
+            for year in &item.years {
+                let year_path = format!("/best/{key}/{year}/", key = item.key);
+                let on_year = path.trim_end_matches('/') == year_path.trim_end_matches('/');
+                html.push_str(&format!(
+                    "<a href=\"{year_path}\"{current}>{year}</a>",
+                    current = aria_current(on_year),
+                ));
+            }
+            html.push_str("</span>");
+        }
+        html.push_str("</div>");
+    }
+    html.push_str("</div></div>");
+    html
+}
+
 fn site_header(section: Section, path: Option<&str>) -> String {
     let path = path.unwrap_or("");
     let on_ranking = path.starts_with("/outlets/ranking");
+    let items = match BEST_NAV.lock() {
+        Ok(slot) => slot.clone(),
+        Err(poisoned) => poisoned.into_inner().clone(),
+    };
+    let best = best_menu_markup(&items, path);
     format!(
         "<header>\
            <a class=\"brand\" href=\"/\">SourceCritic</a>\
@@ -2952,7 +3172,7 @@ fn site_header(section: Section, path: Option<&str>) -> String {
                <a href=\"/about/\"{about}>About</a>\
              </div>\
              <div class=\"nav-group\">\
-               <a href=\"/best/\"{best}>Best of</a>\
+               {best}\
                <a href=\"/most-divisive/\"{divisive}>Most divisive</a>\
                <a href=\"/disagreements/\"{disagreements}>Disagreements</a>\
                <a href=\"/outlets/ranking/\"{habits}>Outlet habits</a>\
@@ -2963,7 +3183,6 @@ fn site_header(section: Section, path: Option<&str>) -> String {
         outlets = aria_current(matches!(section, Section::Outlets) && !on_ranking),
         score = aria_current(matches!(section, Section::Score)),
         about = aria_current(matches!(section, Section::About)),
-        best = aria_current(path == "/best" || path.starts_with("/best/")),
         divisive = aria_current(path.starts_with("/most-divisive")),
         disagreements = aria_current(path.starts_with("/disagreements")),
         habits = aria_current(on_ranking),
@@ -4706,6 +4925,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
         }
         None => true,
     });
+    publish_best_nav(&games);
     let platforms = collect_platforms(&games);
     let years = collect_years(&games);
     sort_games(&mut games, "score");
@@ -5549,6 +5769,21 @@ fn released_on(game: &GameView, platform: &str, year: i32) -> bool {
             .any(|item| platform_key(item) == platform)
 }
 
+fn habit_row(outlet: &crate::db::OutletView) -> String {
+    let reviews = if outlet.n == 1 {
+        "1 review".to_string()
+    } else {
+        format!("{} reviews", outlet.n)
+    };
+    format!(
+        "<a class=\"row\" href=\"/outlet/{slug}/\"><span><strong>{name}</strong><small>{reviews} · μ′ {mu}</small></span><span class=\"score\">{mu}</span></a>",
+        slug = esc(&outlet.slug),
+        name = esc(&outlet.name),
+        reviews = reviews,
+        mu = fmt_num(outlet.mu_prime),
+    )
+}
+
 fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec<(String, String)> {
     let mut pages = Vec::new();
     let mut divisive: Vec<&GameView> = games
@@ -5641,21 +5876,11 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         "{habits}<h1 class=\"page\">Outlet habits</h1><p class=\"lead\">{rank_intro}</p><h2>Most generous</h2><div id=\"outlet-list\">"
     );
     for outlet in &generous {
-        body.push_str(&format!(
-            "<a class=\"row\" href=\"/outlet/{slug}/\"><span><strong>{name}</strong><small>μ′ {mu}</small></span><span class=\"score\">{mu}</span></a>",
-            slug = esc(&outlet.slug),
-            name = esc(&outlet.name),
-            mu = fmt_num(outlet.mu_prime),
-        ));
+        body.push_str(&habit_row(outlet));
     }
     body.push_str("</div><h2>Harshest</h2><div>");
     for outlet in &harsh {
-        body.push_str(&format!(
-            "<a class=\"row\" href=\"/outlet/{slug}/\"><span><strong>{name}</strong><small>μ′ {mu}</small></span><span class=\"score\">{mu}</span></a>",
-            slug = esc(&outlet.slug),
-            name = esc(&outlet.name),
-            mu = fmt_num(outlet.mu_prime),
-        ));
+        body.push_str(&habit_row(outlet));
     }
     body.push_str("</div>");
     pages.push((
@@ -6290,6 +6515,36 @@ mod tests {
         games.push(fifth);
         let ready = best_catalog(&games);
         assert!(ready.years.contains(&("ps5".to_string(), 2024)));
+    }
+
+    #[test]
+    fn best_menu_lists_only_years_with_a_page() {
+        let mut games = Vec::new();
+        for index in 0..5 {
+            let mut game = bare_game(
+                &format!("g{index}"),
+                &format!("G{index}"),
+                2024,
+                &["PlayStation 5"],
+                Some(80.0),
+            );
+            game.review_count = 5;
+            games.push(game);
+        }
+        let items = best_nav_items(&games);
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].key, "ps5");
+        assert_eq!(items[0].years, vec![2024]);
+        let html = best_menu_markup(&items, "/best/ps5/2024/");
+        assert!(html.contains("class=\"nav-drop\""));
+        assert!(html.contains("href=\"/best/ps5/\""));
+        assert!(html.contains("href=\"/best/ps5/2024/\" aria-current=\"page\""));
+        games.pop();
+        let thin_items = best_nav_items(&games);
+        assert!(thin_items.is_empty());
+        let thin = best_menu_markup(&thin_items, "/");
+        assert!(!thin.contains("nav-drop"));
+        assert!(thin.contains("href=\"/best/\""));
     }
 
     #[test]
