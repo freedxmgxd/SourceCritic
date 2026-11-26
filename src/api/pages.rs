@@ -1184,7 +1184,9 @@ const ADSENSE_CLIENT: Option<&str> = Some("ca-pub-5490722539415533");
 #[allow(dead_code)]
 const GA_MEASUREMENT_ID: Option<&str> = None;
 const PAGE_SIZE: usize = 50;
-const DEFAULT_MIN_REVIEWS: i64 = 10;
+const DEFAULT_MIN_REVIEWS: i64 = 0;
+/// The explicit 10+ filter still keeps a release from the last 30 days once it has 3 reviews.
+const RECENT_LISTING_MIN: i64 = 10;
 /// Side-rail display unit only. Fills the right column; main column width is unchanged.
 /// Env `SOURCECRITIC_AD_HTML` overrides. At most once per browser hour.
 #[allow(dead_code)]
@@ -1308,14 +1310,14 @@ const SITE_JS: &str = r#"
     return {
       platform: (form.platform && form.platform.value) || "all",
       year: (form.year && form.year.value) || "all",
-      min: String((form.min_reviews && form.min_reviews.value) || "10"),
+      min: String((form.min_reviews && form.min_reviews.value) || "0"),
       q: ((form.q && form.q.value) || "").trim(),
       sort: (form.getAttribute("data-sort") || "score"),
       dir: (form.getAttribute("data-dir") || defaultDir(form.getAttribute("data-sort") || "score"))
     };
   }
   function stateIsDefault(state) {
-    return state.platform === "all" && state.year === "all" && state.min === "10" && !state.q && state.sort === "score" && state.dir !== "asc";
+    return state.platform === "all" && state.year === "all" && state.min === "0" && !state.q && state.sort === "score" && state.dir !== "asc";
   }
   function filtersActive(form) {
     return !stateIsDefault(formState(form));
@@ -1331,7 +1333,7 @@ const SITE_JS: &str = r#"
     var params = new URLSearchParams();
     if (state.platform !== "all") params.set("platform", state.platform);
     if (state.year !== "all") params.set("year", state.year);
-    if (state.min !== "10") params.set("min", state.min);
+    if (state.min !== "0") params.set("min", state.min);
     if (state.sort && state.sort !== "score") params.set("sort", state.sort);
     if (state.dir && state.dir !== defaultDir(state.sort || "score")) params.set("dir", state.dir);
     if (state.q) params.set("q", state.q);
@@ -1498,7 +1500,7 @@ const SITE_JS: &str = r#"
     if (!form) return;
     if (form.platform) form.platform.value = "all";
     if (form.year) form.year.value = "all";
-    if (form.min_reviews) form.min_reviews.value = "10";
+    if (form.min_reviews) form.min_reviews.value = "0";
     if (form.q) form.q.value = "";
     form.setAttribute("data-sort", "score");
     form.setAttribute("data-dir", "desc");
@@ -2658,8 +2660,8 @@ fn passes_min_on(count: i64, released_on: Option<&str>, today: i64, min_reviews:
     if count >= min_reviews {
         return true;
     }
-    // The default "10+" listing still shows a recent release once it has 3 reviews.
-    min_reviews == DEFAULT_MIN_REVIEWS && is_recent_on(released_on, today) && count >= 3
+    // Choosing 10+ still keeps a release from the last 30 days once it has 3 reviews.
+    min_reviews == RECENT_LISTING_MIN && is_recent_on(released_on, today) && count >= 3
 }
 
 fn passes_listing_min(game: &GameView, min_reviews: i64) -> bool {
@@ -3177,7 +3179,7 @@ fn game_list(
                 data-score-label=\"{score_label}\" data-mean-label=\"{mean_label}\">\
                <span class=\"meta\">{cover}<span class=\"title-block\"><strong>{title}</strong>\
                  <small><span class=\"row-secondary\" data-score-meta>{meta_html}</span><span class=\"row-dot row-secondary\"> · </span><span class=\"row-count\">{count}</span>{secondary}</small></span></span>\
-               {score_html}{mean_html}\
+               {score_html}{mean_html}{provisional}\
              </a>",
             slug = esc(&public_slug(&game.slug, &game.title)),
             secondary = secondary,
@@ -3185,21 +3187,16 @@ fn game_list(
             title_attr = esc(&game.title),
             count = esc(&count),
             meta_html = meta_html,
-            score_html = format!(
-                "{}{provisional}",
-                score_figure(
-                    score_value,
-                    "score score-compact",
-                    if sort == "mean" { "data-score-display hidden" } else { "data-score-display" },
-                )
+            provisional = provisional,
+            score_html = score_figure(
+                score_value,
+                "score score-compact",
+                if sort == "mean" { "data-score-display hidden" } else { "data-score-display" },
             ),
-            mean_html = format!(
-                "{}{provisional}",
-                score_figure(
-                    mean_value,
-                    "score score-compact",
-                    if sort == "mean" { "data-mean-display" } else { "data-mean-display hidden" },
-                )
+            mean_html = score_figure(
+                mean_value,
+                "score score-compact",
+                if sort == "mean" { "data-mean-display" } else { "data-mean-display hidden" },
             ),
             score_n = score_value,
             mean_n = mean_value,
@@ -6100,12 +6097,35 @@ mod tests {
         assert!(!passes_min_on(2, Some("2026-11-10"), today, 10));
         assert!(!passes_min_on(9, Some("2004-04-01"), today, 10));
         assert!(passes_min_on(10, Some("2004-04-01"), today, 10));
+        assert!(passes_min_on(5, Some("2004-04-01"), today, 0));
+        assert_eq!(DEFAULT_MIN_REVIEWS, 0);
+        let filters = GameFilters {
+            platform: "all".into(),
+            year: "all".into(),
+            min_reviews: DEFAULT_MIN_REVIEWS,
+        };
+        let html = browse_controls(&filters, &[], &[], "score");
+        assert!(html.contains("value=\"0\" selected>Any</option>"), "{html}");
+        assert!(!filters_are_active(&filters));
         assert!(is_hub_url("https://easyallies.com"));
         assert!(is_hub_url("https://www.ign.com/xbox"));
         assert!(is_hub_url("https://www.ign.com/playstation"));
         assert!(!is_hub_url("https://www.ign.com/articles/bioshock-review"));
         assert!(!is_hub_url("https://ztgd.com/the-legend-of-zelda-breath-of-the-wild/review"));
         assert!(is_hub_url("https://www.cubed3.com/games/reviews"));
+    }
+
+    #[test]
+    fn listing_badge_is_printed_once() {
+        let mut game = bare_game("far-far-west", "Far Far West", 2024, &["pc"], Some(70.0));
+        game.review_count = 4;
+        let filters = GameFilters {
+            platform: "all".into(),
+            year: "all".into(),
+            min_reviews: 0,
+        };
+        let html = game_list(&[game], "score", &filters, &[], &[], 1, 1, 1, 1);
+        assert_eq!(html.matches("provisional score").count(), 1, "{html}");
     }
 
     #[test]
