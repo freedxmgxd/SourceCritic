@@ -1641,7 +1641,7 @@ const SITE_JS: &str = r#"
       form.addEventListener("input", function () { syncBrowse(1); });
     }
     document.addEventListener("click", function (ev) {
-      var link = ev.target.closest && ev.target.closest("#pager a");
+      var link = ev.target.closest && ev.target.closest("[id=pager] a");
       if (!link) return;
       var filters = document.getElementById("game-filters");
       if (!filters || stateIsDefault(formState(filters))) return;
