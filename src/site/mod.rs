@@ -1,8 +1,11 @@
 //! Static site export for GitHub Pages (sourcecritic.freedxm.com).
 
+use std::collections::BTreeMap;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+
+use serde::{Deserialize, Serialize};
 
 use crate::api::pages;
 use crate::db::Database;
@@ -80,7 +83,8 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
             fs::copy(&src, out_dir.join(name))?;
         }
     }
-    if let Ok(games) = db.list_games() {
+    if let Ok(mut games) = db.list_games() {
+        games.retain(|game| pages::withhold_page(game).is_none());
         fs::write(out_dir.join("games-index.json"), pages::games_index_json(&games))?;
     }
     let og_dir = out_dir.join("og");
@@ -112,10 +116,31 @@ pub fn export_static_site(db: &Database, out_dir: &Path) -> Result<ExportStats, 
         "google.com, pub-5490722539415533, DIRECT, f08c47fec0942fa0\n",
     )?;
 
-    let lastmod = chrono_date();
-    let sitemap = build_sitemap(&files, &lastmod);
+    let today = chrono_date();
+    let stamps = load_stamps(Path::new("data/lastmod.json"));
+    let mut next = BTreeMap::new();
+    for (path, html) in &files {
+        if pages::refresh_target(html).is_some() {
+            continue;
+        }
+        let Some(loc) = page_loc(path) else {
+            continue;
+        };
+        let hash = content_hash(html);
+        let lastmod = match stamps.get(&loc) {
+            Some(stamp) if stamp.hash == hash => stamp.lastmod.clone(),
+            _ => today.clone(),
+        };
+        next.insert(loc, Stamp { hash, lastmod });
+    }
+    if let Some(parent) = Path::new("data/lastmod.json").parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let body = serde_json::to_string_pretty(&next).map_err(|error| ExportError::Db(error.to_string()))?;
+    fs::write("data/lastmod.json", format!("{body}\n"))?;
+    let sitemap = build_sitemap(&next);
     fs::write(out_dir.join("sitemap.xml"), &sitemap)?;
-    let images = build_image_sitemap(&files, &lastmod);
+    let images = build_image_sitemap(&files, &next);
     fs::write(out_dir.join("sitemap-images.xml"), images)?;
 
     Ok(ExportStats {
@@ -173,19 +198,44 @@ fn page_loc(path: &str) -> Option<String> {
         .map(|dir| format!("{SITE_ORIGIN}/{dir}/"))
 }
 
-fn build_sitemap(files: &[(String, String)], lastmod: &str) -> String {
-    let mut urls: Vec<String> = files
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+struct Stamp {
+    hash: String,
+    lastmod: String,
+}
+
+fn load_stamps(path: &Path) -> BTreeMap<String, Stamp> {
+    let Ok(bytes) = fs::read(path) else {
+        return BTreeMap::new();
+    };
+    serde_json::from_slice(&bytes).unwrap_or_default()
+}
+
+fn content_hash(html: &str) -> String {
+    fn fnv(bytes: &[u8], offset: u64) -> u64 {
+        let mut hash = offset;
+        for byte in bytes {
+            hash ^= u64::from(*byte);
+            hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+        }
+        hash
+    }
+    let bytes = html.as_bytes();
+    format!(
+        "{:016x}{:016x}",
+        fnv(bytes, 0xcbf2_9ce4_8422_2325),
+        fnv(bytes, 0x8422_2325_cbf2_9ce4)
+    )
+}
+
+fn build_sitemap(stamps: &BTreeMap<String, Stamp>) -> String {
+    let mut urls: Vec<String> = stamps
         .iter()
-        .filter_map(|(path, html)| {
-            if html.starts_with("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><link rel=\"canonical\"")
-                && html.contains("http-equiv=\"refresh\"")
-            {
-                return None;
-            }
-            let loc = page_loc(path)?;
-            Some(format!(
-                "  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod><changefreq>weekly</changefreq></url>"
-            ))
+        .map(|(loc, stamp)| {
+            format!(
+                "  <url><loc>{loc}</loc><lastmod>{}</lastmod><changefreq>weekly</changefreq></url>",
+                stamp.lastmod
+            )
         })
         .collect();
     urls.sort();
@@ -198,9 +248,12 @@ fn build_sitemap(files: &[(String, String)], lastmod: &str) -> String {
     )
 }
 
-fn build_image_sitemap(files: &[(String, String)], lastmod: &str) -> String {
+fn build_image_sitemap(files: &[(String, String)], stamps: &BTreeMap<String, Stamp>) -> String {
     let mut urls = Vec::new();
     for (path, html) in files {
+        if pages::refresh_target(html).is_some() {
+            continue;
+        }
         let Some(loc) = page_loc(path) else { continue };
         if !path.starts_with("game/") {
             continue;
@@ -212,6 +265,10 @@ fn build_image_sitemap(files: &[(String, String)], lastmod: &str) -> String {
         if image.is_empty() || image.ends_with("/og-default.png") {
             continue;
         }
+        let lastmod = stamps
+            .get(&loc)
+            .map(|stamp| stamp.lastmod.as_str())
+            .unwrap_or("");
         urls.push(format!(
             "  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod>\
              <image:image><image:loc>{image}</image:loc></image:image></url>"
@@ -226,6 +283,36 @@ fn build_image_sitemap(files: &[(String, String)], lastmod: &str) -> String {
          </urlset>\n",
         urls.join("\n")
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn an_unchanged_hash_keeps_its_date() {
+        let mut previous = BTreeMap::new();
+        previous.insert(
+            "https://sourcecritic.freedxm.com/game/hades/".to_string(),
+            Stamp {
+                hash: content_hash("<p>same</p>"),
+                lastmod: "2020-01-02".into(),
+            },
+        );
+        let hash = content_hash("<p>same</p>");
+        let kept = match previous.get("https://sourcecritic.freedxm.com/game/hades/") {
+            Some(stamp) if stamp.hash == hash => stamp.lastmod.clone(),
+            _ => "2026-11-26".into(),
+        };
+        assert_eq!(kept, "2020-01-02");
+        let changed = content_hash("<p>edited</p>");
+        let bumped = match previous.get("https://sourcecritic.freedxm.com/game/hades/") {
+            Some(stamp) if stamp.hash == changed => stamp.lastmod.clone(),
+            _ => "2026-11-26".into(),
+        };
+        assert_eq!(bumped, "2026-11-26");
+        assert_ne!(content_hash("<p>same</p>"), content_hash("<p>edited</p>"));
+    }
 }
 
 fn copy_dir_recursive(src: &Path, dst: &Path) -> io::Result<usize> {

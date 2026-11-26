@@ -116,6 +116,8 @@ pub struct GameView {
     pub title: String,
     pub cover_path: Option<String>,
     pub release_year: Option<i32>,
+    /// ISO date (YYYY-MM-DD) of this edition's first release, when it is known.
+    pub released_on: Option<String>,
     pub platforms: Vec<String>,
     /// Release year on each platform, when it is known separately from the original year.
     pub platform_years: Vec<(String, i32)>,
@@ -185,6 +187,7 @@ impl Database {
         self.conn.execute_batch(SCHEMA)?;
         ensure_column(&self.conn, "games", "cover_path", "TEXT")?;
         ensure_column(&self.conn, "games", "release_year", "INTEGER")?;
+        ensure_column(&self.conn, "games", "released_on", "TEXT")?;
         ensure_column(&self.conn, "games", "platforms", "TEXT")?;
         ensure_column(&self.conn, "games", "synopsis", "TEXT")?;
         ensure_column(&self.conn, "games", "platform_years", "TEXT")?;
@@ -302,16 +305,19 @@ impl Database {
     }
 }
 
+/// Same population the scorer has always used. A missing link does not drop the grade.
+const SCORED_REVIEW_WHERE: &str = "r.raw_score IS NOT NULL
+           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend', 'kotaku')";
+
 /// `μ_global` mudou, então todo veículo e todo jogo são reescritos.
 fn recompute(conn: &Connection) -> Result<(), DbError> {
-    let mut stmt = conn.prepare(
+    let mut stmt = conn.prepare(&format!(
         "SELECT o.slug, g.slug, r.raw_score_norm
          FROM reviews r
          JOIN outlets o ON o.id = r.outlet_id
          JOIN games g ON g.id = r.game_id
-         WHERE r.raw_score IS NOT NULL
-           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend', 'kotaku')",
-    )?;
+         WHERE {SCORED_REVIEW_WHERE}"
+    ))?;
     let inputs = stmt
         .query_map([], |row| {
             Ok(ReviewInput {
@@ -400,7 +406,8 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
                       g.agg_score, g.simple_mean, g.review_count,
                       o.slug, o.name, r.raw_score, r.scale_max, r.raw_score_norm, r.z_score,
                       r.excerpt, r.review_url, r.platforms,
-                      o.review_count, o.mu, o.sigma, o.mu_prime, o.sigma_prime
+                      o.review_count, o.mu, o.sigma, o.mu_prime, o.sigma_prime,
+                      g.released_on
                FROM games g
                JOIN reviews r ON r.game_id = g.id
                JOIN outlets o ON o.id = r.outlet_id
@@ -433,6 +440,7 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
             sigma: row.get(21)?,
             mu_prime: row.get(22)?,
             sigma_prime: row.get(23)?,
+            released_on: row.get(24)?,
         })
     })?;
 
@@ -450,6 +458,7 @@ fn load_games(conn: &Connection, slug: Option<&str>) -> Result<Vec<GameView>, Db
                 title: decode_entities(&row.title),
                 cover_path: row.cover_path,
                 release_year: row.release_year,
+                released_on: row.released_on,
                 platforms: parse_platforms(row.platforms.as_deref()),
                 platform_years: parse_platform_years(row.platform_years.as_deref()),
                 synopsis: row.synopsis.as_deref().map(decode_entities),
@@ -508,13 +517,12 @@ fn ensure_column(
 
 fn global_moments(conn: &Connection) -> Result<(f64, f64), DbError> {
     // Same population the scorer uses. An unscored row must not move the baseline.
-    let mut stmt = conn.prepare(
+    let mut stmt = conn.prepare(&format!(
         "SELECT r.raw_score_norm
          FROM reviews r
          JOIN outlets o ON o.id = r.outlet_id
-         WHERE r.raw_score IS NOT NULL
-           AND o.slug NOT IN ('metacritic-users', 'opencritic-recommend', 'kotaku')",
-    )?;
+         WHERE {SCORED_REVIEW_WHERE}"
+    ))?;
     let values = stmt
         .query_map([], |row| row.get(0))?
         .collect::<Result<Vec<f64>, _>>()?;
@@ -608,6 +616,7 @@ struct FlatRow {
     sigma: f64,
     mu_prime: f64,
     sigma_prime: f64,
+    released_on: Option<String>,
 }
 
 fn parse_platform_years(raw: Option<&str>) -> Vec<(String, i32)> {
@@ -641,6 +650,27 @@ pub(crate) fn decode_entities(value: &str) -> String {
             break;
         }
         text = next;
+    }
+    const PAIRS: &[(&str, &str)] = &[
+        ("â€™", "\u{2019}"),
+        ("â€œ", "\u{201c}"),
+        ("â€\u{9d}", "\u{201d}"),
+        ("â€“", "\u{2013}"),
+        ("â€”", "\u{2014}"),
+        ("Ã©", "é"),
+        ("Ã¡", "á"),
+        ("Ã­", "í"),
+        ("Ã³", "ó"),
+        ("Ãº", "ú"),
+        ("Ã±", "ñ"),
+        ("Ã£", "ã"),
+        ("Ã§", "ç"),
+        ("clichï¿½", "cliché"),
+    ];
+    for (bad, good) in PAIRS {
+        if text.contains(*bad) {
+            text = text.replace(bad, good);
+        }
     }
     text
 }

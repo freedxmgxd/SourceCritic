@@ -1,5 +1,7 @@
 //! HTML pages. Each URL returns a finished document.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse};
@@ -142,6 +144,42 @@ header .site-nav a[aria-current="page"] {
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.15;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.crumbs li { display: inline; }
+
+.crumbs a {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.crumbs a:hover { color: var(--accent); background: none; }
+
+.crumbs [aria-current="page"] { color: var(--ink); }
+
+.crumbs .sep { margin: 0 0.4em; color: var(--muted); }
+
+.related { margin-top: 28px; }
+
+.related h2 {
+  margin: 0 0 10px;
+  font-family: "IBM Plex Serif", Georgia, serif;
+  font-size: 1.15rem;
 }
 
 .lead, .muted {
@@ -314,6 +352,7 @@ header .site-nav a[aria-current="page"] {
 .review strong a, .unscored strong a { color: inherit; text-decoration: none; }
 .review strong a:hover, .unscored strong a:hover { color: var(--accent); text-decoration: underline; }
 .review .source a, .unscored .source a { color: var(--accent); }
+.review .source.unavailable, .unscored .source.unavailable { color: var(--muted); }
 
 @media (max-width: 640px) {
   .game-hero { flex-direction: column; }
@@ -945,7 +984,7 @@ nav.sort button[data-sort][aria-current="true"][data-dir="desc"]::after { conten
 }
 .pager a:hover { background: var(--surface-hover); }
 
-.provisional {
+.provisional, .early {
   display: inline-block;
   margin-left: 6px;
   padding: 1px 7px;
@@ -1281,7 +1320,14 @@ const SITE_JS: &str = r#"
   function filtersActive(form) {
     return !stateIsDefault(formState(form));
   }
-  function writeQuery(state) {
+  function currentPage() {
+    var params = new URLSearchParams(location.search);
+    var queryPage = Number(params.get("page"));
+    if (queryPage >= 1) return queryPage;
+    var match = (location.pathname || "").match(/\/page\/(\d+)\/?$/);
+    return match ? Number(match[1]) : 1;
+  }
+  function browseUrl(state, page) {
     var params = new URLSearchParams();
     if (state.platform !== "all") params.set("platform", state.platform);
     if (state.year !== "all") params.set("year", state.year);
@@ -1289,9 +1335,17 @@ const SITE_JS: &str = r#"
     if (state.sort && state.sort !== "score") params.set("sort", state.sort);
     if (state.dir && state.dir !== defaultDir(state.sort || "score")) params.set("dir", state.dir);
     if (state.q) params.set("q", state.q);
+    var path = "/";
+    if (stateIsDefault(state)) {
+      if (page > 1) path = "/page/" + page + "/";
+    } else if (page > 1) {
+      params.set("page", String(page));
+    }
     var qs = params.toString();
-    var path = stateIsDefault(state) ? (location.pathname || "/") : "/";
-    history.replaceState(null, "", path + (qs ? "?" + qs : ""));
+    return path + (qs ? "?" + qs : "");
+  }
+  function writeQuery(state, page) {
+    history.replaceState(null, "", browseUrl(state, page || 1));
   }
   function readQuery(form) {
     var params = new URLSearchParams(location.search);
@@ -1315,11 +1369,23 @@ const SITE_JS: &str = r#"
     if (!list || !form) return;
     var state = formState(form);
     var q = fold(state.q);
+    function isRecent(game) {
+      if (!game.released) return false;
+      var then = Date.parse(game.released + "T00:00:00Z");
+      if (!isFinite(then)) return false;
+      var days = (Date.now() - then) / 86400000;
+      return days >= 0 && days <= 30;
+    }
+    function passesMin(game, minReviews) {
+      var n = Number(game.reviews || 0);
+      if (!(minReviews > 0) || n >= minReviews) return true;
+      return String(minReviews) === "10" && isRecent(game) && n >= 3;
+    }
     var minReviews = Number(state.min || 0);
     var matched = games.filter(function (game) {
       if (state.platform !== "all" && (game.platforms || []).indexOf(state.platform) === -1) return false;
       if (state.year !== "all" && String(game.year || "") !== state.year) return false;
-      if (minReviews > 0 && Number(game.reviews || 0) < minReviews) return false;
+      if (!passesMin(game, minReviews)) return false;
       if (q && fold(game.title).indexOf(q) === -1) return false;
       return true;
     });
@@ -1336,8 +1402,7 @@ const SITE_JS: &str = r#"
       return sign * cmp;
     });
     var pageSize = 50;
-    var params = new URLSearchParams(location.search);
-    var page = Math.max(1, Number(params.get("page") || 1));
+    var page = Math.max(1, currentPage());
     var pages = Math.max(1, Math.ceil(matched.length / pageSize));
     if (page > pages) page = pages;
     var slice = matched.slice((page - 1) * pageSize, page * pageSize);
@@ -1346,7 +1411,10 @@ const SITE_JS: &str = r#"
       var score = Number(game.score) || 0;
       var mean = Number(game.mean) || 0;
       var showMean = sort === "mean";
-      var provisional = Number(game.reviews) < 5 ? " <span class=\"provisional\">provisional score</span>" : "";
+      var nReviews = Number(game.reviews) || 0;
+      var provisional = isRecent(game) && nReviews < 10
+        ? " <span class=\"early\">Early score - based on " + nReviews + " reviews</span>"
+        : (nReviews < 5 ? " <span class=\"provisional\">provisional score</span>" : "");
       var bits = "";
       if (game.year) bits += game.year;
       if (game.platform_labels) bits += (bits ? " · " : "") + game.platform_labels;
@@ -1379,7 +1447,20 @@ const SITE_JS: &str = r#"
     }
     if (empty) empty.hidden = matched.length !== 0;
     if (reset) reset.hidden = !filtersActive(form);
-    if (pager) pager.hidden = pages < 2;
+    if (pager) {
+      if (pages < 2) {
+        pager.hidden = true;
+      } else {
+        pager.hidden = false;
+        var prev = page > 1
+          ? '<a href="' + browseUrl(state, page - 1).replace(/&/g, "&amp;") + '" data-page="' + (page - 1) + '" rel="prev">Previous</a>'
+          : "";
+        var next = page < pages
+          ? '<a href="' + browseUrl(state, page + 1).replace(/&/g, "&amp;") + '" data-page="' + (page + 1) + '" rel="next">Next</a>'
+          : "";
+        pager.innerHTML = prev + "<span>Page " + page + " of " + pages + "</span>" + next;
+      }
+    }
   }
   function ensureIndex() {
     if (window.__scGames) return Promise.resolve(window.__scGames);
@@ -1393,19 +1474,23 @@ const SITE_JS: &str = r#"
       .catch(function () { return []; });
     return window.__scGamesLoading;
   }
-  function syncBrowse() {
+  function syncBrowse(page) {
     var form = document.getElementById("game-filters");
     if (!form) return;
     var state = formState(form);
-    writeQuery(state);
-    if (stateIsDefault(state) && location.pathname.indexOf("/page/") !== 0) {
-      if (document.getElementById("game-list") && document.getElementById("game-list").getAttribute("data-client") === "1") {
+    var nextPage = typeof page === "number" && page >= 1 ? page : 1;
+    if (stateIsDefault(state)) {
+      var list = document.getElementById("game-list");
+      if (list && list.getAttribute("data-client") === "1") {
         location.href = "/";
+        return;
       }
       var reset = document.getElementById("filter-reset");
       if (reset) reset.hidden = true;
+      writeQuery(state, 1);
       return;
     }
+    writeQuery(state, nextPage);
     ensureIndex().then(renderClient);
   }
   function resetGameFilters() {
@@ -1551,10 +1636,20 @@ const SITE_JS: &str = r#"
     var form = document.getElementById("game-filters");
     if (form) {
       readQuery(form);
-      form.addEventListener("submit", function (ev) { ev.preventDefault(); syncBrowse(); });
-      form.addEventListener("change", syncBrowse);
-      form.addEventListener("input", syncBrowse);
+      form.addEventListener("submit", function (ev) { ev.preventDefault(); syncBrowse(1); });
+      form.addEventListener("change", function () { syncBrowse(1); });
+      form.addEventListener("input", function () { syncBrowse(1); });
     }
+    document.addEventListener("click", function (ev) {
+      var link = ev.target.closest && ev.target.closest("#pager a");
+      if (!link) return;
+      var filters = document.getElementById("game-filters");
+      if (!filters || stateIsDefault(formState(filters))) return;
+      ev.preventDefault();
+      var explicit = Number(link.getAttribute("data-page"));
+      var target = explicit >= 1 ? explicit : currentPage() + (link.getAttribute("rel") === "prev" ? -1 : 1);
+      syncBrowse(Math.max(1, target));
+    });
     var reset = document.getElementById("filter-reset");
     if (reset) reset.addEventListener("click", resetGameFilters);
     bindSort("game-list", "score");
@@ -1563,7 +1658,7 @@ const SITE_JS: &str = r#"
     bindSort("game-reviews", "name");
     bindSort("outlet-reviews", "name");
     bindPortFilter();
-    if (form && !stateIsDefault(formState(form))) syncBrowse();
+    if (form && !stateIsDefault(formState(form))) syncBrowse(currentPage());
     document.querySelectorAll("[data-copy]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var value = btn.getAttribute("data-copy") || "";
@@ -2018,20 +2113,28 @@ pub(super) async fn game(
     Path(slug): Path<String>,
     Query(query): Query<SortQuery>,
 ) -> impl IntoResponse {
-    let found = {
+    let loaded = {
         let db = match lock(&state) {
             Ok(db) => db,
             Err(_) => return internal("lock poisoned".to_string()),
         };
-        match db.get_game(&slug) {
+        let mut games = match db.list_games() {
+            Ok(games) => games,
+            Err(error) => return internal(error.to_string()),
+        };
+        let found = match db.get_game(&slug) {
             Ok(game) => game.or_else(|| {
-                db.list_games().ok().and_then(|games| {
-                    games.into_iter().find(|game| public_slug(&game.slug, &game.title) == slug)
-                })
+                games
+                    .iter()
+                    .find(|game| public_slug(&game.slug, &game.title) == slug)
+                    .cloned()
             }),
             Err(error) => return internal(error.to_string()),
-        }
+        };
+        sort_games(&mut games, "score");
+        (found, games)
     };
+    let (found, games) = loaded;
     let Some(mut game) = found else {
         return (
             StatusCode::NOT_FOUND,
@@ -2046,7 +2149,25 @@ pub(super) async fn game(
     };
     let sort = normalize_review_sort(query.sort.as_deref());
     sort_game_reviews(&mut game.reviews, sort, game.mu_global);
-    ok(Section::Other, &game.title, &game_page(&game, sort))
+    let catalog = best_catalog(&games);
+    let slugs = published_slugs(&games);
+    let ctx = PageCtx {
+        games: &games,
+        catalog: &catalog,
+        slugs: &slugs,
+    };
+    let public = published_slug(&game, &ctx);
+    let path = format!("/game/{public}/");
+    (
+        StatusCode::OK,
+        document(
+            Section::Other,
+            &format!("{}: critic score and reviews", game.title),
+            &game_page(&game, sort, &ctx),
+            Some(&path),
+            &game_seo(&game, &public),
+        ),
+    )
 }
 
 pub(super) async fn method() -> impl IntoResponse {
@@ -2081,16 +2202,24 @@ pub(super) async fn outlet(
     Path(slug): Path<String>,
     Query(query): Query<SortQuery>,
 ) -> impl IntoResponse {
-    let found = {
+    let loaded = {
         let db = match lock(&state) {
             Ok(db) => db,
             Err(_) => return internal("lock poisoned".to_string()),
         };
-        match db.get_outlet(&slug) {
+        let mut games = match db.list_games() {
+            Ok(games) => games,
+            Err(error) => return internal(error.to_string()),
+        };
+        games.retain(|game| withhold_page(game).is_none());
+        let published = published_slugs(&games);
+        let found = match db.get_outlet(&slug) {
             Ok(outlet) => outlet,
             Err(error) => return internal(error.to_string()),
-        }
+        };
+        (found, published)
     };
+    let (found, published) = loaded;
     let Some(mut outlet) = found else {
         return (
             StatusCode::NOT_FOUND,
@@ -2105,7 +2234,7 @@ pub(super) async fn outlet(
     };
     let sort = normalize_review_sort(query.sort.as_deref());
     sort_outlet_reviews(&mut outlet.reviews, sort, outlet.mu_global);
-    ok(Section::Outlets, &outlet.name, &outlet_page(&outlet, sort))
+    ok(Section::Outlets, &outlet.name, &outlet_page(&outlet, sort, &published))
 }
 
 fn normalize_game_sort(sort: Option<&str>) -> &'static str {
@@ -2483,8 +2612,88 @@ fn port_chip(key: &str, label: &str, score: &str, pressed: bool) -> String {
 }
 
 #[allow(dead_code)]
+fn days_from_civil(year: i64, month: u32, day: u32) -> i64 {
+    let year = if month <= 2 { year - 1 } else { year };
+    let era = year.div_euclid(400);
+    let yoe = (year - era * 400) as u64;
+    let month_prime = if month > 2 { month - 3 } else { month + 9 };
+    let doy = (153 * month_prime as u64 + 2) / 5 + day as u64 - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe as i64 - 719_468
+}
+
+fn ordinal_date(value: &str) -> Option<i64> {
+    let mut parts = value.split('-');
+    let year: i64 = parts.next()?.parse().ok()?;
+    let month: u32 = parts.next()?.parse().ok()?;
+    let day: u32 = parts.next()?.parse().ok()?;
+    if !(1..=12).contains(&month) || !(1..=31).contains(&day) {
+        return None;
+    }
+    Some(days_from_civil(year, month, day))
+}
+
+fn today_ordinal() -> i64 {
+    let secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|duration| duration.as_secs() as i64)
+        .unwrap_or(0);
+    secs.div_euclid(86_400)
+}
+
+/// Released in the last 30 days. Games with no day-level date keep the 10-review rule.
+fn is_recent_on(released_on: Option<&str>, today: i64) -> bool {
+    let Some(released) = released_on.and_then(ordinal_date) else {
+        return false;
+    };
+    let age = today - released;
+    (0..=30).contains(&age)
+}
+
+fn is_recent(game: &GameView) -> bool {
+    is_recent_on(game.released_on.as_deref(), today_ordinal())
+}
+
+fn passes_min_on(count: i64, released_on: Option<&str>, today: i64, min_reviews: i64) -> bool {
+    if count >= min_reviews {
+        return true;
+    }
+    // The default "10+" listing still shows a recent release once it has 3 reviews.
+    min_reviews == DEFAULT_MIN_REVIEWS && is_recent_on(released_on, today) && count >= 3
+}
+
+fn passes_listing_min(game: &GameView, min_reviews: i64) -> bool {
+    passes_min_on(
+        game.review_count,
+        game.released_on.as_deref(),
+        today_ordinal(),
+        min_reviews,
+    )
+}
+
+/// Recent releases stay off the site until 3 critic reviews. Older games are unchanged.
+pub(crate) fn withhold_page(game: &GameView) -> Option<String> {
+    if is_recent(game) && game.review_count < 3 {
+        return Some(format!(
+            "{} critic reviews, below the 3-review minimum",
+            game.review_count
+        ));
+    }
+    None
+}
+
+fn early_badge(count: i64, recent: bool) -> String {
+    if recent && count < 10 {
+        format!(" <span class=\"early\">Early score - based on {count} reviews</span>")
+    } else if count < 5 {
+        " <span class=\"provisional\">provisional score</span>".to_string()
+    } else {
+        String::new()
+    }
+}
+
 fn game_matches(game: &GameView, filters: &GameFilters) -> bool {
-    if game.review_count < filters.min_reviews {
+    if !passes_listing_min(game, filters.min_reviews) {
         return false;
     }
     if filters.year != "all" {
@@ -2955,11 +3164,7 @@ fn game_list(
                 colored_figure(mean_value, score_value, mean_value)
             )
         };
-        let provisional = if game.review_count < 5 {
-            " <span class=\"provisional\">provisional score</span>"
-        } else {
-            ""
-        };
+        let provisional = early_badge(game.review_count, is_recent(game));
         let secondary = if bits_tail.is_empty() {
             String::new()
         } else {
@@ -3144,15 +3349,19 @@ fn browse_controls(
 }
 
 fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
+    let crumbs = breadcrumb(&[
+        Crumb::new("Home", "/", false),
+        Crumb::new("Outlets", "/outlets/", true),
+    ]);
     if outlets.is_empty() {
-        return String::from(
-            "<h1 class=\"page\">Outlets</h1>\
+        return format!(
+            "{crumbs}<h1 class=\"page\">Outlets</h1>\
              <p class=\"lead\">Each review site&apos;s scoring habit—mean, spread, and the reviews behind them.</p>\
-             <p class=\"empty\">No outlets yet.</p>",
+             <p class=\"empty\">No outlets yet.</p>"
         );
     }
-    let mut html = String::from(
-        "<h1 class=\"page\">Outlets</h1>\
+    let mut html = format!(
+        "{crumbs}<h1 class=\"page\">Outlets</h1>\
          <p class=\"lead\">Each review site has a raw habit ($\\mu_j$, $\\sigma_j$) and a shrunk habit ($\\mu'_j$, $\\sigma'_j$) pulled toward the catalog. Open one to see every review that built those numbers.</p>\
          <form class=\"outlet-search\" id=\"outlet-search\" role=\"search\">\
            <label>Search\
@@ -3217,7 +3426,18 @@ fn outlet_list(outlets: &[OutletView], sort: &str) -> String {
     html
 }
 
-fn outlet_page(outlet: &OutletView, sort: &str) -> String {
+fn linked_game_title(slug: &str, title: &str, published: &BTreeMap<String, String>) -> String {
+    match published.get(slug) {
+        Some(public) => format!(
+            "<a href=\"/game/{slug}/\">{title}</a>",
+            slug = esc(public),
+            title = esc(title),
+        ),
+        None => esc(title).to_string(),
+    }
+}
+
+fn outlet_page(outlet: &OutletView, sort: &str, published: &BTreeMap<String, String>) -> String {
     let unscored_outlet = outlet.slug == "kotaku" || outlet.n == 0;
     let count = if unscored_outlet {
         let notes = outlet.reviews.len();
@@ -3255,20 +3475,10 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
             .filter(|text| !text.is_empty())
             .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(&text)))
             .unwrap_or_default();
-        let source = match review
-            .review_url
-            .as_deref()
-            .filter(|url| url.starts_with("https://") || url.starts_with("http://"))
-        {
-            Some(url) => format!(
-                "<p class=\"source\"><a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">Read original review</a></p>",
-                url = esc(url),
-            ),
-            None => String::new(),
-        };
+        let source = original_source(review.review_url.as_deref());
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{game_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\">\
-               <span><strong><a href=\"/game/{game_slug}/\">{game}</a></strong>\
+               <span><strong>{game}</strong>\
                  <small>{raw} → {norm} · \
                    <span data-z-meta>Z {z}</span>\
                    <span data-score-meta hidden>Score {mapped_sub}</span>\
@@ -3278,8 +3488,7 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
                <span data-z-display class=\"z\" hidden>Z {z}</span>\
                {excerpt}{source}\
              </div>",
-            game_slug = esc(&public_slug(&review.game_slug, &review.game_title)),
-            game = esc(&review.game_title),
+            game = linked_game_title(&review.game_slug, &review.game_title, published),
             game_attr = esc(&review.game_title),
             raw = esc(&raw),
             norm = score_figure(review.raw_score_norm, "score-compact score-meta-num", ""),
@@ -3298,11 +3507,20 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
         let mut notes = String::new();
         for review in &outlet.reviews {
             notes.push_str(&unscored_card(
-                &format!(
-                    "<a href=\"/game/{slug}/\">{title}</a>",
-                    slug = esc(&public_slug(&review.game_slug, &review.game_title)),
-                    title = esc(&review.game_title),
-                ),
+                &linked_game_title(&review.game_slug, &review.game_title, published),
+                review.excerpt.as_deref(),
+                review.review_url.as_deref(),
+                "",
+            ));
+        }
+        reviews.push_str(&unscored_section(&notes));
+    } else {
+        let mut notes = String::new();
+        for review in outlet.reviews.iter().filter(|review| {
+            !review.raw_score.is_some_and(|score| score.is_finite())
+        }) {
+            notes.push_str(&unscored_card(
+                &linked_game_title(&review.game_slug, &review.game_title, published),
                 review.excerpt.as_deref(),
                 review.review_url.as_deref(),
                 "",
@@ -3336,11 +3554,17 @@ fn outlet_page(outlet: &OutletView, sort: &str) -> String {
             sigma_g = fmt_num(outlet.sigma_global),
         )
     };
+    let crumbs = breadcrumb(&[
+        Crumb::new("Home", "/", false),
+        Crumb::new("Outlets", "/outlets/", false),
+        Crumb::new(&outlet.name, &format!("/outlet/{}/", outlet.slug), true),
+    ]);
     format!(
-        "<h1 class=\"page\">{name}</h1>\
+        "{crumbs}<h1 class=\"page\">{name}</h1>\
          <p class=\"muted\">{count}.{baseline}</p>\
          {stats}\
          {reviews}",
+        crumbs = crumbs,
         name = esc(&outlet.name),
         count = count,
         baseline = baseline,
@@ -3379,7 +3603,327 @@ fn cover_img(path: Option<&str>, large: bool, title: &str) -> String {
     )
 }
 
-fn game_page(game: &GameView, sort: &str) -> String {
+struct Crumb {
+    name: String,
+    path: String,
+    current: bool,
+}
+
+impl Crumb {
+    fn new(name: &str, path: &str, current: bool) -> Self {
+        Self {
+            name: name.to_string(),
+            path: path.to_string(),
+            current,
+        }
+    }
+}
+
+struct BestCatalog {
+    hubs: BTreeSet<String>,
+    years: BTreeSet<(String, i32)>,
+}
+
+struct PageCtx<'a> {
+    games: &'a [GameView],
+    catalog: &'a BestCatalog,
+    slugs: &'a BTreeMap<String, String>,
+}
+
+fn breadcrumb(crumbs: &[Crumb]) -> String {
+    let mut html = String::from("<nav aria-label=\"Breadcrumb\"><ol class=\"crumbs\">");
+    for crumb in crumbs {
+        html.push_str("<li>");
+        if !html.ends_with("<ol class=\"crumbs\"><li>") {
+            html.push_str("<span class=\"sep\" aria-hidden=\"true\">/</span>");
+        }
+        if crumb.current {
+            html.push_str(&format!(
+                "<span aria-current=\"page\">{}</span>",
+                esc(&crumb.name)
+            ));
+        } else {
+            html.push_str(&format!(
+                "<a href=\"{}\">{}</a>",
+                esc(&crumb.path),
+                esc(&crumb.name)
+            ));
+        }
+        html.push_str("</li>");
+    }
+    html.push_str("</ol></nav>");
+    let mut items = Vec::new();
+    for (index, crumb) in crumbs.iter().enumerate() {
+        items.push(serde_json::json!({
+            "@type": "ListItem",
+            "position": index + 1,
+            "name": crumb.name,
+            "item": absolute_url(&crumb.path),
+        }));
+    }
+    let value = serde_json::json!({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": items,
+    });
+    let raw = serde_json::to_string(&value).unwrap_or_else(|_| "{}".into());
+    html.push_str(&format!(
+        "<script type=\"application/ld+json\">{}</script>",
+        raw.replace('<', "\\u003c")
+    ));
+    html
+}
+
+fn absolute_url(path: &str) -> String {
+    if path == "/" {
+        return format!("{SITE_ORIGIN}/");
+    }
+    let path = if path.ends_with('/') {
+        path.to_string()
+    } else {
+        format!("{path}/")
+    };
+    format!("{SITE_ORIGIN}{path}")
+}
+
+fn best_platform_keys() -> &'static [&'static str] {
+    &[
+        "ps5", "ps4", "ps3", "ps2", "ps1", "psp", "vita", "switch", "switch-2", "3ds", "ds",
+        "wii", "wii-u", "gamecube", "n64", "pc", "xbox-series", "xbox-one", "xbox-360", "xbox",
+        "ios",
+    ]
+}
+
+/// A recent release stays out of /best/ until it has 10 reviews. Older games keep the 5-review lists.
+fn best_eligible(game: &GameView) -> bool {
+    if is_recent(game) {
+        game.review_count >= 10
+    } else {
+        game.review_count >= 5
+    }
+}
+
+fn scored_on<'a>(games: &'a [GameView], key: &str, year: i32) -> Vec<&'a GameView> {
+    let mut picked: Vec<&GameView> = games
+        .iter()
+        .filter(|game| best_eligible(game) && released_on(game, key, year))
+        .collect();
+    picked.sort_by(|a, b| {
+        b.agg_score
+            .partial_cmp(&a.agg_score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    picked
+}
+
+fn has_legacy_release(games: &[GameView], key: &str, year: i32) -> bool {
+    games.iter().any(|game| {
+        game.release_year == Some(year)
+            && game
+                .platforms
+                .iter()
+                .any(|platform| platform_key(platform) == key)
+    })
+}
+
+fn best_catalog(games: &[GameView]) -> BestCatalog {
+    let mut hubs = BTreeSet::new();
+    let mut years = BTreeSet::new();
+    let year_list = collect_years(games);
+    let platform_keys = collect_platforms(games);
+    for (key, _) in platform_keys
+        .iter()
+        .filter(|(key, _)| best_platform_keys().contains(&key.as_str()))
+    {
+        let mut linked = false;
+        let mut legacy = false;
+        for year in &year_list {
+            if scored_on(games, key, *year).len() < 5 {
+                if has_legacy_release(games, key, *year) {
+                    legacy = true;
+                }
+                continue;
+            }
+            linked = true;
+            years.insert((key.clone(), *year));
+        }
+        if linked || legacy {
+            hubs.insert(key.clone());
+        }
+    }
+    BestCatalog { hubs, years }
+}
+
+/// Same assignment `render_all_pages` uses, so a link never points at a slug redirect.
+fn published_slugs(games: &[GameView]) -> BTreeMap<String, String> {
+    let mut order: Vec<&GameView> = games.iter().collect();
+    order.sort_by(|a, b| {
+        b.agg_score
+            .partial_cmp(&a.agg_score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then_with(|| a.title.cmp(&b.title))
+    });
+    let mut used = BTreeSet::new();
+    let mut map = BTreeMap::new();
+    for game in order {
+        let mut slug = public_slug(&game.slug, &game.title);
+        if !used.insert(slug.clone()) {
+            slug = game.slug.clone();
+        }
+        map.insert(game.slug.clone(), slug);
+    }
+    map
+}
+
+fn published_slug(game: &GameView, ctx: &PageCtx<'_>) -> String {
+    ctx.slugs
+        .get(&game.slug)
+        .cloned()
+        .unwrap_or_else(|| public_slug(&game.slug, &game.title))
+}
+
+fn release_keys(game: &GameView) -> Vec<String> {
+    let mut keys = catalog_port_keys(game);
+    for (key, _) in &game.platform_years {
+        if !keys.contains(key) {
+            keys.push(key.clone());
+        }
+    }
+    keys.sort();
+    keys.dedup();
+    keys
+}
+
+/// Year `released_on` would accept for this platform.
+fn platform_release_year(game: &GameView, platform: &str) -> Option<i32> {
+    if !game.platform_years.is_empty() {
+        return game
+            .platform_years
+            .iter()
+            .find(|(key, _)| key == platform)
+            .map(|(_, year)| *year);
+    }
+    let year = game.release_year?;
+    if year >= platform_launch_year(platform)
+        && game
+            .platforms
+            .iter()
+            .any(|item| platform_key(item) == platform)
+    {
+        Some(year)
+    } else {
+        None
+    }
+}
+
+/// Oldest platform that already has a `/best/{key}/` hub.
+/// A year list beats a hub-only crumb. The platform key breaks the rest.
+fn primary_release(game: &GameView, catalog: &BestCatalog) -> Option<(String, i32, bool)> {
+    let mut candidates = Vec::new();
+    for key in release_keys(game) {
+        if !catalog.hubs.contains(&key) {
+            continue;
+        }
+        let Some(year) = platform_release_year(game, &key) else {
+            continue;
+        };
+        let year_page = catalog.years.contains(&(key.clone(), year));
+        candidates.push((year_page, year, key));
+    }
+    candidates.sort_by(|a, b| {
+        b.0.cmp(&a.0)
+            .then(a.1.cmp(&b.1))
+            .then(a.2.cmp(&b.2))
+    });
+    let (year_page, year, key) = candidates.into_iter().next()?;
+    Some((key, year, year_page))
+}
+
+fn game_crumbs(game: &GameView, ctx: &PageCtx<'_>) -> String {
+    let slug = published_slug(game, ctx);
+    let mut crumbs = vec![Crumb::new("Home", "/", false)];
+    if let Some((key, year, year_page)) = primary_release(game, ctx.catalog) {
+        let hub = format!("/best/{key}/");
+        crumbs.push(Crumb::new(&platform_label(&key), &hub, false));
+        let year_path = if year_page {
+            format!("/best/{key}/{year}/")
+        } else {
+            hub
+        };
+        crumbs.push(Crumb::new(&year.to_string(), &year_path, false));
+    }
+    crumbs.push(Crumb::new(&game.title, &format!("/game/{slug}/"), true));
+    breadcrumb(&crumbs)
+}
+
+fn more_from_html(game: &GameView, ctx: &PageCtx<'_>) -> String {
+    let mut html = String::new();
+    for key in release_keys(game) {
+        let Some(year) = platform_release_year(game, &key) else {
+            continue;
+        };
+        if !ctx.catalog.years.contains(&(key.clone(), year)) {
+            continue;
+        }
+        let label = platform_label(&key);
+        let path = format!("/best/{key}/{year}/");
+        html.push_str(&format!(
+            "<section class=\"related\"><h2>More from {year} on {label}</h2><div>\
+               <a class=\"row\" href=\"{path}\"><span><strong>Best {label} games of {year}</strong></span></a>\
+             </div></section>",
+            label = esc(&label),
+            path = esc(&path),
+        ));
+    }
+    html
+}
+
+fn similar_games<'a>(game: &GameView, games: &'a [GameView]) -> Vec<&'a GameView> {
+    let (Some(year), Some(score)) = (game.release_year, game.agg_score) else {
+        return Vec::new();
+    };
+    if !score.is_finite() {
+        return Vec::new();
+    }
+    let mut peers: Vec<&GameView> = games
+        .iter()
+        .filter(|peer| {
+            peer.slug != game.slug
+                && peer.release_year == Some(year)
+                && peer.agg_score.is_some_and(|value| value.is_finite())
+        })
+        .collect();
+    peers.sort_by(|a, b| {
+        let left = (a.agg_score.unwrap_or(0.0) - score).abs();
+        let right = (b.agg_score.unwrap_or(0.0) - score).abs();
+        left.total_cmp(&right)
+            .then_with(|| public_slug(&a.slug, &a.title).cmp(&public_slug(&b.slug, &b.title)))
+            .then_with(|| a.slug.cmp(&b.slug))
+    });
+    peers.truncate(6);
+    peers
+}
+
+fn similar_html(game: &GameView, ctx: &PageCtx<'_>) -> String {
+    let peers = similar_games(game, ctx.games);
+    if peers.is_empty() {
+        return String::new();
+    }
+    let mut html = String::from("<section class=\"related\"><h2>Similar scores</h2><div>");
+    for peer in peers {
+        let slug = published_slug(peer, ctx);
+        html.push_str(&format!(
+            "<a class=\"row\" href=\"/game/{slug}/\"><span><strong>{title}</strong></span>{score}</a>",
+            slug = esc(&slug),
+            title = esc(&peer.title),
+            score = score_figure(peer.agg_score.unwrap_or(0.0), "score score-compact", ""),
+        ));
+    }
+    html.push_str("</div></section>");
+    html
+}
+
+fn game_page(game: &GameView, sort: &str, ctx: &PageCtx<'_>) -> String {
     let scored = game.reviews.iter().filter(|review| counts_for_score(review)).count();
     let count = if scored == 1 {
         "1 review".to_string()
@@ -3459,16 +4003,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
             .filter(|text| !text.is_empty())
             .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(&text)))
             .unwrap_or_default();
-        let source = match review.review_url.as_deref().filter(|url| {
-            (url.starts_with("https://") || url.starts_with("http://"))
-                && !url.contains("savethechildren.org")
-        }) {
-            Some(url) => format!(
-                "<p class=\"source\"><a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">Read original review</a></p>",
-                url = esc(url),
-            ),
-            None => String::new(),
-        };
+        let source = original_source(review.review_url.as_deref());
         let plats = keys.join(" ");
         reviews.push_str(&format!(
             "<div class=\"review\" data-title=\"{outlet_attr}\" data-score=\"{score_n}\" data-z=\"{z_n}\" \
@@ -3515,8 +4050,11 @@ fn game_page(game: &GameView, sort: &str) -> String {
         ));
     }
     reviews.push_str(&unscored_section(&notes));
+    let crumbs = game_crumbs(game, ctx);
+    let more = more_from_html(game, ctx);
+    let similar = similar_html(game, ctx);
     format!(
-        "<div class=\"game-hero\">{cover}<div class=\"text\">\
+        "{crumbs}<div class=\"game-hero\">{cover}<div class=\"text\">\
            <h1 class=\"page\">{title}</h1>\
            <div class=\"score-hero\" aria-label=\"SourceCritic score {score}\">\
              {score_html}\
@@ -3531,7 +4069,10 @@ fn game_page(game: &GameView, sort: &str) -> String {
            <p class=\"lead\">The published score is adjusted by each outlet&apos;s history. See <a href=\"/score/\">how the score works</a>.</p>\
          </div></div>\
          {reviews}\
+         {more}\
+         {similar}\
          {ad}",
+        crumbs = crumbs,
         title = esc(&game.title),
         score_html = score_figure(
             game.agg_score.unwrap_or(0.0),
@@ -3552,7 +4093,7 @@ fn game_page(game: &GameView, sort: &str) -> String {
                 ""
             ),
             count = count,
-            provisional = if scored < 5 { " · provisional score" } else { "" },
+            provisional = early_badge(scored as i64, is_recent(game)),
         ),
         buy = buy_block(&game.title, &game.platforms),
         ad = ad_unit("ad-game rect", "280px"),
@@ -3561,6 +4102,8 @@ fn game_page(game: &GameView, sort: &str) -> String {
         meta = meta,
         cover = cover,
         reviews = reviews,
+        more = more,
+        similar = similar,
     )
 }
 
@@ -3724,6 +4267,76 @@ fn about_page() -> String {
     )
 }
 
+fn is_hub_url(url: &str) -> bool {
+    let Some(after_scheme) = url.split("://").nth(1) else {
+        return true;
+    };
+    let cut = after_scheme.find(['?', '#']).unwrap_or(after_scheme.len());
+    let path = &after_scheme[..cut];
+    let query = if cut < after_scheme.len() { &after_scheme[cut + 1..] } else { "" };
+    let mut parts: Vec<String> = path
+        .split('/')
+        .filter(|part| !part.is_empty())
+        .skip(1)
+        .map(|part| part.to_ascii_lowercase())
+        .collect();
+    const LOCALES: &[&str] = &["en", "uk", "au", "us", "br", "fr", "de", "es", "jp"];
+    while parts.first().is_some_and(|part| LOCALES.contains(&part.as_str())) {
+        parts.remove(0);
+    }
+    if parts.is_empty() {
+        return query.is_empty();
+    }
+    const SECTIONS: &[&str] = &[
+        "xbox",
+        "playstation",
+        "pc",
+        "nintendo",
+        "switch",
+        "ps5",
+        "ps4",
+        "ps3",
+        "reviews",
+        "review",
+        "gaming",
+        "games",
+        "video-games",
+        "news",
+        "404",
+        "review-guidelines",
+        "casino-sites",
+        "actualite.html",
+    ];
+    let last = parts[parts.len() - 1].as_str();
+    if last.contains("suspendedpage")
+        || last == "404"
+        || last == "review-guidelines"
+        || last == "casino-sites"
+        || last == "actualite.html"
+    {
+        return true;
+    }
+    parts.iter().all(|part| SECTIONS.contains(&part.as_str()))
+}
+
+fn verifiable_url(url: Option<&str>) -> bool {
+    url.is_some_and(|url| {
+        (url.starts_with("https://") || url.starts_with("http://"))
+            && !url.contains("savethechildren.org")
+            && !is_hub_url(url)
+    })
+}
+
+fn original_source(url: Option<&str>) -> String {
+    match url.filter(|url| verifiable_url(Some(url))) {
+        Some(url) => format!(
+            "<p class=\"source\"><a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">Read original review</a></p>",
+            url = esc(url),
+        ),
+        None => "<p class=\"source unavailable\">Original inaccessible</p>".to_string(),
+    }
+}
+
 fn unscored_card(
     title_html: &str,
     excerpt: Option<&str>,
@@ -3736,15 +4349,13 @@ fn unscored_card(
         .filter(|text| !text.is_empty())
         .map(|text| format!("<p class=\"excerpt\">{}</p>", esc(&text)))
         .unwrap_or_default();
-    let source = match url.filter(|url| url.starts_with("https://") || url.starts_with("http://")) {
-        Some(url) => format!(
-            "<p class=\"source\"><a href=\"{url}\" rel=\"noopener noreferrer\" target=\"_blank\">Read original review</a></p>",
-            url = esc(url),
-        ),
-        None => String::new(),
+    let (status, source) = if verifiable_url(url) {
+        ("No score", original_source(url))
+    } else {
+        ("Original inaccessible", String::new())
     };
     format!(
-        "<div class=\"unscored\" data-platforms=\"{platforms}\"><span><strong>{title_html}</strong><small>No score</small></span>{excerpt}{source}</div>",
+        "<div class=\"unscored\" data-platforms=\"{platforms}\"><span><strong>{title_html}</strong><small>{status}</small></span>{excerpt}{source}</div>",
         platforms = esc(platforms),
     )
 }
@@ -3755,7 +4366,7 @@ fn unscored_section(cards: &str) -> String {
     }
     format!(
         "<section class=\"reviews\" id=\"unscored-reviews\"><h2>Reviews without a score</h2>\
-         <p class=\"muted\">No numeric grade is published, so these are not part of the SourceCritic score.</p>\
+         <p class=\"muted\">These stay out of the score because no numeric grade was published.</p>\
          {cards}</section>"
     )
 }
@@ -4091,6 +4702,13 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
     let mut pages = Vec::new();
 
     let mut games = db.list_games().map_err(|e| e.to_string())?;
+    games.retain(|game| match withhold_page(game) {
+        Some(reason) => {
+            eprintln!("skipped: {} - {reason}", game.title);
+            false
+        }
+        None => true,
+    });
     let platforms = collect_platforms(&games);
     let years = collect_years(&games);
     sort_games(&mut games, "score");
@@ -4152,24 +4770,27 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
         ));
     }
 
-    let mut used_public: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let catalog = best_catalog(&games);
+    let slugs = published_slugs(&games);
+    let ctx = PageCtx {
+        games: &games,
+        catalog: &catalog,
+        slugs: &slugs,
+    };
     for game in &games {
         let mut detailed = db
             .get_game(&game.slug)
             .map_err(|e| e.to_string())?
             .ok_or_else(|| format!("missing game {}", game.slug))?;
         sort_game_reviews(&mut detailed.reviews, "name", detailed.mu_global);
-        let mut slug = public_slug(&detailed.slug, &detailed.title);
-        if !used_public.insert(slug.clone()) {
-            slug = detailed.slug.clone();
-        }
+        let slug = published_slug(&detailed, &ctx);
         let path = format!("/game/{slug}/");
         pages.push((
             format!("game/{slug}/index.html"),
             document(
                 Section::Other,
                 &format!("{}: critic score and reviews", detailed.title),
-                &game_page(&detailed, "name"),
+                &game_page(&detailed, "name", &ctx),
                 Some(&path),
                 &game_seo(&detailed, &slug),
             )
@@ -4220,7 +4841,7 @@ pub fn render_all_pages(db: &crate::db::Database) -> Result<Vec<(String, String)
             document(
                 Section::Outlets,
                 &format!("{} reviews | SourceCritic", detailed.name),
-                &outlet_page(&detailed, "name"),
+                &outlet_page(&detailed, "name", &slugs),
                 Some(&path),
                 &Seo {
                     description: format!(
@@ -4324,6 +4945,9 @@ pub fn games_index_json(games: &[GameView]) -> String {
             .and_then(|path| path.rsplit('/').next())
             .and_then(|file| file.rsplit_once('.').map(|(name, _)| name.to_string()));
         let cover = stem.map(|stem| format!("/covers/{stem}-112.webp"));
+        if withhold_page(game).is_some() {
+            continue;
+        }
         items.push(serde_json::json!({
             "slug": public_slug(&game.slug, &game.title),
             "title": game.title,
@@ -4331,10 +4955,12 @@ pub fn games_index_json(games: &[GameView]) -> String {
             "mean": game.simple_mean.unwrap_or(0.0),
             "reviews": game.review_count,
             "year": game.release_year,
+            "released": game.released_on,
             "platforms": platforms,
             "platform_labels": labels,
             "cover": cover,
             "provisional": game.review_count < 5,
+            "early": is_recent(game) && game.review_count < 10,
         }));
     }
     serde_json::to_string(&items).unwrap_or_else(|_| "[]".into())
@@ -4360,10 +4986,15 @@ fn is_public_outlet(slug: &str) -> bool {
 }
 
 /// A review counts when the outlet published a number. Kotaku does not.
+/// A missing link stays in the score; the page just omits the link.
 fn counts_for_score(review: &crate::db::ReviewView) -> bool {
     is_public_outlet(&review.outlet_slug)
         && review.outlet_slug != "kotaku"
         && review.raw_score.is_some_and(|score| score.is_finite())
+        && review
+            .review_url
+            .as_deref()
+            .is_none_or(|url| !url.contains("savethechildren.org"))
 }
 
 fn scored_norms(game: &GameView) -> Vec<f64> {
@@ -4434,6 +5065,7 @@ fn redirect_page(target: &str) -> String {
     format!(
         "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">\
          <link rel=\"canonical\" href=\"{origin}{target}\">\
+         <meta name=\"robots\" content=\"noindex\">\
          <meta http-equiv=\"refresh\" content=\"0; url={target}\">\
          <title>Redirect</title></head><body>\
          <p><a href=\"{target}\">Continue</a></p></body></html>",
@@ -4513,7 +5145,7 @@ fn game_json_ld(game: &GameView, slug: &str) -> String {
     if let Some(year) = game.release_year {
         value["datePublished"] = serde_json::Value::String(year.to_string());
     }
-    if scored.len() >= 5 {
+    if !scored.is_empty() {
         value["aggregateRating"] = serde_json::json!({
             "@type": "AggregateRating",
             "ratingValue": fmt_score(game.agg_score.unwrap_or(0.0)),
@@ -4952,6 +5584,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         &intro,
         &divisive,
         true,
+        "",
     ));
 
     let mut gaps: Vec<&GameView> = games
@@ -4983,6 +5616,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         &gap_intro,
         &gaps,
         false,
+        "",
     ));
 
     let mut generous: Vec<&crate::db::OutletView> = outlets.iter().filter(|outlet| outlet.n >= 20).collect();
@@ -5001,8 +5635,13 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         ),
         _ => "Outlet habits appear once a publication has at least 20 scored reviews.".into(),
     };
+    let habits = breadcrumb(&[
+        Crumb::new("Home", "/", false),
+        Crumb::new("Outlets", "/outlets/", false),
+        Crumb::new("Outlet habits", "/outlets/ranking/", true),
+    ]);
     let mut body = format!(
-        "<h1 class=\"page\">Outlet habits</h1><p class=\"lead\">{rank_intro}</p><h2>Most generous</h2><div id=\"outlet-list\">"
+        "{habits}<h1 class=\"page\">Outlet habits</h1><p class=\"lead\">{rank_intro}</p><h2>Most generous</h2><div id=\"outlet-list\">"
     );
     for outlet in &generous {
         body.push_str(&format!(
@@ -5039,30 +5678,26 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
         .0,
     ));
 
-    let best_platforms = [
-        "ps5", "ps4", "ps3", "ps2", "ps1", "psp", "vita", "switch", "switch-2", "3ds", "ds",
-        "wii", "wii-u", "gamecube", "n64", "pc", "xbox-series", "xbox-one", "xbox-360", "xbox", "ios",
-    ];
-    let mut best_index = String::from(
-        "<h1 class=\"page\">Best of</h1><p class=\"lead\">Highest SourceCritic scores for a platform and a year, among games with at least 5 reviews.</p><div>",
+    let best_home = breadcrumb(&[
+        Crumb::new("Home", "/", false),
+        Crumb::new("Best of", "/best/", true),
+    ]);
+    let mut best_index = format!(
+        "{best_home}<h1 class=\"page\">Best of</h1><p class=\"lead\">Highest SourceCritic scores for a platform and a year, among games with at least 5 reviews.</p><div>",
     );
     let mut best_count = 0usize;
     let platform_keys = collect_platforms(games);
     let year_list = collect_years(games);
-    for (key, label) in platform_keys.iter().filter(|(key, _)| best_platforms.contains(&key.as_str())) {
+    for (key, label) in platform_keys
+        .iter()
+        .filter(|(key, _)| best_platform_keys().contains(&key.as_str()))
+    {
         let mut platform_years_linked = Vec::new();
         let mut emitted_legacy = false;
         for year in &year_list {
-            let mut picked: Vec<&GameView> = games
-                .iter()
-                .filter(|game| game.review_count >= 5 && released_on(game, key, *year))
-                .collect();
-            let legacy = games.iter().any(|game| {
-                game.release_year == Some(*year)
-                    && game.platforms.iter().any(|platform| platform_key(platform) == *key)
-            });
+            let mut picked = scored_on(games, key, *year);
             if picked.len() < 5 {
-                if legacy {
+                if has_legacy_release(games, key, *year) {
                     emitted_legacy = true;
                     let target = format!("/best/{key}/");
                     pages.push((
@@ -5072,11 +5707,6 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
                 }
                 continue;
             }
-            picked.sort_by(|a, b| {
-                b.agg_score
-                    .partial_cmp(&a.agg_score)
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            });
             picked.truncate(25);
             let avg = picked.iter().filter_map(|game| game.agg_score).sum::<f64>() / picked.len() as f64;
             let leader = &picked[0];
@@ -5088,6 +5718,12 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
                 score = fmt_score(leader.agg_score.unwrap_or(0.0)),
             );
             let path = format!("/best/{key}/{year}/");
+            let crumbs = breadcrumb(&[
+                Crumb::new("Home", "/", false),
+                Crumb::new("Best of", "/best/", false),
+                Crumb::new(label, &format!("/best/{key}/"), false),
+                Crumb::new(&year.to_string(), &path, true),
+            ]);
             pages.push(list_page(
                 &format!("best/{key}/{year}/index.html"),
                 &path,
@@ -5096,6 +5732,7 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
                 &intro,
                 &picked,
                 false,
+                &crumbs,
             ));
             platform_years_linked.push((*year, path.clone()));
             best_index.push_str(&format!(
@@ -5104,8 +5741,13 @@ fn discovery_pages(games: &[GameView], outlets: &[crate::db::OutletView]) -> Vec
             best_count += 1;
         }
         if !platform_years_linked.is_empty() || emitted_legacy {
+            let crumbs = breadcrumb(&[
+                Crumb::new("Home", "/", false),
+                Crumb::new("Best of", "/best/", false),
+                Crumb::new(label, &format!("/best/{key}/"), true),
+            ]);
             let mut body = format!(
-                "<h1 class=\"page\">Best {label} games</h1><p class=\"lead\">Years with at least five scored games that launched on {label}.</p><div>"
+                "{crumbs}<h1 class=\"page\">Best {label} games</h1><p class=\"lead\">Years with at least five scored games that launched on {label}.</p><div>"
             );
             if platform_years_linked.is_empty() {
                 body.push_str("<p class=\"empty\">No year has five scored games yet.</p>");
@@ -5161,9 +5803,10 @@ fn list_page(
     intro: &str,
     games: &[&GameView],
     show_spread: bool,
+    crumbs: &str,
 ) -> (String, String) {
     let mut body = format!(
-        "<h1 class=\"page\">{heading}</h1><p class=\"lead\">{intro}</p><div id=\"game-list\">",
+        "{crumbs}<h1 class=\"page\">{heading}</h1><p class=\"lead\">{intro}</p><div id=\"game-list\">",
         heading = esc(heading),
     );
     for game in games {
@@ -5253,7 +5896,15 @@ fn list_page(
 }
 
 pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
+    const MOJIBAKE: &[&str] = &[
+        "Ã©", "Ã¡", "Ã­", "Ã³", "Ãº", "Ã±", "Ã£", "Ã§", "â€™", "â€œ", "â€“", "â€”", "ï¿½",
+    ];
     for (path, html) in files {
+        for marker in MOJIBAKE {
+            if html.contains(marker) {
+                return Err(format!("{path} contains mojibake {marker}"));
+            }
+        }
         if html.contains("YOUR_") {
             return Err(format!("{path} publishes a placeholder id"));
         }
@@ -5265,7 +5916,7 @@ pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
                 return Err(format!("{path} links to {bad}"));
             }
         }
-        if !path.starts_with("game/") || html.contains("http-equiv=\"refresh\"") {
+        if !path.starts_with("game/") || refresh_target(html).is_some() {
             continue;
         }
         let listed = html.matches("<div class=\"review\"").count();
@@ -5273,9 +5924,8 @@ pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
         if shown != listed {
             return Err(format!("{path} shows {shown} reviews but lists {listed}"));
         }
-        if listed >= 5 {
-            let needle = format!("\"ratingCount\":{listed}");
-            if !html.contains(&needle) {
+        if listed >= 1 {
+            if !has_rating_count(html, listed) {
                 return Err(format!("{path} ratingCount is not {listed}"));
             }
         } else if html.contains("aggregateRating") {
@@ -5291,7 +5941,143 @@ pub(crate) fn audit_pages(files: &[(String, String)]) -> Result<(), String> {
             }
         }
     }
+
+    let mut content = BTreeSet::new();
+    let mut redirects = BTreeSet::new();
+    for (path, html) in files {
+        if refresh_target(html).is_some() {
+            if !html.contains("name=\"robots\" content=\"noindex\"") {
+                return Err(format!("{path} redirect is missing noindex"));
+            }
+            if html.contains("BreadcrumbList") {
+                return Err(format!("{path} redirect publishes a breadcrumb"));
+            }
+            if let Some(url) = file_url(path) {
+                redirects.insert(url);
+            }
+            continue;
+        }
+        if let Some(url) = file_url(path) {
+            content.insert(url);
+        }
+        if needs_breadcrumb(path)
+            && (!html.contains("aria-label=\"Breadcrumb\"") || !html.contains("BreadcrumbList"))
+        {
+            return Err(format!("{path} is missing a breadcrumb"));
+        }
+    }
+    for (path, html) in files {
+        if refresh_target(html).is_some() {
+            continue;
+        }
+        for href in anchor_hrefs(&without_scripts(html)) {
+            let Some(url) = normalize_href(&href) else {
+                continue;
+            };
+            if redirects.contains(&url) {
+                return Err(format!("{path} links to redirect {url}"));
+            }
+            if !content.contains(&url) {
+                return Err(format!("{path} links to missing {url}"));
+            }
+        }
+    }
     Ok(())
+}
+
+fn needs_breadcrumb(path: &str) -> bool {
+    path.starts_with("game/")
+        || path.starts_with("outlet/")
+        || path == "outlets/index.html"
+        || path == "outlets/ranking/index.html"
+        || path.starts_with("best/")
+}
+
+fn file_url(path: &str) -> Option<String> {
+    if path == "404.html" {
+        return None;
+    }
+    if path == "index.html" {
+        return Some("/".to_string());
+    }
+    path.strip_suffix("/index.html")
+        .map(|dir| format!("/{dir}/"))
+}
+
+fn has_rating_count(html: &str, count: usize) -> bool {
+    let needle = format!("\"ratingCount\":{count}");
+    let mut rest = html;
+    while let Some(index) = rest.find(&needle) {
+        let after = index + needle.len();
+        let next = rest[after..].chars().next();
+        if !next.is_some_and(|ch| ch.is_ascii_digit()) {
+            return true;
+        }
+        rest = &rest[after..];
+    }
+    false
+}
+
+fn without_scripts(html: &str) -> String {
+    let mut out = String::new();
+    let mut rest = html;
+    while let Some(start) = rest.find("<script") {
+        out.push_str(&rest[..start]);
+        let Some(end) = rest[start..].find("</script>") else {
+            break;
+        };
+        rest = &rest[start + end + "</script>".len()..];
+    }
+    out.push_str(rest);
+    out
+}
+
+fn anchor_hrefs(html: &str) -> Vec<String> {
+    let mut hrefs = Vec::new();
+    let mut rest = html;
+    while let Some(start) = rest.find("<a ") {
+        rest = &rest[start + 3..];
+        let Some(tag_end) = rest.find('>') else {
+            break;
+        };
+        let tag = &rest[..tag_end];
+        rest = &rest[tag_end + 1..];
+        let Some(href_at) = tag.find("href=\"") else {
+            continue;
+        };
+        let value = &tag[href_at + 6..];
+        let Some(end) = value.find('"') else {
+            continue;
+        };
+        hrefs.push(value[..end].to_string());
+    }
+    hrefs
+}
+
+fn normalize_href(href: &str) -> Option<String> {
+    let href = href.split(['?', '#']).next().unwrap_or(href);
+    if href.is_empty()
+        || href.starts_with("mailto:")
+        || href.starts_with("http://")
+        || href.starts_with("https://")
+        || href.starts_with("//")
+    {
+        return None;
+    }
+    if !href.starts_with('/') {
+        return None;
+    }
+    if href == "/" {
+        return Some("/".to_string());
+    }
+    if href.rsplit('/').next().is_some_and(|tail| tail.contains('.')) {
+        return None;
+    }
+    if href.ends_with('/') {
+        Some(href.to_string())
+    } else {
+        Some(format!("{href}/"))
+    }
 }
 
 fn hero_review_count(html: &str) -> Option<usize> {
@@ -5306,6 +6092,31 @@ fn hero_review_count(html: &str) -> Option<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn recent_releases_list_from_three_reviews() {
+        let today = days_from_civil(2026, 11, 26);
+        assert!(passes_min_on(4, Some("2026-11-10"), today, 10));
+        assert!(!passes_min_on(2, Some("2026-11-10"), today, 10));
+        assert!(!passes_min_on(9, Some("2004-04-01"), today, 10));
+        assert!(passes_min_on(10, Some("2004-04-01"), today, 10));
+        assert!(is_hub_url("https://easyallies.com"));
+        assert!(is_hub_url("https://www.ign.com/xbox"));
+        assert!(is_hub_url("https://www.ign.com/playstation"));
+        assert!(!is_hub_url("https://www.ign.com/articles/bioshock-review"));
+        assert!(!is_hub_url("https://ztgd.com/the-legend-of-zelda-breath-of-the-wild/review"));
+        assert!(is_hub_url("https://www.cubed3.com/games/reviews"));
+    }
+
+    #[test]
+    fn mojibake_fails_the_build() {
+        let files = vec![(
+            "game/tiny-tinas-wonderlands/index.html".to_string(),
+            "<p>clichÃ©d</p>".to_string(),
+        )];
+        let error = audit_pages(&files).unwrap_err();
+        assert!(error.contains("mojibake"), "{error}");
+    }
 
     #[test]
     fn slugifies_titles() {
@@ -5358,7 +6169,114 @@ mod tests {
     fn refresh_target_reads_the_meta_url() {
         let html = redirect_page("/best/ps2/");
         assert_eq!(refresh_target(&html).as_deref(), Some("/best/ps2/"));
+        assert!(html.contains("name=\"robots\" content=\"noindex\""));
+        assert!(html.contains("rel=\"canonical\" href=\"https://sourcecritic.freedxm.com/best/ps2/\""));
         assert!(refresh_target("<p>no redirect</p>").is_none());
+    }
+
+    fn bare_game(slug: &str, title: &str, year: i32, platforms: &[&str], score: Option<f64>) -> GameView {
+        GameView {
+            slug: slug.into(),
+            title: title.into(),
+            cover_path: None,
+            release_year: Some(year),
+            released_on: None,
+            platforms: platforms.iter().map(|platform| (*platform).to_string()).collect(),
+            platform_years: Vec::new(),
+            synopsis: None,
+            agg_score: score,
+            simple_mean: score,
+            review_count: if score.is_some() { 5 } else { 0 },
+            mu_global: 70.0,
+            sigma_global: 10.0,
+            reviews: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn breadcrumb_urls_are_absolute_and_slashed() {
+        let html = breadcrumb(&[
+            Crumb::new("Home", "/", false),
+            Crumb::new("Best of", "/best/", false),
+            Crumb::new("PlayStation 5", "/best/ps5/", true),
+        ]);
+        assert!(html.contains("aria-label=\"Breadcrumb\""));
+        assert!(html.contains("href=\"/best/\""));
+        assert!(html.contains("https://sourcecritic.freedxm.com/"));
+        assert!(html.contains("https://sourcecritic.freedxm.com/best/"));
+        assert!(html.contains("https://sourcecritic.freedxm.com/best/ps5/"));
+        assert!(html.contains("\"@type\":\"BreadcrumbList\""));
+    }
+
+    #[test]
+    fn primary_release_is_the_oldest_hub() {
+        let mut early = bare_game("early", "Early", 2018, &["PlayStation 4", "PlayStation 5"], Some(80.0));
+        early.platform_years = vec![("ps4".into(), 2018), ("ps5".into(), 2024)];
+        let catalog = BestCatalog {
+            hubs: ["ps4".to_string(), "ps5".to_string()].into_iter().collect(),
+            years: [("ps4".into(), 2018), ("ps5".into(), 2024)].into_iter().collect(),
+        };
+        assert_eq!(
+            primary_release(&early, &catalog).as_ref().map(|(key, year, page)| (key.as_str(), *year, *page)),
+            Some(("ps4", 2018, true))
+        );
+        let multi = bare_game("hades", "Hades", 2020, &["PC", "iOS", "PlayStation 5"], Some(90.0));
+        let multi_catalog = BestCatalog {
+            hubs: ["pc", "ios", "ps5"].into_iter().map(str::to_string).collect(),
+            years: [("pc".into(), 2020), ("ps5".into(), 2020)].into_iter().collect(),
+        };
+        assert_eq!(
+            primary_release(&multi, &multi_catalog).as_ref().map(|(key, year, page)| (key.as_str(), *year, *page)),
+            Some(("pc", 2020, true))
+        );
+        let only_dreamcast = bare_game("dc", "Dream", 2000, &["Dreamcast"], Some(80.0));
+        assert!(primary_release(&only_dreamcast, &catalog).is_none());
+    }
+
+    #[test]
+    fn similar_scores_stay_in_the_year_and_stop_at_six() {
+        let mut games = vec![bare_game("self", "Self", 2020, &["PC"], Some(80.0))];
+        for index in 0..8 {
+            games.push(bare_game(
+                &format!("g{index}"),
+                &format!("G{index}"),
+                2020,
+                &["PC"],
+                Some(80.0 + index as f64),
+            ));
+        }
+        games.push(bare_game("other-year", "Other", 2019, &["PC"], Some(80.0)));
+        games.push(bare_game("unscored", "Unscored", 2020, &["PC"], None));
+        let picked = similar_games(&games[0], &games);
+        assert_eq!(picked.len(), 6);
+        assert_eq!(picked[0].slug, "g0");
+        assert!(picked.iter().all(|game| game.release_year == Some(2020)));
+        assert!(picked.iter().all(|game| game.slug != "self"));
+    }
+
+    #[test]
+    fn best_catalog_keeps_thin_years_off_the_list() {
+        let mut games = Vec::new();
+        for index in 0..4 {
+            let mut game = bare_game(&format!("g{index}"), &format!("G{index}"), 2024, &["PlayStation 5"], Some(80.0));
+            game.review_count = 5;
+            games.push(game);
+        }
+        let thin = best_catalog(&games);
+        assert!(thin.years.is_empty());
+        assert!(thin.hubs.contains("ps5"));
+        let mut fifth = bare_game("g4", "G4", 2024, &["PlayStation 5"], Some(90.0));
+        fifth.review_count = 5;
+        games.push(fifth);
+        let ready = best_catalog(&games);
+        assert!(ready.years.contains(&("ps5".to_string(), 2024)));
+    }
+
+    #[test]
+    fn rating_count_does_not_match_a_longer_number() {
+        assert!(has_rating_count("{\"ratingCount\":5}", 5));
+        assert!(!has_rating_count("{\"ratingCount\":50}", 5));
+        assert!(has_rating_count("{\"ratingCount\":1}", 1));
     }
 
     #[test]
@@ -5408,6 +6326,18 @@ mod tests {
         let catalog = vec!["switch".into(), "switch-2".into(), "wii-u".into()];
         let switch_2 = bare_review("The Switch 2 edition is the one to replay.", "", &[]);
         assert_eq!(review_port_keys(&switch_2, &catalog), vec!["switch-2".to_string()]);
+        let mut unverifiable = bare_review("A landmark adventure.", "", &[]);
+        assert!(counts_for_score(&unverifiable));
+        assert!(!verifiable_url(unverifiable.review_url.as_deref()));
+        unverifiable.review_url = None;
+        assert!(counts_for_score(&unverifiable));
+        unverifiable.review_url = Some("https://easyallies.com".into());
+        assert!(counts_for_score(&unverifiable));
+        assert!(!verifiable_url(unverifiable.review_url.as_deref()));
+        unverifiable.review_url = Some("https://www.savethechildren.org/us/ways-to-help".into());
+        assert!(!counts_for_score(&unverifiable));
+        unverifiable.review_url = Some("https://ign.com/articles/zelda".into());
+        assert!(counts_for_score(&unverifiable));
         let original = bare_review("A landmark adventure.", "https://ign.com/articles/zelda", &[]);
         assert_eq!(
             review_port_keys(&original, &catalog),

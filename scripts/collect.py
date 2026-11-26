@@ -84,6 +84,16 @@ def cache_path(url: str) -> Path:
     return CACHE / digest[:2] / digest
 
 
+def decode_response(body: bytes) -> str:
+    """Decode a response as UTF-8. A charset label is only a fallback when UTF-8 fails."""
+    if body.startswith(b"\xef\xbb\xbf"):
+        body = body[3:]
+    try:
+        return body.decode("utf-8")
+    except UnicodeDecodeError:
+        return body.decode("utf-8", errors="replace")
+
+
 def fetch(url: str) -> bytes:
     assert_allowed(url)
     path = cache_path(url)
@@ -150,10 +160,15 @@ def article_url(declared: str | None, fetched: str | None) -> str | None:
     def usable(url: str | None) -> str | None:
         if not url or not str(url).startswith("http"):
             return None
-        parsed = urllib.parse.urlparse(str(url).strip())
+        cleaned = str(url).strip().split("#", 1)[0]
+        parsed = urllib.parse.urlparse(cleaned)
         if parsed.path in ("", "/"):
             return None
-        return str(url).strip().split("#", 1)[0]
+        from adapters import is_hub_url
+
+        if is_hub_url(cleaned):
+            return None
+        return cleaned
 
     declared_ok = usable(declared)
     fetched_ok = usable(fetched)
@@ -211,24 +226,56 @@ def build_outlets() -> None:
     print(f"wrote {len(outlets)} outlets to {OUTLETS_PATH}")
 
 
+def _ld_types(node: dict) -> set[str]:
+    raw = node.get("@type")
+    if isinstance(raw, list):
+        return {str(item) for item in raw}
+    if raw:
+        return {str(raw)}
+    return set()
+
+
 def jsonld_reviews(html: str) -> list[dict]:
-    found = []
+    """Review nodes, including a Review nested under Product.review."""
+    found: list[dict] = []
+
+    def walk(node) -> None:
+        if isinstance(node, list):
+            for item in node:
+                walk(item)
+            return
+        if not isinstance(node, dict):
+            return
+        if _ld_types(node) & {"Review", "CriticReview"} or isinstance(node.get("reviewRating"), dict):
+            if isinstance(node.get("reviewRating"), dict) or _ld_types(node) & {"Review", "CriticReview"}:
+                found.append(node)
+        for key in ("@graph", "review", "reviews", "mainEntity"):
+            if key in node:
+                walk(node[key])
+
     for match in re.finditer(
         r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
         html,
         flags=re.I | re.S,
     ):
+        raw = match.group(1).strip()
         try:
-            payload = json.loads(match.group(1).strip())
+            payload = json.loads(raw)
         except json.JSONDecodeError:
             continue
-        nodes = payload if isinstance(payload, list) else [payload]
-        for node in nodes:
-            if isinstance(node, dict) and "@graph" in node:
-                nodes.extend(item for item in node["@graph"] if isinstance(item, dict))
-            if isinstance(node, dict) and node.get("@type") in {"Review", "CriticReview"}:
-                found.append(node)
-    return found
+        walk(payload)
+    # A Product often embeds the Review and also appears beside it. Keep the first of each URL.
+    deduped = []
+    seen = set()
+    for node in found:
+        url = node.get("url") if isinstance(node.get("url"), str) else ""
+        score = (node.get("reviewRating") or {}).get("ratingValue") if isinstance(node.get("reviewRating"), dict) else None
+        key = (url, str(score), str(node.get("name") or ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(node)
+    return deduped
 
 
 def rating_to_100(node: dict, scale_max: float) -> float | None:
@@ -312,7 +359,7 @@ def collect_feed(outlet: dict, index: dict[str, list[dict]], queue: list[dict], 
         if not re.search(r"review", link, re.I):
             continue
         try:
-            page = fetch(link).decode("utf-8", errors="replace")
+            page = decode_response(fetch(link))
         except Exception as error:
             print(f"  page skip {link}: {error}")
             continue

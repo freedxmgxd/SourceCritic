@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-11-21T21:19:23Z",
+  "updated_at": "2026-11-26T16:03:56Z",
   "games": {
     "grand-theft-auto-vi": {
       "slug": "grand-theft-auto-vi",
@@ -16237,6 +16237,43 @@
       ],
       "status": "merged_into",
       "merged_into": "resident-evil-2"
+    },
+    "football-manager-27": {
+      "slug": "football-manager-27",
+      "title": "Football Manager 27",
+      "aliases": [
+        "football manager 2027"
+      ],
+      "external": {},
+      "discovered_via": [
+        "igdb-window"
+      ],
+      "status": "active",
+      "release_year": 2026
+    },
+    "warhammer-survivors": {
+      "slug": "warhammer-survivors",
+      "title": "Warhammer Survivors",
+      "aliases": [],
+      "external": {},
+      "discovered_via": [
+        "igdb-window"
+      ],
+      "status": "active",
+      "release_year": 2026
+    },
+    "world-of-warcraft-forever": {
+      "slug": "world-of-warcraft-forever",
+      "title": "World of Warcraft: Forever",
+      "aliases": [
+        "wow forever"
+      ],
+      "external": {},
+      "discovered_via": [
+        "igdb-window"
+      ],
+      "status": "active",
+      "release_year": 2026
     }
   }
 }

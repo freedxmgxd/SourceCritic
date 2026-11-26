@@ -20,7 +20,7 @@ from urllib.parse import parse_qsl, unquote, urlencode, urlparse, urlunparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from adapters import UNSCORED_SLUGS, decode_text, fold_name  # noqa: E402
+from adapters import UNSCORED_SLUGS, decode_text, fold_name, is_hub_url  # noqa: E402
 
 BLOCKED_SLUGS = {"metacritic-users", "opencritic-recommend"}
 BAD_HOSTS = {
@@ -95,6 +95,12 @@ RELEASES = {
     "lies-of-p": (2023, ["ps5", "xbox-series", "pc"], {"ps5": 2023, "xbox-series": 2023, "pc": 2023}),
     "super-mario-bros-wonder": (2023, ["switch"], {"switch": 2023}),
     "xenoblade-chronicles-2": (2017, ["switch"], {"switch": 2017}),
+    # Same name as the 2021 edition. A later Switch 2 release is not a new year.
+    "final-fantasy-vii-remake-intergrade": (
+        2021,
+        ["ps5", "pc", "switch-2", "xbox-series"],
+        {"ps5": 2021, "pc": 2021, "switch-2": 2026},
+    ),
 }
 MISSING_YEARS = {
     "spyparty": 2018,
@@ -112,6 +118,12 @@ MISSING_YEARS = {
 def canonical_slug(slug: str) -> str:
     key = re.sub(r"[^a-z0-9]+", "-", (slug or "").lower()).strip("-")
     return ALIASES.get(key, key)
+
+
+def published_url(url: str) -> str:
+    """A Wayback copy still belongs to the outlet that wrote it."""
+    match = re.search(r"https?://web\.archive\.org/web/\d+(?:id_)?/(https?://.+)", url, re.I)
+    return match.group(1) if match else url
 
 
 def registrable(host: str) -> str:
@@ -166,6 +178,8 @@ def normalize_url(url: str | None) -> str | None:
     if not host:
         return None
     if any(host == bad or host.endswith("." + bad) for bad in BAD_HOSTS):
+        return None
+    if is_hub_url(link):
         return None
     scheme = "https"
     kept = [
@@ -298,7 +312,7 @@ def repair_seed(path: Path) -> None:
             # at a different site than the one this outlet publishes on.
             if not domain:
                 continue
-            host = urlparse(url).hostname or ""
+            host = urlparse(published_url(url)).hostname or ""
             if registrable(host) != domain:
                 review["url"] = None
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
@@ -312,7 +326,7 @@ def outlet_domains(data: dict) -> dict[str, str]:
             url = review.get("url")
             if not url:
                 continue
-            host = urlparse(url).hostname or ""
+            host = urlparse(published_url(url)).hostname or ""
             if not host:
                 continue
             counts[review.get("slug") or "" ][registrable(host)] += 1

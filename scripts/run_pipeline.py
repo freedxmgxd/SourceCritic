@@ -4,8 +4,9 @@ Periodic SourceCritic ops pipeline (catalog is already the source of truth):
 
   scrape (outlet sites only) → outlet fill pass → dedupe → reseed live DB
 
-Does not discover or grow catalog_games / catalog_outlets — add games there
-separately when needed.
+Recent releases are pulled from IGDB (last 45 days and the next 30) and
+matched to outlet RSS and JSON-LD before the scrape. The rest of the catalog
+is not grown here.
 """
 
 from __future__ import annotations
@@ -284,6 +285,11 @@ def main() -> None:
     started = time.strftime("%Y-%m-%dT%H:%M:%S")
     log(f"===== pipeline start {started} =====", args.log)
     try:
+        if args.scrape or args.all:
+            log("--- discover recent releases ---", args.log)
+            code = run([sys.executable, str(SCRIPTS / "discover_recent.py")], log_path=args.log)
+            if code != 0:
+                raise SystemExit(code)
         if args.scrape:
             # Outlets on by default (priority: outlet → MC → OC). Opt out explicitly.
             with_outlets = not args.skip_outlets_during_scrape

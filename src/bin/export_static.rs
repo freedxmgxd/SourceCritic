@@ -13,6 +13,21 @@ fn main() -> ExitCode {
         .unwrap_or_else(|| PathBuf::from("dist"));
     let db_path = env::var("SOURCECRITIC_DB").unwrap_or_else(|_| "sourcecritic.db".to_string());
 
+    let discovery = std::process::Command::new("python3")
+        .args(["scripts/discover_recent.py", "--db", &db_path])
+        .status();
+    match discovery {
+        Ok(status) if status.success() => {}
+        Ok(status) => {
+            eprintln!("discovery failed ({status})");
+            return ExitCode::FAILURE;
+        }
+        Err(error) => {
+            eprintln!("discovery failed: {error}");
+            return ExitCode::FAILURE;
+        }
+    }
+
     let db = match Database::open(&db_path) {
         Ok(db) => db,
         Err(error) => {

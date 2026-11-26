@@ -256,6 +256,8 @@ def sanitize_review_url(url: str | None) -> str | None:
     # Trailer / non-review media hosts occasionally leak into OC externalUrl.
     if host in {"imdb.com", "m.imdb.com"}:
         return None
+    if is_hub_url(link):
+        return None
     return link
 
 
@@ -424,6 +426,118 @@ PSEUDO_OUTLET_SLUGS = frozenset({"metacritic-users", "opencritic-recommend"})
 UNSCORED_SLUGS = frozenset({"kotaku"})
 
 
+# UTF-8 read as Windows-1252. Longer sequences first so "â€™" is not left half-fixed.
+_MOJIBAKE_MARKERS = (
+    "â€™",
+    "â€œ",
+    "â€",
+    "â€“",
+    "â€”",
+    "â€¦",
+    "Ã©",
+    "Ã¨",
+    "Ãª",
+    "Ã«",
+    "Ã¡",
+    "Ã ",
+    "Ã¢",
+    "Ã£",
+    "Ã¤",
+    "Ã­",
+    "Ã¬",
+    "Ã®",
+    "Ã¯",
+    "Ã³",
+    "Ã²",
+    "Ã´",
+    "Ãµ",
+    "Ã¶",
+    "Ãº",
+    "Ã¹",
+    "Ã»",
+    "Ã¼",
+    "Ã±",
+    "Ã§",
+    "Ã‰",
+    "Ãš",
+    "Ã“",
+    "Ã‘",
+)
+
+
+def repair_mojibake(value: str | None) -> str | None:
+    """Turn UTF-8-as-Windows-1252 text back into UTF-8. Leave real accents alone."""
+    if value is None:
+        return None
+    text = str(value)
+    text = text.replace("clichï¿½", "cliché")
+    if not any(marker in text for marker in _MOJIBAKE_MARKERS):
+        return text
+    try:
+        fixed = text.encode("cp1252").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        fixed = text
+    if fixed == text:
+        # Mixed strings cannot round-trip as a whole. Replace the known pairs.
+        for marker in _MOJIBAKE_MARKERS:
+            if marker not in fixed:
+                continue
+            try:
+                fixed = fixed.replace(marker, marker.encode("cp1252").decode("utf-8"))
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                continue
+    # U+FFFD shown as Latin-1 (ï¿½). In this corpus it is a lost é.
+    return fixed.replace("clichï¿½", "cliché")
+
+
+_HUB_SECTIONS = {
+    "xbox",
+    "playstation",
+    "pc",
+    "nintendo",
+    "switch",
+    "ps5",
+    "ps4",
+    "ps3",
+    "reviews",
+    "review",
+    "gaming",
+    "games",
+    "video-games",
+    "news",
+    "404",
+    "actualite.html",
+    "review-guidelines",
+    "casino-sites",
+    "suspendedpage.cgi",
+}
+
+
+def is_hub_url(url: str | None) -> bool:
+    """True for an outlet homepage or a section index, not an article.
+
+    A path counts as a hub only when every segment is a section name
+    (`/xbox`, `/games/reviews`). A review that ends in `/review` after a
+    game slug is an article and is kept.
+    """
+    if not url:
+        return False
+    parsed = urllib.parse.urlparse(str(url).strip())
+    if parsed.scheme not in {"http", "https"}:
+        return False
+    path = (parsed.path or "").strip("/")
+    parts = [part for part in path.split("/") if part]
+    locales = {"en", "uk", "au", "us", "br", "fr", "de", "es", "jp"}
+    while parts and parts[0].lower() in locales:
+        parts = parts[1:]
+    if not parts:
+        return not parsed.query
+    last = parts[-1].lower()
+    if "suspendedpage" in last or last in {"404", "review-guidelines", "casino-sites", "actualite.html"}:
+        return True
+    return all(part.lower() in _HUB_SECTIONS for part in parts)
+
+
 def decode_text(value: str | None) -> str | None:
     """Undo OpenCritic's custom entities (&a; &q; &s;) and a broken &amp;a;."""
     if value is None:
@@ -441,7 +555,7 @@ def decode_text(value: str | None) -> str | None:
         if nxt == text:
             break
         text = nxt
-    return text
+    return repair_mojibake(text)
 
 
 def fold_name(value: str | None) -> str:
